@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("File Manager", self)
-        self.right_dock.setWidget(RightDock(cam=cam, csi=csi, modes=modes))
+        self.right_dock.setWidget(RightDock(cam=cam, csi=csi, modes=modes, preview=self.preview))
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
 

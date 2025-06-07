@@ -13,51 +13,60 @@ logging.basicConfig(
 
 class Transport(QWidget):
     """
-    Transport widget that receives camera and csi information and provides player controls.
+    Transport widget that receives camera and csi information and provides capture controls.
     """
-    def __init__(self, cam=None, csi=0, modes=None, parent=None):
+    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
         super().__init__(parent)
         self.cam = cam
         self.csi = csi
         self.modes = modes
-
+        self.file_manager = file_manager
+        self.preview = preview
         main_layout = QVBoxLayout()
         self._add_sensor_mode_dropdown(main_layout, modes)
 
-        controls_layout = QHBoxLayout()
-        self._add_player_controls(controls_layout)
-        main_layout.addLayout(controls_layout)
+        # Capture button row (its own row)
+        capture_layout = QHBoxLayout()
+        self.capture_btn = QPushButton("Capture Image")
+        self.capture_btn.setToolTip("Capture Image")
+        self.capture_btn.clicked.connect(self.capture_image)
+        capture_layout.addWidget(self.capture_btn)
+        main_layout.addLayout(capture_layout)
+
+        # Sequence capture button row (its own row)
+        sequence_layout = QHBoxLayout()
+        sequence_btn = QPushButton("Capture Image Sequence")
+        sequence_btn.setToolTip("Start or stop capturing an image sequence")
+        sequence_btn.clicked.connect(self.toggle_sequence_capture)
+        sequence_layout.addWidget(sequence_btn)
+        main_layout.addLayout(sequence_layout)
 
         self.setLayout(main_layout)
         logging.info("Transport widget initialized with camera and csi.")
 
-    def _add_player_controls(self, layout):
-        # Start button
-        start_btn = QPushButton()
-        start_btn.setIcon(QIcon.fromTheme("media-playback-start"))
-        start_btn.setToolTip("Start")
+    def _capture_done(self, job):
+        result = self.cam.wait(job)
+        self.capture_btn.setDisabled(False)
 
-        # Stop button
-        stop_btn = QPushButton()
-        stop_btn.setIcon(QIcon.fromTheme("media-playback-stop"))
-        stop_btn.setToolTip("Stop")
+    def capture_image(self):
+        logging.info("Capture button pressed.")
+        # Disable the button to prevent multiple clicks
+        self.capture_btn.setDisabled(True)
+        if self.preview and hasattr(self.preview, "done_signal"):
+            self.preview.done_signal.connect(self._capture_done)
+        # Get a file name from the file manager widget if available
+        if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
+            file_name = self.file_manager.get_new_file_path()
+            logging.info(f"Generated file path from FileManagerWidget: {file_name}")
+            signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
+            self.cam.capture_file(file_name, signal_function=signal_function)  # Pass signal_function as argument
+        else:
+            logging.info("FileManagerWidget not available or does not have get_new_file_path().")
+        # Implement image capture logic here
 
-        # Pause button
-        pause_btn = QPushButton()
-        pause_btn.setIcon(QIcon.fromTheme("media-playback-pause"))
-        pause_btn.setToolTip("Pause")
-
-        # Resume button
-        resume_btn = QPushButton()
-        resume_btn.setIcon(QIcon.fromTheme("media-playback-play"))  # Often same as start
-        resume_btn.setToolTip("Resume")
-
-        # Add buttons to layout
-        layout.addWidget(start_btn)
-        layout.addWidget(stop_btn)
-        layout.addWidget(pause_btn)
-        layout.addWidget(resume_btn)
-        logging.info("Player controls added to Transport widget.")
+    def toggle_sequence_capture(self):
+        logging.info("Sequence capture button pressed.")
+        # Implement start/stop image sequence capture logic here
 
     def _add_sensor_mode_dropdown(self, layout, modes):
         combo = QComboBox()
@@ -78,10 +87,11 @@ class RightDock(QWidget):
     Row 1: FileManagerWidget
     Row 2: Transport widget
     """
-    def __init__(self, cam=None, csi=0, modes=None, parent=None):
+    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout()
-        layout.addWidget(FileManagerWidget())
-        layout.addWidget(Transport(cam=cam, csi=csi, modes=modes))
+        file_manager_widget = FileManagerWidget()
+        layout.addWidget(file_manager_widget)
+        layout.addWidget(Transport(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
         self.setLayout(layout)
         logging.info("RightDock widget initialized.")
