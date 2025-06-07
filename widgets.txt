@@ -1,0 +1,20 @@
+row 1
+label 'Dataset Path'
+text box to contain a Dataset Path
+button with label "..." to select a file dialog box 
+row 2
+label 'Class Labels'
+text box to contain a class label file
+button with label "..." to select a file dialog box for files of type *.txt
+row 3
+label "current set"
+dropdown box
+row 4
+label "current class"
+dropdown box
+row 5
+label "jpeg quality"
+horizontal slider set to 95
+row 6
+label "status"
+label "empty label"
