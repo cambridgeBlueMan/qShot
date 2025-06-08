@@ -27,6 +27,7 @@ class Transport(QWidget):
         self.sequence_flash_on = False  # Track flash state
         self.sequence_timer = QTimer(self)
         self.sequence_timer.timeout.connect(self._flash_sequence_btn)
+        self.signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
 
         main_layout = QVBoxLayout()
         main_layout.setSpacing(4)  # Reduce vertical spacing between rows
@@ -94,8 +95,8 @@ class Transport(QWidget):
         if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
             file_name = self.file_manager.get_new_file_path()
             logging.info(f"Generated file path from FileManagerWidget: {file_name}")
-            signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
-            self.cam.capture_file(file_name, signal_function=signal_function)  # Pass signal_function as argument
+            #signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
+            self.cam.capture_file(file_name, signal_function=self.signal_function)  # Pass signal_function as argument
         else:
             logging.info("FileManagerWidget not available or does not have get_new_file_path().")
         # Implement image capture logic here
