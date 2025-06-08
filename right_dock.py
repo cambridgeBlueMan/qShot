@@ -1,6 +1,7 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QTimer, Qt
 from ai_file_manager import FileManagerWidget
 
 # Configure logging to overwrite the log file on each run
@@ -22,8 +23,32 @@ class Transport(QWidget):
         self.modes = modes
         self.file_manager = file_manager
         self.preview = preview
+        self.sequence_running = False  # Track sequence state
+        self.sequence_flash_on = False  # Track flash state
+        self.sequence_timer = QTimer(self)
+        self.sequence_timer.timeout.connect(self._flash_sequence_btn)
+
         main_layout = QVBoxLayout()
-        self._add_sensor_mode_dropdown(main_layout, modes)
+
+        # Camera Mode row
+        camera_mode_layout = QHBoxLayout()
+        camera_mode_label = QLabel("Camera Mode")
+        camera_mode_layout.addWidget(camera_mode_label)
+        self._add_sensor_mode_dropdown(camera_mode_layout, modes)
+        main_layout.addLayout(camera_mode_layout)
+
+        # Sequence interval row
+        interval_layout = QHBoxLayout()
+        interval_label = QLabel("Sequence Interval")
+        self.sequence_interval_spin = QDoubleSpinBox()
+        self.sequence_interval_spin.setDecimals(1)
+        self.sequence_interval_spin.setSingleStep(0.1)
+        self.sequence_interval_spin.setMinimum(0.1)
+        self.sequence_interval_spin.setMaximum(10.0)
+        self.sequence_interval_spin.setValue(0.5)
+        interval_layout.addWidget(interval_label)
+        interval_layout.addWidget(self.sequence_interval_spin)
+        main_layout.addLayout(interval_layout)
 
         # Capture button row (its own row)
         capture_layout = QHBoxLayout()
@@ -35,13 +60,15 @@ class Transport(QWidget):
 
         # Sequence capture button row (its own row)
         sequence_layout = QHBoxLayout()
-        sequence_btn = QPushButton("Capture Image Sequence")
-        sequence_btn.setToolTip("Start or stop capturing an image sequence")
-        sequence_btn.clicked.connect(self.toggle_sequence_capture)
-        sequence_layout.addWidget(sequence_btn)
+        self.sequence_btn = QPushButton("Capture Image Sequence")
+        self.sequence_btn.setToolTip("Start or stop capturing an image sequence")
+        self.sequence_btn.clicked.connect(self.toggle_sequence_capture)
+        sequence_layout.addWidget(self.sequence_btn)
         main_layout.addLayout(sequence_layout)
 
         self.setLayout(main_layout)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
         logging.info("Transport widget initialized with camera and csi.")
 
     def _capture_done(self, job):
@@ -66,7 +93,20 @@ class Transport(QWidget):
 
     def toggle_sequence_capture(self):
         logging.info("Sequence capture button pressed.")
-        # Implement start/stop image sequence capture logic here
+        self.sequence_running = not self.sequence_running
+        if self.sequence_running:
+            self.sequence_timer.start(500)  # Flash every 500 ms
+        else:
+            self.sequence_timer.stop()
+            self.sequence_btn.setStyleSheet("")  # Reset to default
+
+    def _flash_sequence_btn(self):
+        # Alternate the button's background color
+        if self.sequence_flash_on:
+            self.sequence_btn.setStyleSheet("")
+        else:
+            self.sequence_btn.setStyleSheet("background-color: red; color: white;")
+        self.sequence_flash_on = not self.sequence_flash_on
 
     def _add_sensor_mode_dropdown(self, layout, modes):
         combo = QComboBox()
