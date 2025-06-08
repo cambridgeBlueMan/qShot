@@ -15,8 +15,20 @@ logging.basicConfig(
 class Transport(QWidget):
     """
     Transport widget that receives camera and csi information and provides capture controls.
+    Handles single and interval image capture, as well as UI feedback for sequence capture.
     """
     def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
+        """
+        Initialize the Transport widget.
+
+        Args:
+            cam: Camera object.
+            csi: Camera serial interface index.
+            modes: List of camera modes.
+            file_manager: FileManagerWidget instance.
+            preview: Preview widget with signal_done.
+            parent: Parent QWidget.
+        """
         super().__init__(parent)
         self.cam = cam
         self.csi = csi
@@ -82,10 +94,18 @@ class Transport(QWidget):
         logging.info("Transport widget initialized with camera and csi.")
 
     def _capture_done(self, job):
+        """
+        Slot called when image capture is done.
+        """
+        logging.info("Image capture completed.")
         result = self.cam.wait(job)
         self.capture_btn.setDisabled(False)
 
     def capture_image(self):
+        """
+        Capture a single image using the camera and file manager.
+        Disables the capture button until capture is complete.
+        """
         logging.info("Capture button pressed.")
         # Disable the button to prevent multiple clicks
         self.capture_btn.setDisabled(True)
@@ -95,23 +115,31 @@ class Transport(QWidget):
         if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
             file_name = self.file_manager.get_new_file_path()
             logging.info(f"Generated file path from FileManagerWidget: {file_name}")
-            #signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
-            self.cam.capture_file(file_name, signal_function=self.signal_function)  # Pass signal_function as argument
+            self.cam.capture_file(file_name, signal_function=self.signal_function)
         else:
             logging.info("FileManagerWidget not available or does not have get_new_file_path().")
-        # Implement image capture logic here
 
     def toggle_sequence_capture(self):
+        """
+        Toggle the sequence capture mode.
+        Starts or stops interval image capture and button flashing.
+        """
         logging.info("Sequence capture button pressed.")
         self.sequence_running = not self.sequence_running
         if self.sequence_running:
             self.sequence_timer.start(500)  # Flash every 500 ms
+            self.start_interval_capture()   # Start interval image capture
+            logging.info("Started sequence capture.")
         else:
             self.sequence_timer.stop()
             self.sequence_btn.setStyleSheet("")  # Reset to default
+            self.stop_interval_capture()    # Stop interval image capture
+            logging.info("Stopped sequence capture.")
 
     def _flash_sequence_btn(self):
-        # Alternate the button's background color
+        """
+        Alternate the sequence button's background color to indicate active sequence capture.
+        """
         if self.sequence_flash_on:
             self.sequence_btn.setStyleSheet("")
         else:
@@ -119,6 +147,14 @@ class Transport(QWidget):
         self.sequence_flash_on = not self.sequence_flash_on
 
     def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
+        """
+        Add a sensor mode dropdown to the given layout.
+
+        Args:
+            layout: The layout to add the dropdown to.
+            modes: List of camera modes.
+            combo: Optional QComboBox to use.
+        """
         if combo is None:
             combo = QComboBox()
         if modes:
@@ -132,6 +168,31 @@ class Transport(QWidget):
         combo.setToolTip("Select sensor mode")
         layout.addWidget(combo)
 
+    def start_interval_capture(self):
+        """
+        Start capturing images at intervals specified by sequence_interval_spin.
+        """
+        interval = self.sequence_interval_spin.value()
+        if interval <= 0:
+            logging.warning("Interval must be greater than 0.")
+            return
+        # Stop any existing timer to avoid multiple timers running
+        if hasattr(self, 'interval_capture_timer') and self.interval_capture_timer.isActive():
+            self.interval_capture_timer.stop()
+        # Create and start the timer
+        self.interval_capture_timer = QTimer(self)
+        self.interval_capture_timer.timeout.connect(self.capture_image)
+        self.interval_capture_timer.start(int(interval * 1000))  # QTimer expects milliseconds
+        logging.info(f"Started interval capture every {interval} seconds.")
+
+    def stop_interval_capture(self):
+        """
+        Stop the interval image capture timer.
+        """
+        if hasattr(self, 'interval_capture_timer') and self.interval_capture_timer.isActive():
+            self.interval_capture_timer.stop()
+            logging.info("Stopped interval capture.")
+
 class RightDock(QWidget):
     """
     Widget for the right dock: 1 column, 2 rows.
@@ -139,6 +200,16 @@ class RightDock(QWidget):
     Row 2: Transport widget
     """
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None):
+        """
+        Initialize the RightDock widget.
+
+        Args:
+            cam: Camera object.
+            csi: Camera serial interface index.
+            modes: List of camera modes.
+            preview: Preview widget.
+            parent: Parent QWidget.
+        """
         super().__init__(parent)
         layout = QVBoxLayout()
         file_manager_widget = FileManagerWidget()
