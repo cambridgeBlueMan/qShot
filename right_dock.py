@@ -31,13 +31,17 @@ class Transport(QWidget):
         main_layout = QVBoxLayout()
         main_layout.setSpacing(4)  # Reduce vertical spacing between rows
 
+        # Group the two horizontal layouts in a vertical layout
+        selector_layout = QVBoxLayout()
+        # selector_layout.setSpacing(2)  # Even less space between these rows
+
         # Camera Mode row
         camera_mode_layout = QHBoxLayout()
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
         combo = QComboBox()
         self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
-        main_layout.addLayout(camera_mode_layout)
+        selector_layout.addLayout(camera_mode_layout)
 
         # Sequence interval row
         interval_layout = QHBoxLayout()
@@ -50,7 +54,10 @@ class Transport(QWidget):
         self.sequence_interval_spin.setValue(0.5)
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.sequence_interval_spin)
-        main_layout.addLayout(interval_layout)
+        selector_layout.addLayout(interval_layout)
+
+        # Add the selector_layout to the main_layout
+        main_layout.addLayout(selector_layout)
 
         # Capture button row (its own row)
         capture_layout = QHBoxLayout()
