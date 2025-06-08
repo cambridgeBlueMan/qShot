@@ -29,12 +29,14 @@ class Transport(QWidget):
         self.sequence_timer.timeout.connect(self._flash_sequence_btn)
 
         main_layout = QVBoxLayout()
+        main_layout.setSpacing(4)  # Reduce vertical spacing between rows
 
         # Camera Mode row
         camera_mode_layout = QHBoxLayout()
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
-        self._add_sensor_mode_dropdown(camera_mode_layout, modes)
+        combo = QComboBox()
+        self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
         main_layout.addLayout(camera_mode_layout)
 
         # Sequence interval row
@@ -108,8 +110,9 @@ class Transport(QWidget):
             self.sequence_btn.setStyleSheet("background-color: red; color: white;")
         self.sequence_flash_on = not self.sequence_flash_on
 
-    def _add_sensor_mode_dropdown(self, layout, modes):
-        combo = QComboBox()
+    def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
+        if combo is None:
+            combo = QComboBox()
         if modes:
             for idx, mode in enumerate(modes):
                 desc = f"{idx}: {mode.get('size', '')} {mode.get('format', '')}"
