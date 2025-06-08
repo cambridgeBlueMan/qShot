@@ -1,5 +1,5 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox, QFrame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, Qt
 from ai_file_manager import FileManagerWidget
@@ -132,6 +132,16 @@ class RightDock(QWidget):
         layout = QVBoxLayout()
         file_manager_widget = FileManagerWidget()
         layout.addWidget(file_manager_widget)
+
+        # Add a visible separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        palette = self.palette()
+        bg_color = palette.color(palette.Dark).name()
+        separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
+        layout.addWidget(separator)
+
         layout.addWidget(Transport(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
         self.setLayout(layout)
         logging.info("RightDock widget initialized.")
