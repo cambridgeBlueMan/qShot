@@ -1,5 +1,5 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox, QFrame
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox, QFrame, QSpinBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, Qt
 from ai_file_manager import FileManagerWidget
@@ -87,6 +87,26 @@ class Transport(QWidget):
         self.sequence_btn.clicked.connect(self.toggle_sequence_capture)
         sequence_layout.addWidget(self.sequence_btn)
         main_layout.addLayout(sequence_layout)
+
+        # X/Y position row
+        pos_layout = QHBoxLayout()
+        xpos_label = QLabel("X pos")
+        self.xpos_spin = QSpinBox()
+        self.xpos_spin.setRange(0, 816)
+        self.xpos_spin.setValue(0)
+        ypos_label = QLabel("Y pos")
+        self.ypos_spin = QSpinBox()
+        self.ypos_spin.setRange(0, 608)
+        self.ypos_spin.setValue(0)
+        set_btn = QPushButton("Set")
+        set_btn.setToolTip("Set ScalerCrop to current X/Y values")
+        set_btn.clicked.connect(self._update_scaler_crop)
+        pos_layout.addWidget(xpos_label)
+        pos_layout.addWidget(self.xpos_spin)
+        pos_layout.addWidget(ypos_label)
+        pos_layout.addWidget(self.ypos_spin)
+        pos_layout.addWidget(set_btn)
+        main_layout.addLayout(pos_layout)
 
         self.setLayout(main_layout)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -192,6 +212,21 @@ class Transport(QWidget):
         if hasattr(self, 'interval_capture_timer') and self.interval_capture_timer.isActive():
             self.interval_capture_timer.stop()
             logging.info("Stopped interval capture.")
+
+    def _update_scaler_crop(self):
+        """
+        Update the camera's ScalerCrop control with the current X and Y positions.
+        Width and height are set to 640 and 480.
+        """
+        x = self.xpos_spin.value()
+        y = self.ypos_spin.value()
+        width = 640
+        height = 480
+        try:
+            self.cam.set_controls({"ScalerCrop": (x, y, width, height)})
+            logging.info(f"ScalerCrop set to: x={x}, y={y}, width={width}, height={height}")
+        except Exception as e:
+            logging.error(f"Failed to set ScalerCrop: {e}")
 
 class RightDock(QWidget):
     """
