@@ -16,6 +16,12 @@ logging.basicConfig(
 )
 
 def set_dark_palette(app):
+    """
+    Set a dark color palette for the given QApplication instance.
+
+    Args:
+        app: The QApplication instance to apply the palette to.
+    """
     dark_palette = QPalette()
     dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
     dark_palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
@@ -34,6 +40,11 @@ def set_dark_palette(app):
     app.setStyle("Fusion")
 
 if __name__ == "__main__":
+    """
+    Entry point for the application.
+    Initializes QApplication, configures the dark palette, loads the camera,
+    creates and shows the main window, and starts the Qt event loop.
+    """
     app = QApplication.instance()
     if not app:
         logging.info("Creating new QApplication instance.")

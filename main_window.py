@@ -21,14 +21,21 @@ logging.basicConfig(
 
 class MainWindow(QMainWindow):
     """
-    Main application window that holds the MainWidget.
+    Main application window that holds the central widget, toolbars, docks, and menus.
+    Provides the main interface for the application, including camera preview, file management,
+    and user controls.
     """
     def __init__(self, csi=0, cam=None, modes=None):
         """
-        Initialize the MainWindow and set its central widget.
+        Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
+
+        Args:
+            csi: Camera serial interface index.
+            cam: Camera object (Picamera2 instance). If None, a new camera is instantiated.
+            modes: List of camera modes. If None, loaded from the camera.
         """
         super().__init__()
-        self.setWindowTitle("My App")
+        self.setWindowTitle("Camera Capture App")
         logging.info("MainWindow initialized.")
 
         # Instantiate camera if not provided
@@ -114,6 +121,10 @@ class MainWindow(QMainWindow):
         logging.info("View menu with dock toggle actions added.")
 
     def report_menu_status(self):
+        """
+        Report the current status of the checkable menu actions (tom, dick, harry)
+        by updating the status bar and logging the status.
+        """
         status = (
             f"tom: {'active' if self.action_tom.isChecked() else 'inactive'}, "
             f"dick: {'active' if self.action_dick.isChecked() else 'inactive'}, "
@@ -125,6 +136,7 @@ class MainWindow(QMainWindow):
     def save_file_dialog(self):
         """
         Open a dialog box suitable for saving a text file.
+        If a file is selected, writes a default line to it and shows a confirmation or error.
         """
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(
@@ -146,7 +158,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     """
-    Entry point for the application.
+    Entry point for the application. Initializes QApplication, shows the main window,
+    and enters the Qt event loop.
     """
     app = QApplication(sys.argv)
     window = MainWindow()

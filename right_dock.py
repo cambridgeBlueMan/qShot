@@ -17,6 +17,7 @@ class Transport(QWidget):
     Transport widget that receives camera and csi information and provides capture controls.
     Handles single and interval image capture, as well as UI feedback for sequence capture.
     """
+
     def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
         """
         Initialize the Transport widget.
@@ -116,9 +117,14 @@ class Transport(QWidget):
     def _capture_done(self, job):
         """
         Slot called when image capture is done.
+        Re-enables the capture button and logs completion.
+
+        Args:
+            job: The job object returned by the camera capture.
         """
         logging.info("Image capture completed.")
         result = self.cam.wait(job)
+        self.file_manager.update_status_label()
         self.capture_btn.setDisabled(False)
 
     def capture_image(self):
@@ -234,6 +240,7 @@ class RightDock(QWidget):
     Row 1: FileManagerWidget
     Row 2: Transport widget
     """
+
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None):
         """
         Initialize the RightDock widget.

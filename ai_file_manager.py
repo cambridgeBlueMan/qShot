@@ -231,7 +231,7 @@ class FileManagerWidget(QWidget):
 
         # Count the number of .jpg files in the folder
         if os.path.isdir(folder_path):
-            jpg_files = [f for f in os.listdir(folder_path) if f.endswith(".jpg")]
+            jpg_files = [f for f in os.listdir(folder_path) if f.lower().endswith(".jpg")]
             jpg_count = len(jpg_files)
             self.status_label.setText(f"{jpg_count} .jpg files in {selected_set}/{selected_class}")
             logging.info(f"{jpg_count} .jpg files in {selected_set}/{selected_class}")
@@ -250,7 +250,7 @@ class FileManagerWidget(QWidget):
         from datetime import datetime
 
         # Update the status label
-        self.update_status_label()
+        # self.update_status_label()
 
         dataset_path = self.dataset_path_input.text()
         selected_set = self.current_set_dropdown.currentText()  # Get selected set from dropdown
