@@ -1,5 +1,6 @@
 import sys
 import logging
+import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QAction, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout
 )
@@ -16,7 +17,7 @@ logging.basicConfig(
     level=logging.INFO, 
     format='%(asctime)s - %(levelname)s - %(message)s',
     filename='app.log',
-    filemode='w'
+    filemode='w' 
 )
 
 class MainWindow(QMainWindow):
@@ -98,6 +99,23 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         controls_menu = menubar.addMenu("Controls")
         logging.info("Controls menu added to menu bar.")
+
+        # Add a "Components" menu
+        components_menu = menubar.addMenu("Components")
+        logging.info("Components menu added to menu bar.")
+
+        # Dynamically add items for each <name>_widget.py in components/
+        components_dir = os.path.join(os.path.dirname(__file__), "components")
+        if os.path.isdir(components_dir):
+            for fname in os.listdir(components_dir):
+                if fname.endswith("_widget.py") and not fname.startswith("__"):
+                    name = fname[:-10]  # Remove '_widget.py'
+                    action = QAction(name, self)
+                    components_menu.addAction(action)
+                    logging.info(f"Added '{name}' to Components menu.")
+            logging.info(f"Files in components: {os.listdir(components_dir)}")
+        else:
+            logging.warning(f"Components directory not found: {components_dir}")
 
         self.action_tom = QAction("tom", self, checkable=True)
         self.action_dick = QAction("dick", self, checkable=True)
