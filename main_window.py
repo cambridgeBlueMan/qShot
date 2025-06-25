@@ -13,7 +13,7 @@ from right_dock import RightDock
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO, 
     format='%(asctime)s - %(levelname)s - %(message)s',
     filename='app.log',
     filemode='w'
