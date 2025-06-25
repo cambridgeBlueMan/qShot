@@ -9,7 +9,7 @@ from ai_file_manager import FileManagerWidget
 from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGlPicamera2
-from right_dock import RightDock
+from classifier_widget import Classifier
 
 # Configure logging
 logging.basicConfig(
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("File Manager", self)
-        self.right_dock.setWidget(RightDock(cam=cam, csi=csi, modes=modes, preview=self.preview))
+        self.right_dock.setWidget(Classifier(cam=cam, csi=csi, modes=modes, preview=self.preview))
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
 

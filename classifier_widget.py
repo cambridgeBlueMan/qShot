@@ -234,7 +234,7 @@ class Transport(QWidget):
         except Exception as e:
             logging.error(f"Failed to set ScalerCrop: {e}")
 
-class RightDock(QWidget):
+class Classifier(QWidget):
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManagerWidget
@@ -243,7 +243,7 @@ class RightDock(QWidget):
 
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None):
         """
-        Initialize the RightDock widget.
+        Initialize the Classifier widget.
 
         Args:
             cam: Camera object.
@@ -268,4 +268,4 @@ class RightDock(QWidget):
 
         layout.addWidget(Transport(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
         self.setLayout(layout)
-        logging.info("RightDock widget initialized.")
+        logging.info("Classifier widget initialized.")
