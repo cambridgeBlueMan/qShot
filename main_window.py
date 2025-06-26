@@ -11,6 +11,7 @@ from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGlPicamera2
 from classifier_widget import Classifier
+import importlib.util
 
 # Configure logging
 logging.basicConfig(
@@ -82,7 +83,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.left_dock)
         self.left_dock.hide()  # Hide left dock on launch
 
-        self.right_dock = QDockWidget("File Manager", self)
+        self.right_dock = QDockWidget("Component", self)
         self.right_dock.setWidget(Classifier(cam=cam, csi=csi, modes=modes, preview=self.preview))
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
@@ -111,7 +112,9 @@ class MainWindow(QMainWindow):
                 if fname.endswith("_widget.py") and not fname.startswith("__"):
                     name = fname[:-10]  # Remove '_widget.py'
                     action = QAction(name, self)
+                    action.setData(name)
                     components_menu.addAction(action)
+                    action.triggered.connect(self.load_component_widget)
                     logging.info(f"Added '{name}' to Components menu.")
             logging.info(f"Files in components: {os.listdir(components_dir)}")
         else:
@@ -173,6 +176,27 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Could not save file:\n{e}")
                 logging.error(f"Could not save file: {e}")
+
+    def load_component_widget(self):
+        action = self.sender()
+        name = action.data()
+        module_name = f"{name}_widget"
+        module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
+        try:
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            class_name = name.capitalize()
+            widget_class = getattr(module, class_name)
+            widget_instance = widget_class()
+            widget_instance.setWindowTitle(class_name)
+            # Insert the widget into the left dock
+            self.left_dock.setWidget(widget_instance)
+            self.left_dock.show()
+            logging.info(f"Instantiated and inserted widget: {class_name} into left dock")
+        except Exception as e:
+            logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
+            QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
 
 if __name__ == "__main__":
     """
