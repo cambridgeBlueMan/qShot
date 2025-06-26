@@ -178,6 +178,10 @@ class MainWindow(QMainWindow):
                 logging.error(f"Could not save file: {e}")
 
     def load_component_widget(self):
+        """
+        Dynamically load and insert a component widget into the right dock,
+        replacing the current content and ensuring proper cleanup.
+        """
         action = self.sender()
         name = action.data()
         module_name = f"{name}_widget"
@@ -190,10 +194,14 @@ class MainWindow(QMainWindow):
             widget_class = getattr(module, class_name)
             widget_instance = widget_class()
             widget_instance.setWindowTitle(class_name)
-            # Insert the widget into the left dock
-            self.left_dock.setWidget(widget_instance)
-            self.left_dock.show()
-            logging.info(f"Instantiated and inserted widget: {class_name} into left dock")
+            # Clean up the current widget in the right dock
+            old_widget = self.right_dock.widget()
+            if old_widget is not None:
+                old_widget.deleteLater()
+            # Insert the new widget into the right dock
+            self.right_dock.setWidget(widget_instance)
+            self.right_dock.show()
+            logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
         except Exception as e:
             logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
             QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
