@@ -39,7 +39,7 @@ class Dummy3(QWidget):
     """
     A placeholder QWidget with a colored background and a text label.
     """
-    def __init__(self, color=None, text="Dummy"):
+    def __init__(self, color=None, text="Dummy3"):
         """
         Initialize the Dummy widget.
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     Run a test window displaying a Dummy widget.
     """
     app = QApplication(sys.argv)
-    dummy = Dummy(text="Hello Dummy!")
+    dummy = Dummy3(text="Hello Dummy!")
     dummy.resize(200, 100)
     dummy.show()
     sys.exit(app.exec_())
