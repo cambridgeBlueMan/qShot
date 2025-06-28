@@ -234,7 +234,7 @@ class Transport(QWidget):
         except Exception as e:
             logging.error(f"Failed to set ScalerCrop: {e}")
 
-class Classifier(QWidget):
+class Detector(QWidget):
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManagerWidget

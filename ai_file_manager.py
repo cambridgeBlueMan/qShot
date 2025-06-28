@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QComboBox, QSlider, QFileDialog
 )
 from PyQt5.QtCore import Qt, QSettings
+from ai_file_manager_base import AIFileManager  # Import the base class
 
 # Configure logging to overwrite the log file on each run
 logging.basicConfig(
@@ -18,17 +19,11 @@ IMG_EXT = ".jpg"
 IMG_PREFIX = "image_"
 
 
-class FileManagerWidget(QWidget):
+class FileManagerWidget(AIFileManager):
     """
     A widget for managing files in a dataset directory.
-
-    This widget allows users to:
-    - Select a dataset path and class labels file.
-    - Create directories for training, testing, and validation sets.
-    - Populate dropdowns with sets and classes.
-    - Generate unique file paths based on the selected set and class.
-    - Display the count of .jpg files in the selected folder.
-    """ 
+    Extends AIFileManager with additional UI and logic.
+    """
 
     def __init__(self):
         """
