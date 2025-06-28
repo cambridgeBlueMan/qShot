@@ -12,7 +12,7 @@ logging.basicConfig(
     filemode='w'
 )
 
-class Transport(QWidget):
+class Transport(QWidget): 
     """
     Transport widget that receives camera and csi information and provides capture controls.
     Handles single and interval image capture, as well as UI feedback for sequence capture.
