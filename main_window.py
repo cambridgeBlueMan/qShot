@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("Component", self)
-        self.right_dock.setWidget(Classifier(cam=cam, csi=csi, modes=modes, preview=self.preview))
+        self.right_dock.setWidget(Classifier(cam=cam, csi=csi, modes=modes, preview=self.preview, settings_group="classifier"))
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
 
@@ -192,7 +192,8 @@ class MainWindow(QMainWindow):
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-            widget_instance = widget_class()
+             # Pass settings_group=name to the widget constructor
+            widget_instance = widget_class(settings_group=name)
             widget_instance.setWindowTitle(class_name)
             # Clean up the current widget in the right dock
             old_widget = self.right_dock.widget()

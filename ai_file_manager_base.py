@@ -1,6 +1,6 @@
 # ai_file_manager_base.py
 from abc import ABC, abstractmethod
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider, QVBoxLayout
 from PyQt5.QtCore import QSettings, Qt
 
 class AIFileManager(QWidget):
@@ -9,10 +9,13 @@ class AIFileManager(QWidget):
     Provides dataset path, class labels, init button, and settings logic.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None, settings_group=None):
+        super().__init__(parent)
         self.settings = QSettings("MyCompany", "CameraCaptureApp")
+        self.settings_group = settings_group  # e.g., "detector" or "classifier"
+        self.base_layout = QVBoxLayout()
         self.init_base_ui()
+        # Do NOT call self.setLayout(self.base_layout) here!
 
     def init_base_ui(self):
         layout = QGridLayout()
@@ -47,7 +50,7 @@ class AIFileManager(QWidget):
         self.jpeg_quality_slider.valueChanged.connect(self.save_settings)
         layout.addWidget(self.jpeg_quality_slider, 5, 1)
 
-        self.setLayout(layout)
+        self.base_layout.addLayout(layout)
 
     def select_dataset_path(self):
         """Open a dialog to select the dataset folder and save the setting."""
@@ -64,16 +67,24 @@ class AIFileManager(QWidget):
             self.save_settings()
 
     def save_settings(self):
-        """Save dataset path and class labels path to persistent storage."""
+        """Save dataset path, class labels, and jpeg quality to persistent storage under a group."""
+        if self.settings_group:
+            self.settings.beginGroup(self.settings_group)
         self.settings.setValue("dataset_path", self.dataset_path_input.text())
         self.settings.setValue("class_labels_path", self.class_labels_input.text())
         self.settings.setValue("jpeg_quality", self.jpeg_quality_slider.value())
+        if self.settings_group:
+            self.settings.endGroup()
 
     def load_settings(self):
-        """Load dataset path and class labels path from persistent storage."""
+        """Load dataset path, class labels, and jpeg quality from persistent storage under a group."""
+        if self.settings_group:
+            self.settings.beginGroup(self.settings_group)
         self.dataset_path_input.setText(self.settings.value("dataset_path", ""))
         self.class_labels_input.setText(self.settings.value("class_labels_path", ""))
         self.jpeg_quality_slider.setValue(int(self.settings.value("jpeg_quality", 95)))
+        if self.settings_group:
+            self.settings.endGroup()
 
     @abstractmethod
     def get_new_file_path(self):

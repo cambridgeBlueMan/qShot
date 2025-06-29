@@ -1,16 +1,22 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit, QDoubleSpinBox, QFrame, QSpinBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QTimer, Qt
-from ai_file_manager import FileManagerWidget
+import os
+from datetime import datetime
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit,
+    QDoubleSpinBox, QFrame, QSpinBox, QSlider, QFileDialog
+)
+from PyQt5.QtGui import QIcon, QColor, QPalette
+from PyQt5.QtCore import QTimer, Qt, QSettings
+from ai_file_manager_base import AIFileManager
 
-# Configure logging to overwrite the log file on each run
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     filename='app.log',
     filemode='w'
 )
+
+IMG_EXT = ".jpg"
 
 class Transport(QWidget):
     """
@@ -45,17 +51,13 @@ class Transport(QWidget):
         main_layout = QVBoxLayout()
         main_layout.setSpacing(4)  # Reduce vertical spacing between rows
 
-        # Group the two horizontal layouts in a vertical layout
-        selector_layout = QVBoxLayout()
-        # selector_layout.setSpacing(2)  # Even less space between these rows
-
         # Camera Mode row
         camera_mode_layout = QHBoxLayout()
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
         combo = QComboBox()
         self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
-        selector_layout.addLayout(camera_mode_layout)
+        main_layout.addLayout(camera_mode_layout)
 
         # Sequence interval row
         interval_layout = QHBoxLayout()
@@ -68,12 +70,9 @@ class Transport(QWidget):
         self.sequence_interval_spin.setValue(0.5)
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.sequence_interval_spin)
-        selector_layout.addLayout(interval_layout)
+        main_layout.addLayout(interval_layout)
 
-        # Add the selector_layout to the main_layout
-        main_layout.addLayout(selector_layout)
-
-        # Capture button row (its own row)
+        # Capture button row
         capture_layout = QHBoxLayout()
         self.capture_btn = QPushButton("Capture Image")
         self.capture_btn.setToolTip("Capture Image")
@@ -81,7 +80,7 @@ class Transport(QWidget):
         capture_layout.addWidget(self.capture_btn)
         main_layout.addLayout(capture_layout)
 
-        # Sequence capture button row (its own row)
+        # Sequence capture button row
         sequence_layout = QHBoxLayout()
         self.sequence_btn = QPushButton("Capture Image Sequence")
         self.sequence_btn.setToolTip("Start or stop capturing an image sequence")
@@ -234,28 +233,29 @@ class Transport(QWidget):
         except Exception as e:
             logging.error(f"Failed to set ScalerCrop: {e}")
 
-class Classifier(QWidget):
+class Classifier(AIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
-    Row 1: FileManagerWidget
+    Row 1: FileManager controls (with set/class dropdowns)
     Row 2: Transport widget
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None):
-        """
-        Initialize the Classifier widget.
+    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
+        super().__init__(parent, settings_group=settings_group)
+        self.cam = cam
+        self.csi = csi
+        self.modes = modes
+        self.preview = preview
 
-        Args:
-            cam: Camera object.
-            csi: Camera serial interface index.
-            modes: List of camera modes.
-            preview: Preview widget.
-            parent: Parent QWidget.
-        """
-        super().__init__(parent)
-        layout = QVBoxLayout()
-        file_manager_widget = FileManagerWidget()
-        layout.addWidget(file_manager_widget)
+        # --- Set/Class Dropdowns ---
+        dropdown_layout = QHBoxLayout()
+        dropdown_layout.addWidget(QLabel("Set:"))
+        self.current_set_dropdown = QComboBox()
+        dropdown_layout.addWidget(self.current_set_dropdown)
+        dropdown_layout.addWidget(QLabel("Class:"))
+        self.current_class_dropdown = QComboBox()
+        dropdown_layout.addWidget(self.current_class_dropdown)
+        self.base_layout.addLayout(dropdown_layout)
 
         # Add a visible separator
         separator = QFrame()
@@ -264,8 +264,60 @@ class Classifier(QWidget):
         palette = self.palette()
         bg_color = palette.color(palette.Dark).name()
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
-        layout.addWidget(separator)
+        self.base_layout.addWidget(separator)
 
-        layout.addWidget(Transport(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
-        self.setLayout(layout)
+        # Transport controls
+        self.transport = Transport(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
+        self.base_layout.addWidget(self.transport)
+
+        self.setLayout(self.base_layout)  # Only call setLayout here!
         logging.info("Classifier widget initialized.")
+
+        # Populate dropdowns on init
+        self.init_action()
+
+    def get_new_file_path(self):
+        """
+        Generate a new file path based on the dataset path, selected set, and class.
+        """
+        dataset_path = self.dataset_path_input.text()
+        set_value = self.current_set_dropdown.currentText() if self.current_set_dropdown.count() else "unknown_set"
+        class_value = self.current_class_dropdown.currentText() if self.current_class_dropdown.count() else "unknown_class"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        file_path = os.path.join(
+            dataset_path,
+            set_value,
+            class_value,
+            f"{class_value}_{timestamp}{IMG_EXT}"
+        )
+        logging.info(f"Generated file path: {file_path}")
+        return file_path
+
+    def init_action(self):
+        """
+        Scan the dataset path for set/class folders and populate the dropdowns.
+        """
+        dataset_path = self.dataset_path_input.text()
+        self.current_set_dropdown.clear()
+        self.current_class_dropdown.clear()
+        if not os.path.isdir(dataset_path):
+            logging.warning(f"Dataset path does not exist: {dataset_path}")
+            return
+        sets = [d for d in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, d))]
+        self.current_set_dropdown.addItems(sets)
+        if sets:
+            first_set = sets[0]
+            classes = [d for d in os.listdir(os.path.join(dataset_path, first_set))
+                       if os.path.isdir(os.path.join(dataset_path, first_set, d))]
+            self.current_class_dropdown.addItems(classes)
+        # Update classes when set changes
+        self.current_set_dropdown.currentIndexChanged.connect(self._update_class_dropdown)
+
+    def _update_class_dropdown(self):
+        dataset_path = self.dataset_path_input.text()
+        set_value = self.current_set_dropdown.currentText()
+        self.current_class_dropdown.clear()
+        set_path = os.path.join(dataset_path, set_value)
+        if os.path.isdir(set_path):
+            classes = [d for d in os.listdir(set_path) if os.path.isdir(os.path.join(set_path, d))]
+            self.current_class_dropdown.addItems(classes)
