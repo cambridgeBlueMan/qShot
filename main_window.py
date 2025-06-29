@@ -40,22 +40,20 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Camera Capture App")
         logging.info("MainWindow initialized.")
 
-        # Instantiate camera if not provided
-        if cam is None:
-            cam = Picamera2(csi)
-            modes = cam.sensor_modes
-            logging.info(f"Camera instantiated with csi={csi} and sensor modes loaded: {modes}")
+        # Store arguments as instance attributes
+        self.csi = csi
+        self.cam = cam if cam is not None else Picamera2(csi)
+        self.modes = modes if modes is not None else self.cam.sensor_modes
 
         # Create QGlPicamera2 preview widget
         self.preview = QGlPicamera2(
-            cam,
+            self.cam,
             width=640,
             height=480,
             keep_ar=True,
             parent=self
         )
-        
-        cam.start()
+        self.cam.start()
         logging.info("Camera started and QGlPicamera2 preview created.")
 
         self.setCentralWidget(self.preview)
@@ -84,7 +82,7 @@ class MainWindow(QMainWindow):
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("Component", self)
-        self.right_dock.setWidget(Classifier(cam=cam, csi=csi, modes=modes, preview=self.preview, settings_group="classifier"))
+        self.right_dock.setWidget(Classifier(cam=self.cam, csi=self.csi, modes=self.modes, preview=self.preview, settings_group="classifier"))
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
 
@@ -192,14 +190,18 @@ class MainWindow(QMainWindow):
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-             # Pass settings_group=name to the widget constructor
-            widget_instance = widget_class(settings_group=name)
+            # Use stored instance attributes for arguments
+            widget_instance = widget_class(
+                cam=self.cam,
+                csi=self.csi,
+                modes=self.modes,
+                preview=self.preview,
+                settings_group=name
+            )
             widget_instance.setWindowTitle(class_name)
-            # Clean up the current widget in the right dock
             old_widget = self.right_dock.widget()
             if old_widget is not None:
                 old_widget.deleteLater()
-            # Insert the new widget into the right dock
             self.right_dock.setWidget(widget_instance)
             self.right_dock.show()
             logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")

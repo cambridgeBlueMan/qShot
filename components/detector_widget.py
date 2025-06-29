@@ -12,15 +12,15 @@ logging.basicConfig(
     filemode='w'
 )
 
-class Transport(QWidget): 
+class CameraManager(QWidget): 
     """
-    Transport widget that receives camera and csi information and provides capture controls.
+    CameraManager widget that receives camera and csi information and provides capture controls.
     Handles single image capture and UI feedback.
     """
 
     def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
         """
-        Initialize the Transport widget.
+        Initialize the CameraManager widget.
 
         Args:
             cam: Camera object.
@@ -59,43 +59,79 @@ class Transport(QWidget):
         self.setLayout(main_layout)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
-        logging.info("Transport widget initialized with camera and csi.")
+        logging.info("CameraManager widget initialized with camera and csi.")
+
+    def capture_image(self):
+        """
+        Asynchronously capture a single image from the camera to a buffer/array,
+        and display it in the area currently occupied by the QGlPicamera2 widget (self.preview).
+        """
+        logging.info("Capture button pressed.")
+        self.capture_btn.setDisabled(True)
+
+        # Connect the preview's done_signal to our handler if not already connected
+        if self.preview and hasattr(self.preview, "done_signal"):
+            try:
+                self.preview.done_signal.disconnect(self._capture_done)
+            except Exception:
+                pass  # Not previously connected
+            self.preview.done_signal.connect(self._capture_done)
+
+        # Start async capture; result will be handled in _capture_done
+        self._current_job = self.cam.capture_array(signal_function=self.preview.signal_done)
+        logging.info("Async image capture started.")
 
     def _capture_done(self, job):
         """
         Slot called when image capture is done.
-        Re-enables the capture button and logs completion.
+        Receives the Job object, waits for the result, and displays the image.
+        """
+        logging.info("Image capture completed (async).")
+        try:
+            img_array = self.cam.wait(job)
+            from PyQt5.QtGui import QImage, QPixmap
 
-        Args:
-            job: The job object returned by the camera capture.
-        """
-        logging.info("Image capture completed.")
-        result = self.cam.wait(job)
-        self.file_manager.update_status_label()
-        self.capture_btn.setDisabled(False)
+            if img_array is not None:
+                # Convert to RGB or RGBA QImage
+                if img_array.shape[2] == 3:
+                    height, width, channel = img_array.shape
+                    bytes_per_line = 3 * width
+                    qimg = QImage(img_array.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                elif img_array.shape[2] == 4:
+                    height, width, channel = img_array.shape
+                    bytes_per_line = 4 * width
+                    qimg = QImage(img_array.data, width, height, bytes_per_line, QImage.Format_RGBA8888)
+                else:
+                    raise ValueError("Unsupported image format for display.")
 
-    def capture_image(self):
-        """
-        Capture a single image using the camera and file manager.
-        Disables the capture button until capture is complete.
-        """
-        logging.info("Capture button pressed.")
-        # Disable the button to prevent multiple clicks
-        self.capture_btn.setDisabled(True)
-        if self.preview and hasattr(self.preview, "done_signal"):
-            self.preview.done_signal.connect(self._capture_done)
-        # Get a file name from the file manager widget if available
-        if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
-            file_name = self.file_manager.get_new_file_path()
-            logging.info(f"Generated file path from FileManagerWidget: {file_name}")
-            # Keep the signal_function logic
-            signal_function = getattr(self, "signal_function", None)
-            if signal_function:
-                self.cam.capture_file(file_name, signal_function=signal_function)
+                pixmap = QPixmap.fromImage(qimg)
+
+                # Swap the central widget in MainWindow with a QLabel showing the captured image
+                main_window = self.window()
+                if hasattr(main_window, "preview"):
+                    main_window.preview.hide()
+                    # Remove previous captured image label if exists
+                    if hasattr(main_window, "_captured_image_label") and main_window._captured_image_label:
+                        main_window._captured_image_label.hide()
+                        main_window.centralWidget().layout().removeWidget(main_window._captured_image_label)
+                        main_window._captured_image_label.deleteLater()
+                        main_window._captured_image_label = None
+                    # Create and show the QLabel with the captured image
+                    label = AspectRatioPixmapLabel()
+                    label.setPixmap(pixmap)
+                    label.setMinimumSize(320, 240)
+                    main_window.setCentralWidget(label)
+                    main_window._captured_image_label = label
+                    logging.info("Displayed captured image in central widget.")
+                else:
+                    logging.error("MainWindow does not have a 'preview' attribute.")
             else:
-                self.cam.capture_file(file_name)
-        else:
-            logging.info("FileManagerWidget not available or does not have get_new_file_path().")
+                logging.error("Failed to capture image: img_array is None.")
+
+        except Exception as e:
+            logging.error(f"Error in async image capture: {e}")
+
+        self.capture_btn.setDisabled(False)
 
     def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
         """
@@ -119,11 +155,28 @@ class Transport(QWidget):
         combo.setToolTip("Select sensor mode")
         layout.addWidget(combo)
 
+class AspectRatioPixmapLabel(QLabel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._pixmap = None
+
+    def setPixmap(self, pixmap):
+        self._pixmap = pixmap
+        if pixmap:
+            super().setPixmap(pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        else:
+            super().setPixmap(pixmap)
+
+    def resizeEvent(self, event):
+        if self._pixmap:
+            super().setPixmap(self._pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        super().resizeEvent(event)
+
 class Detector(AIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManagerWidget
-    Row 2: Transport widget
+    Row 2: CameraManager widget
     """
 
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
@@ -157,7 +210,7 @@ class Detector(AIFileManager):
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         layout.addWidget(separator)
 
-        layout.addWidget(Transport(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
+        layout.addWidget(CameraManager(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview))
         self.setLayout(layout)
         logging.info("Detector widget initialized.")
 
