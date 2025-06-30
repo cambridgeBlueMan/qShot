@@ -10,7 +10,7 @@ from ai_file_manager import FileManagerWidget
 from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGlPicamera2
-from classifier_widget import Classifier
+from components.classifier_widget import Classifier
 import importlib.util
 
 # Configure logging
@@ -74,6 +74,9 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Ready")
         logging.info("Status bar initialized.")
 
+        # Set the default widget name (without _widget.py)
+        self.default_widget_name = "classifier"
+
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
         self.left_dock.setWidget(Dummy(text="Left Dummy"))
@@ -82,7 +85,9 @@ class MainWindow(QMainWindow):
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("Component", self)
-        self.right_dock.setWidget(Classifier(cam=self.cam, csi=self.csi, modes=self.modes, preview=self.preview, settings_group="classifier"))
+        # Dynamically load the default widget
+        default_widget = self.load_component_widget_by_name(self.default_widget_name)
+        self.right_dock.setWidget(default_widget)
         self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
 
@@ -208,6 +213,32 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
             QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
+
+    def load_component_widget_by_name(self, name):
+        """
+        Loads a component widget by name from the components directory.
+        """
+        try:
+            module_name = f"{name}_widget"
+            module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            class_name = name.capitalize()
+            widget_class = getattr(module, class_name)
+            widget_instance = widget_class(
+                cam=self.cam,
+                csi=self.csi,
+                modes=self.modes,
+                preview=self.preview,
+                settings_group=name
+            )
+            widget_instance.setWindowTitle(class_name)
+            logging.info(f"Default component widget ({class_name}) loaded from components directory.")
+            return widget_instance
+        except Exception as e:
+            logging.error(f"Failed to load default component widget: {e}")
+            return Dummy(text="Failed to load default widget")
 
 if __name__ == "__main__":
     """
