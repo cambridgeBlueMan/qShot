@@ -2,7 +2,7 @@ import sys
 import logging
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QAction, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout
+    QApplication, QMainWindow, QAction, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
@@ -45,6 +45,10 @@ class MainWindow(QMainWindow):
         self.cam = cam if cam is not None else Picamera2(csi)
         self.modes = modes if modes is not None else self.cam.sensor_modes
 
+        # Central stacked widget
+        self.central_stack = QStackedWidget()
+        self.setCentralWidget(self.central_stack)
+
         # Create QGlPicamera2 preview widget
         self.preview = QGlPicamera2(
             self.cam,
@@ -53,11 +57,11 @@ class MainWindow(QMainWindow):
             keep_ar=True,
             parent=self
         )
+        self.central_stack.addWidget(self.preview)
+        self.central_stack.setCurrentWidget(self.preview)
+        self._captured_image_label = None  # For later use
         self.cam.start()
         logging.info("Camera started and QGlPicamera2 preview created.")
-
-        self.setCentralWidget(self.preview)
-        logging.info("QGlPicamera2 set as central widget.")
 
         # Add a toolbar
         toolbar = self.addToolBar("Main Toolbar")

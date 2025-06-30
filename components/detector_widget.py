@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QCom
 from PyQt5.QtCore import Qt
 from ai_file_manager import FileManagerWidget
 from ai_file_manager_base import AIFileManager
+from components.bboxlabel import BBoxLabel
 
 # Configure logging to overwrite the log file on each run
 logging.basicConfig(
@@ -19,23 +20,13 @@ class CameraManager(QWidget):
     """
 
     def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
-        """
-        Initialize the CameraManager widget.
-
-        Args:
-            cam: Camera object.
-            csi: Camera serial interface index.
-            modes: List of camera modes.
-            file_manager: FileManagerWidget instance.
-            preview: Preview widget with signal_done.
-            parent: Parent QWidget.
-        """
         super().__init__(parent)
         self.cam = cam
         self.csi = csi
         self.modes = modes
         self.file_manager = file_manager
         self.preview = preview
+        self.frozen = False  # Track freeze state
 
         main_layout = QVBoxLayout()
         main_layout.setSpacing(4)  # Reduce vertical spacing between rows
@@ -48,11 +39,11 @@ class CameraManager(QWidget):
         self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
         main_layout.addLayout(camera_mode_layout)
 
-        # Capture button row (its own row)
+        # Freeze/Unfreeze button row (its own row)
         capture_layout = QHBoxLayout()
-        self.capture_btn = QPushButton("Capture Image")
-        self.capture_btn.setToolTip("Capture Image")
-        self.capture_btn.clicked.connect(self.capture_image)
+        self.capture_btn = QPushButton("Freeze")
+        self.capture_btn.setToolTip("Freeze the current camera image or return to live preview")
+        self.capture_btn.clicked.connect(self.toggle_freeze)
         capture_layout.addWidget(self.capture_btn)
         main_layout.addLayout(capture_layout)
 
@@ -61,31 +52,25 @@ class CameraManager(QWidget):
         self.setFocus()
         logging.info("CameraManager widget initialized with camera and csi.")
 
-    def capture_image(self):
-        """
-        Asynchronously capture a single image from the camera to a buffer/array,
-        and display it in the area currently occupied by the QGlPicamera2 widget (self.preview).
-        """
-        logging.info("Capture button pressed.")
-        self.capture_btn.setDisabled(True)
+    def toggle_freeze(self):
+        if not self.frozen:
+            self.freeze_image()
+        else:
+            self.restore_preview()
 
-        # Connect the preview's done_signal to our handler if not already connected
+    def freeze_image(self):
+        logging.info("Freeze button pressed.")
+        self.capture_btn.setDisabled(True)
         if self.preview and hasattr(self.preview, "done_signal"):
             try:
                 self.preview.done_signal.disconnect(self._capture_done)
             except Exception:
                 pass  # Not previously connected
             self.preview.done_signal.connect(self._capture_done)
-
-        # Start async capture; result will be handled in _capture_done
         self._current_job = self.cam.capture_array(signal_function=self.preview.signal_done)
         logging.info("Async image capture started.")
 
     def _capture_done(self, job):
-        """
-        Slot called when image capture is done.
-        Receives the Job object, waits for the result, and displays the image.
-        """
         logging.info("Image capture completed (async).")
         try:
             img_array = self.cam.wait(job)
@@ -106,25 +91,25 @@ class CameraManager(QWidget):
 
                 pixmap = QPixmap.fromImage(qimg)
 
-                # Swap the central widget in MainWindow with a QLabel showing the captured image
                 main_window = self.window()
-                if hasattr(main_window, "preview"):
-                    main_window.preview.hide()
+                if hasattr(main_window, "central_stack"):
                     # Remove previous captured image label if exists
                     if hasattr(main_window, "_captured_image_label") and main_window._captured_image_label:
-                        main_window._captured_image_label.hide()
-                        main_window.centralWidget().layout().removeWidget(main_window._captured_image_label)
+                        main_window.central_stack.removeWidget(main_window._captured_image_label)
                         main_window._captured_image_label.deleteLater()
                         main_window._captured_image_label = None
-                    # Create and show the QLabel with the captured image
-                    label = AspectRatioPixmapLabel()
+                    # Create and show the BBoxLabel with the captured image
+                    label = BBoxLabel()
                     label.setPixmap(pixmap)
                     label.setMinimumSize(320, 240)
-                    main_window.setCentralWidget(label)
+                    main_window.central_stack.addWidget(label)
+                    main_window.central_stack.setCurrentWidget(label)
                     main_window._captured_image_label = label
+                    self.frozen = True
+                    self.capture_btn.setText("Unfreeze")
                     logging.info("Displayed captured image in central widget.")
                 else:
-                    logging.error("MainWindow does not have a 'preview' attribute.")
+                    logging.error("MainWindow does not have a 'central_stack' attribute.")
             else:
                 logging.error("Failed to capture image: img_array is None.")
 
@@ -132,6 +117,21 @@ class CameraManager(QWidget):
             logging.error(f"Error in async image capture: {e}")
 
         self.capture_btn.setDisabled(False)
+
+    def restore_preview(self):
+        """Restore the live preview widget."""
+        main_window = self.window()
+        if hasattr(main_window, "central_stack"):
+            main_window.central_stack.setCurrentWidget(main_window.preview)
+            if hasattr(main_window, "_captured_image_label") and main_window._captured_image_label:
+                main_window.central_stack.removeWidget(main_window._captured_image_label)
+                main_window._captured_image_label.deleteLater()
+                main_window._captured_image_label = None
+            self.frozen = False
+            self.capture_btn.setText("Freeze")
+            logging.info("Restored live preview in central widget.")
+        else:
+            logging.error("MainWindow does not have a 'central_stack' attribute.")
 
     def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
         """
