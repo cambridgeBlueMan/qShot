@@ -18,15 +18,15 @@ logging.basicConfig(
 
 IMG_EXT = ".jpg"
 
-class Transport(QWidget):
+class CameraManager(QWidget):
     """
-    Transport widget that receives camera and csi information and provides capture controls.
+    CameraManager widget that receives camera and csi information and provides capture controls.
     Handles single and interval image capture, as well as UI feedback for sequence capture.
     """
 
     def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
         """
-        Initialize the Transport widget.
+        Initialize the CameraManager widget.
 
         Args:
             cam: Camera object.
@@ -111,7 +111,7 @@ class Transport(QWidget):
         self.setLayout(main_layout)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
-        logging.info("Transport widget initialized with camera and csi.")
+        logging.info("CameraManager widget initialized with camera and csi.")
 
     def _capture_done(self, job):
         """
@@ -237,10 +237,11 @@ class Classifier(AIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManager controls (with set/class dropdowns)
-    Row 2: Transport widget
+    Row 2: CameraManager widget
     """
 
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
+        logging.info(f"Loading Classifier component with settings_group={settings_group}")
         super().__init__(parent, settings_group=settings_group)
         self.cam = cam
         self.csi = csi
@@ -266,9 +267,10 @@ class Classifier(AIFileManager):
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         self.base_layout.addWidget(separator)
 
-        # Transport controls
-        self.transport = Transport(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
-        self.base_layout.addWidget(self.transport)
+        # CameraManager controls (was Transport)
+        logging.info("Instantiating CameraManager for Classifier component")
+        self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
+        self.base_layout.addWidget(self.camera_manager)
 
         self.setLayout(self.base_layout)  # Only call setLayout here!
         logging.info("Classifier widget initialized.")

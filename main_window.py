@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
-        self.default_widget_name = "classifier"
+        self.default_widget_name = "detector"
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
@@ -186,8 +186,9 @@ class MainWindow(QMainWindow):
 
     def load_component_widget(self):
         """
-        Dynamically load and insert a component widget into the right dock,
-        replacing the current content and ensuring proper cleanup.
+        Slot for menu actions: dynamically load and insert a component widget into the right dock
+        when a user selects a component from the Components menu.
+        Ensures proper cleanup of the outgoing widget.
         """
         action = self.sender()
         name = action.data()
@@ -199,17 +200,12 @@ class MainWindow(QMainWindow):
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-            # Use stored instance attributes for arguments
-            widget_instance = widget_class(
-                cam=self.cam,
-                csi=self.csi,
-                modes=self.modes,
-                preview=self.preview,
-                settings_group=name
-            )
+            widget_instance = widget_class(**self.get_settings(name))
             widget_instance.setWindowTitle(class_name)
             old_widget = self.right_dock.widget()
             if old_widget is not None:
+                if hasattr(old_widget, "cleanup"):
+                    old_widget.cleanup()
                 old_widget.deleteLater()
             self.right_dock.setWidget(widget_instance)
             self.right_dock.show()
@@ -220,7 +216,9 @@ class MainWindow(QMainWindow):
 
     def load_component_widget_by_name(self, name):
         """
-        Loads a component widget by name from the components directory.
+        Programmatically load and insert a component widget into the right dock by name.
+        Used for loading the default widget at startup or when switching components in code.
+        Ensures proper cleanup of the outgoing widget.
         """
         try:
             module_name = f"{name}_widget"
@@ -230,19 +228,38 @@ class MainWindow(QMainWindow):
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-            widget_instance = widget_class(
-                cam=self.cam,
-                csi=self.csi,
-                modes=self.modes,
-                preview=self.preview,
-                settings_group=name
-            )
+            widget_instance = widget_class(**self.get_settings(name))
             widget_instance.setWindowTitle(class_name)
-            logging.info(f"Default component widget ({class_name}) loaded from components directory.")
+            old_widget = self.right_dock.widget()
+            if old_widget is not None:
+                if hasattr(old_widget, "cleanup"):
+                    try:
+                        old_widget.cleanup()
+                    except Exception as e:
+                        logging.error(f"Error during cleanup of {type(old_widget).__name__}: {e}")
+                old_widget.deleteLater()
+            self.right_dock.setWidget(widget_instance)
+            self.right_dock.show()
+            logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
             return widget_instance
         except Exception as e:
-            logging.error(f"Failed to load default component widget: {e}")
+            logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
             return Dummy(text="Failed to load default widget")
+
+    def get_settings(self, name=None):
+        """
+        Prepare a dictionary of settings to pass to component widgets.
+        """
+        settings = {
+            "cam": self.cam,
+            "csi": self.csi,
+            "modes": self.modes,
+            "preview": self.preview,
+        }
+        if name is not None:
+            settings["settings_group"] = name
+            logging.info(f"Settings prepared for component: {name}")
+        return settings
 
 if __name__ == "__main__":
     """
