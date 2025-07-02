@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
-        self.default_widget_name = "detector"
+        self.default_widget_name = "test"
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
@@ -192,15 +192,17 @@ class MainWindow(QMainWindow):
         """
         action = self.sender()
         name = action.data()
-        module_name = f"{name}_widget"
-        module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
+        class_name = None
+        module_name = None
         try:
+            module_name = f"{name}_widget"
+            module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-            widget_instance = widget_class(**self.get_settings(name))
+            widget_instance = widget_class(**self.get_component_args(name))
             widget_instance.setWindowTitle(class_name)
             old_widget = self.right_dock.widget()
             if old_widget is not None:
@@ -228,7 +230,7 @@ class MainWindow(QMainWindow):
             spec.loader.exec_module(module)
             class_name = name.capitalize()
             widget_class = getattr(module, class_name)
-            widget_instance = widget_class(**self.get_settings(name))
+            widget_instance = widget_class(**self.get_component_args(name))
             widget_instance.setWindowTitle(class_name)
             old_widget = self.right_dock.widget()
             if old_widget is not None:
@@ -246,20 +248,20 @@ class MainWindow(QMainWindow):
             logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
             return Dummy(text="Failed to load default widget")
 
-    def get_settings(self, name=None):
+    def get_component_args(self, name=None):
         """
-        Prepare a dictionary of settings to pass to component widgets.
+        Prepare a dictionary of arguments to pass to component widgets.
         """
-        settings = {
+        args = {
             "cam": self.cam,
             "csi": self.csi,
             "modes": self.modes,
             "preview": self.preview,
         }
         if name is not None:
-            settings["settings_group"] = name
-            logging.info(f"Settings prepared for component: {name}")
-        return settings
+            args["settings_group"] = name
+            logging.info(f"Args prepared for component: {name}")
+        return args
 
 if __name__ == "__main__":
     """

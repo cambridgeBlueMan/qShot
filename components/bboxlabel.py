@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import QPainter, QPen
+from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5.QtCore import Qt, QRect, QPoint
+from generate_color import generate_color
+import random
 
 class BBoxLabel(QLabel):
     """
@@ -12,6 +14,7 @@ class BBoxLabel(QLabel):
         if pixmap is not None:
             self.setPixmap(pixmap)
         self.boxes = []  # List of QRect in original image coordinates
+        self.box_colors = []  # List of class indices for each box
         self.start = None  # In widget coords while drawing
         self.end = None    # In widget coords while drawing
         self.drawing = False
@@ -68,6 +71,9 @@ class BBoxLabel(QLabel):
             p2 = self._to_image_coords(self.end)
             rect = QRect(p1, p2).normalized()
             self.boxes.append(rect)
+            # Assign a random class index (e.g., from 0 to 5)
+            class_index = random.choice([0, 1, 2, 3, 4, 5])
+            self.box_colors.append(class_index)
             self.drawing = False
             self.start = None
             self.end = None
@@ -80,13 +86,16 @@ class BBoxLabel(QLabel):
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
 
-        # Draw all saved boxes, scaled to widget coordinates
-        for rect in self.boxes:
+        for i, rect in enumerate(self.boxes):
             p1 = self._to_widget_coords(rect.topLeft())
             p2 = self._to_widget_coords(rect.bottomRight())
             scaled_rect = QRect(p1, p2)
+            # Get the color for this box
+            class_index = self.box_colors[i] if i < len(self.box_colors) else 0
+            r, g, b, a = generate_color(class_index)
+            color = QColor(r, g, b, a)
+            painter.setPen(QPen(color, 2, Qt.SolidLine))
             painter.drawRect(scaled_rect)
 
         # Draw current box, scaled

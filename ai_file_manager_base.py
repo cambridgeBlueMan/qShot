@@ -6,7 +6,41 @@ from PyQt5.QtCore import QSettings, Qt
 class AIFileManager(QWidget):
     """
     Abstract base class for file manager widgets.
-    Provides dataset path, class labels, init button, and settings logic.
+
+    Layout and Usage:
+    -----------------
+    - This class creates a vertical box layout (`self.base_layout`) as the main container.
+    - A grid layout is created and added to `self.base_layout` in `init_base_ui()`.
+      The grid layout contains all the core file management widgets:
+        * Dataset path selector
+        * Class labels file selector
+        * JPEG quality slider
+        * Init button
+    - The expectation is that subclasses will add additional layouts or widgets
+      to `self.base_layout` (e.g., below the grid), allowing flexible extension
+      of the UI while preserving the file management controls at the top.
+
+    Features:
+    ---------
+    - Provides persistent settings management for dataset path, class labels, and JPEG quality.
+    - Offers abstract methods (`get_new_file_path`, `init_action`) that must be implemented by subclasses.
+    - Handles loading and saving of settings automatically.
+    - Designed for extensibility: inherited classes can add more widgets/layouts to `self.base_layout`.
+
+    Typical subclass usage:
+    ----------------------
+    class MyComponent(AIFileManager):
+        def __init__(self, ...):
+            super().__init__(...)
+            # Add custom widgets/layouts below the file manager controls
+            self.base_layout.addWidget(MyCustomWidget())
+            # etc.
+
+        def get_new_file_path(self):
+            # Implementation here
+
+        def init_action(self):
+            # Implementation here
     """
 
     def __init__(self, parent=None, settings_group=None):
@@ -15,9 +49,10 @@ class AIFileManager(QWidget):
         self.settings_group = settings_group  # e.g., "detector" or "classifier"
         self.base_layout = QVBoxLayout()
         self.init_base_ui()
+        self.load_settings()  # <-- Add this line!
         # Do NOT call self.setLayout(self.base_layout) here!
 
-    def init_base_ui(self):
+    def init_base_ui(self): 
         layout = QGridLayout()
 
         # Dataset Path

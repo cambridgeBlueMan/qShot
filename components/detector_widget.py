@@ -1,19 +1,24 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QFrame, QMessageBox, QDialog, QTableWidget, QTableWidgetItem, QSlider, QCheckBox, QHeaderView
+import os
+from PyQt5.QtWidgets import (
+    QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QCheckBox, QHeaderView,
+    QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget  # <-- Add QWidget here
+)
 from PyQt5.QtCore import Qt
-from ai_file_manager import FileManagerWidget
 from ai_file_manager_base import AIFileManager
 from components.bboxlabel import BBoxLabel
+from generate_color import generate_color
+import importlib.util
 
-# Configure logging to overwrite the log file on each run
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s' ,
+    format='%(asctime)s - %(levelname)s - %(message)s',
     filename='app.log',
     filemode='w'
 )
 
 class SaveChangesDialog(QDialog):
+    """Dialog to confirm saving changes when leaving a frozen image."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Save Changes?")
@@ -27,7 +32,7 @@ class SaveChangesDialog(QDialog):
         layout.addWidget(btn_no)
         self.setLayout(layout)
 
-class CameraManager(QWidget): 
+class CameraManager(QWidget):
     """
     CameraManager widget that receives camera and csi information and provides capture controls.
     Handles single image capture and UI feedback.
@@ -171,47 +176,34 @@ class CameraManager(QWidget):
 
 class Detector(AIFileManager):
     """
-    Detector widget that integrates camera preview and file management.
-    Inherits from AIFileManager for file handling capabilities.
+    Detector widget for annotation. Inherits file management UI from AIFileManager.
     """
 
     def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
-        super().__init__(parent=parent, settings_group=settings_group)
+        logging.info(f"Loading Detector component with settings_group={settings_group}")
+        super().__init__(parent, settings_group=settings_group)
         self.cam = cam
         self.csi = csi
         self.modes = modes
         self.preview = preview
 
-        layout = QVBoxLayout()
-        layout.setSpacing(4)
+        # --- CameraManager ---
+        self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
+        self.base_layout.addWidget(self.camera_manager)
 
-        # Initialize FileManagerWidget for file operations
-        file_manager_widget = FileManagerWidget()
-        layout.addWidget(file_manager_widget)
-
-        # Camera manager for handling camera preview and capture
-        self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=file_manager_widget, preview=preview)
-        layout.addWidget(self.camera_manager)
-
-        # --- Table Widget Row ---
+        # --- Table Widget for bounding boxes ---
         self.bbox_table = QTableWidget(0, 6)
         self.bbox_table.setHorizontalHeaderLabels(["Class", "X", "Y", "Width", "Height", "Delete"])
         self.bbox_table.verticalHeader().setVisible(False)
         self.bbox_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.bbox_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.bbox_table.setSelectionMode(QTableWidget.SingleSelection)
-        self.bbox_table.setMinimumHeight(150)  # <-- Add this line to increase depth
-
-        # Make columns fit and stretch to available width
+        self.bbox_table.setMinimumHeight(150)
         header = self.bbox_table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
-        # Optionally, for more control, you can set specific columns to ResizeToContents:
-        # header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # "Class"
-        # header.setSectionResizeMode(5, QHeaderView.ResizeToContents)  # "Delete"
+        self.base_layout.addWidget(self.bbox_table)
 
-        layout.addWidget(self.bbox_table)
-
-        # --- New Row: Three Checkboxes ---
+        # --- Checkboxes row ---
         checkbox_layout = QHBoxLayout()
         self.save_on_unfreeze_cb = QCheckBox("Save on Unfreeze")
         self.clear_on_unfreeze_cb = QCheckBox("Clear on Unfreeze")
@@ -219,9 +211,9 @@ class Detector(AIFileManager):
         checkbox_layout.addWidget(self.save_on_unfreeze_cb)
         checkbox_layout.addWidget(self.clear_on_unfreeze_cb)
         checkbox_layout.addWidget(self.merge_sets_cb)
-        layout.addLayout(checkbox_layout)
+        self.base_layout.addLayout(checkbox_layout)
 
-        # --- New Row: Freeze/Unfreeze and Save Buttons ---
+        # --- Freeze/Unfreeze and Save Buttons row ---
         button_row = QHBoxLayout()
         self.freeze_btn = QPushButton("Freeze")
         self.freeze_btn.setToolTip("Freeze the current camera image or return to live preview")
@@ -230,33 +222,58 @@ class Detector(AIFileManager):
 
         self.save_btn = QPushButton("Save")
         self.save_btn.setToolTip("Save current bounding boxes or annotations")
-        # self.save_btn.clicked.connect(self.save_annotations)  # Implement this slot as needed
+        # self.save_btn.clicked.connect(self.save_annotations)  # Implement as needed
         button_row.addWidget(self.save_btn)
 
-        layout.addLayout(button_row)
+        self.base_layout.addLayout(button_row)
 
-        self.setLayout(layout)
+        self.setLayout(self.base_layout)
         logging.info("Detector widget initialized.")
+
+    def load_class_labels(self):
+        """Load class labels from the labels.txt file specified in settings."""
+        labels_path = None
+        if hasattr(self, "settings_group") and hasattr(self, "settings"):
+            self.settings.beginGroup(self.settings_group or "General")
+            labels_path = self.settings.value("class_labels_path", type=str)
+            self.settings.endGroup()
+        logging.info(f"Loading class labels from: {labels_path}")
+        if labels_path and os.path.exists(labels_path):
+            with open(labels_path, "r") as f:
+                labels = [line.strip() for line in f if line.strip()]
+                logging.info(f"Loaded labels: {labels}")
+                return labels
+        logging.warning("No labels found or labels.txt missing.")
+        return []
 
     def handle_freeze_clicked(self):
         self.freeze_btn.setDisabled(True)
+        was_frozen = self.camera_manager.frozen
         self.camera_manager.toggle_freeze()
-        # The following lines ensure the button is re-enabled and text is correct
+        # Only add a row when going from preview to frozen
+        if not was_frozen:
+            self.add_bbox_row()
         self.update_freeze_button()
 
     def update_freeze_button(self):
-        # Call this after freeze/unfreeze to update button state and label
         self.freeze_btn.setDisabled(False)
         if self.camera_manager.frozen:
             self.freeze_btn.setText("Unfreeze")
         else:
             self.freeze_btn.setText("Freeze")
 
-    # Optionally, add a method to add a row to the table:
-    def add_bbox_row(self, class_name, x, y, width, height):
+    def add_bbox_row(self, class_name=None, x=0, y=0, width=0, height=0):
+        class_labels = self.load_class_labels()
         row = self.bbox_table.rowCount()
         self.bbox_table.insertRow(row)
-        self.bbox_table.setItem(row, 0, QTableWidgetItem(str(class_name)))
+        class_combo = QComboBox()
+        if class_labels:
+            class_combo.addItems(class_labels)
+        else:
+            class_combo.addItem("No labels found")
+        if class_name and class_name in class_labels:
+            class_combo.setCurrentText(class_name)
+        self.bbox_table.setCellWidget(row, 0, class_combo)
         self.bbox_table.setItem(row, 1, QTableWidgetItem(str(x)))
         self.bbox_table.setItem(row, 2, QTableWidgetItem(str(y)))
         self.bbox_table.setItem(row, 3, QTableWidgetItem(str(width)))
@@ -264,7 +281,29 @@ class Detector(AIFileManager):
         delete_btn = QPushButton("Delete")
         self.bbox_table.setCellWidget(row, 5, delete_btn)
 
-    def cleanup(self):
-        print("Detector.cleanup called")
-        if hasattr(self, "camera_manager"):
-            self.camera_manager.cleanup()
+    def load_component_widget(self):
+        action = self.sender()
+        name = action.data()
+        class_name = None
+        module_name = None
+        try:
+            module_name = f"{name}_widget"
+            module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            class_name = name.capitalize()
+            widget_class = getattr(module, class_name)
+            widget_instance = widget_class(**self.get_component_args(name))
+            widget_instance.setWindowTitle(class_name)
+            old_widget = self.right_dock.widget()
+            if old_widget is not None:
+                if hasattr(old_widget, "cleanup"):
+                    old_widget.cleanup()
+                old_widget.deleteLater()
+            self.right_dock.setWidget(widget_instance)
+            self.right_dock.show()
+            logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
+        except Exception as e:
+            logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
+            QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")

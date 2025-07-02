@@ -248,17 +248,7 @@ class Classifier(AIFileManager):
         self.modes = modes
         self.preview = preview
 
-        # --- Set/Class Dropdowns ---
-        dropdown_layout = QHBoxLayout()
-        dropdown_layout.addWidget(QLabel("Set:"))
-        self.current_set_dropdown = QComboBox()
-        dropdown_layout.addWidget(self.current_set_dropdown)
-        dropdown_layout.addWidget(QLabel("Class:"))
-        self.current_class_dropdown = QComboBox()
-        dropdown_layout.addWidget(self.current_class_dropdown)
-        self.base_layout.addLayout(dropdown_layout)
-
-        # Add a visible separator
+        # --- Add a visible separator first ---
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setFrameShadow(QFrame.Sunken)
@@ -266,6 +256,20 @@ class Classifier(AIFileManager):
         bg_color = palette.color(palette.Dark).name()
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         self.base_layout.addWidget(separator)
+
+        # --- Set Dropdown Row ---
+        set_layout = QHBoxLayout()
+        set_layout.addWidget(QLabel("Current Set:"))
+        self.current_set_dropdown = QComboBox()
+        set_layout.addWidget(self.current_set_dropdown)
+        self.base_layout.addLayout(set_layout)
+
+        # --- Class Dropdown Row ---
+        class_layout = QHBoxLayout()
+        class_layout.addWidget(QLabel("Current Class:"))
+        self.current_class_dropdown = QComboBox() 
+        class_layout.addWidget(self.current_class_dropdown)
+        self.base_layout.addLayout(class_layout)
 
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
