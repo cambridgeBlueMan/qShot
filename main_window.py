@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
-        self.default_widget_name = "test"
+        self.default_widget_name = "detector"
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)

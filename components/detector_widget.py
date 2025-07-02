@@ -117,6 +117,16 @@ class CameraManager(QWidget):
                     main_window._captured_image_label = label
                     self.frozen = True
                     logging.info("Displayed captured image in central widget.")
+
+                    # Connect the signal to the Detector's add_bbox_row
+                    detector_widget = self.file_manager  # Detector instance
+                    detector_widget.bbox_label = label   # Always set this!
+                    self.bbox_label = label  # Store reference
+                    label.box_completed.connect(
+                        lambda x, y, w, h, class_index: detector_widget.add_bbox_row(
+                            class_name=None, x=x, y=y, width=w, height=h
+                        )
+                    )
                 else:
                     logging.error("MainWindow does not have a 'central_stack' attribute.")
             else:
@@ -173,6 +183,9 @@ class CameraManager(QWidget):
             dlg = SaveChangesDialog(self)
             dlg.exec_()
             self.restore_preview()  # Always restore preview and remove frozen image
+
+    def get_bbox_label(self):
+        return getattr(self, "bbox_label", None)
 
 class Detector(AIFileManager):
     """
@@ -250,9 +263,6 @@ class Detector(AIFileManager):
         self.freeze_btn.setDisabled(True)
         was_frozen = self.camera_manager.frozen
         self.camera_manager.toggle_freeze()
-        # Only add a row when going from preview to frozen
-        if not was_frozen:
-            self.add_bbox_row()
         self.update_freeze_button()
 
     def update_freeze_button(self):
@@ -281,29 +291,10 @@ class Detector(AIFileManager):
         delete_btn = QPushButton("Delete")
         self.bbox_table.setCellWidget(row, 5, delete_btn)
 
-    def load_component_widget(self):
-        action = self.sender()
-        name = action.data()
-        class_name = None
-        module_name = None
-        try:
-            module_name = f"{name}_widget"
-            module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            class_name = name.capitalize()
-            widget_class = getattr(module, class_name)
-            widget_instance = widget_class(**self.get_component_args(name))
-            widget_instance.setWindowTitle(class_name)
-            old_widget = self.right_dock.widget()
-            if old_widget is not None:
-                if hasattr(old_widget, "cleanup"):
-                    old_widget.cleanup()
-                old_widget.deleteLater()
-            self.right_dock.setWidget(widget_instance)
-            self.right_dock.show()
-            logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
-        except Exception as e:
-            logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
-            QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
+        def on_class_changed(index, row=row):
+            bbox_label = getattr(self, "bbox_label", None)
+            if bbox_label and row < len(bbox_label.box_colors):
+                bbox_label.box_colors[row] = index
+                bbox_label.update()  # Redraw with new color
+
+        class_combo.currentIndexChanged.connect(on_class_changed)

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPainter, QPen, QColor
-from PyQt5.QtCore import Qt, QRect, QPoint
+from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal
 from generate_color import generate_color
 import random
 
@@ -9,6 +9,8 @@ class BBoxLabel(QLabel):
     QLabel subclass for drawing bounding boxes on an image.
     Stores boxes in original image coordinates so they persist and scale on resize.
     """
+    box_completed = pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
+
     def __init__(self, pixmap=None, parent=None):
         super().__init__(parent)
         if pixmap is not None:
@@ -71,13 +73,16 @@ class BBoxLabel(QLabel):
             p2 = self._to_image_coords(self.end)
             rect = QRect(p1, p2).normalized()
             self.boxes.append(rect)
-            # Assign a random class index (e.g., from 0 to 5)
-            class_index = random.choice([0, 1, 2, 3, 4, 5])
+            # Use default class index (e.g., 0) instead of random
+            class_index = 0
             self.box_colors.append(class_index)
             self.drawing = False
             self.start = None
             self.end = None
             self.update()
+            # Emit signal with box info
+            x, y, w, h = rect.getRect()
+            self.box_completed.emit(x, y, w, h, class_index)
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -91,7 +96,6 @@ class BBoxLabel(QLabel):
             p1 = self._to_widget_coords(rect.topLeft())
             p2 = self._to_widget_coords(rect.bottomRight())
             scaled_rect = QRect(p1, p2)
-            # Get the color for this box
             class_index = self.box_colors[i] if i < len(self.box_colors) else 0
             r, g, b, a = generate_color(class_index)
             color = QColor(r, g, b, a)
