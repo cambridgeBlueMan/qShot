@@ -291,10 +291,30 @@ class Detector(AIFileManager):
         delete_btn = QPushButton("Delete")
         self.bbox_table.setCellWidget(row, 5, delete_btn)
 
-        def on_class_changed(index, row=row):
-            bbox_label = getattr(self, "bbox_label", None)
-            if bbox_label and row < len(bbox_label.box_colors):
-                bbox_label.box_colors[row] = index
-                bbox_label.update()  # Redraw with new color
+        def on_class_changed(index):
+            # Find the current row for this combo box
+            for r in range(self.bbox_table.rowCount()):
+                if self.bbox_table.cellWidget(r, 0) is class_combo:
+                    bbox_label = getattr(self, "bbox_label", None)
+                    if bbox_label and r < len(bbox_label.box_colors):
+                        bbox_label.box_colors[r] = index
+                        bbox_label.update()
+                    break
 
         class_combo.currentIndexChanged.connect(on_class_changed)
+
+        def on_delete_clicked():
+            # Find the current row for this delete button
+            for r in range(self.bbox_table.rowCount()):
+                if self.bbox_table.cellWidget(r, 5) is delete_btn:
+                    self.bbox_table.removeRow(r)
+                    bbox_label = getattr(self, "bbox_label", None)
+                    if bbox_label:
+                        if r < len(bbox_label.boxes):
+                            bbox_label.boxes.pop(r)
+                        if r < len(bbox_label.box_colors):
+                            bbox_label.box_colors.pop(r)
+                        bbox_label.update()
+                    break
+
+        delete_btn.clicked.connect(on_delete_clicked)
