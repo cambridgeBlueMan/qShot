@@ -222,6 +222,8 @@ class MainWindow(QMainWindow):
         Used for loading the default widget at startup or when switching components in code.
         Ensures proper cleanup of the outgoing widget.
         """
+        class_name = None
+        module_name = None
         try:
             module_name = f"{name}_widget"
             module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")

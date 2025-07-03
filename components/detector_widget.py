@@ -9,6 +9,9 @@ from ai_file_manager_base import AIFileManager
 from components.bboxlabel import BBoxLabel
 from generate_color import generate_color
 import importlib.util
+from datetime import datetime
+from xml.etree.ElementTree import Element, SubElement, ElementTree
+from PIL import Image
 
 logging.basicConfig(
     level=logging.INFO,
@@ -120,6 +123,7 @@ class CameraManager(QWidget):
 
                     # Connect the signal to the Detector's add_bbox_row
                     detector_widget = self.file_manager  # Detector instance
+                    detector_widget.captured_img_array = img_array  # Store for later saving
                     detector_widget.bbox_label = label   # Always set this!
                     self.bbox_label = label  # Store reference
                     label.box_completed.connect(
@@ -219,7 +223,9 @@ class Detector(AIFileManager):
         # --- Checkboxes row ---
         checkbox_layout = QHBoxLayout()
         self.save_on_unfreeze_cb = QCheckBox("Save on Unfreeze")
+        self.save_on_unfreeze_cb.setChecked(True)  # Default to True
         self.clear_on_unfreeze_cb = QCheckBox("Clear on Unfreeze")
+        self.clear_on_unfreeze_cb.setChecked(True)  # Default to True
         self.merge_sets_cb = QCheckBox("Merge Sets")
         checkbox_layout.addWidget(self.save_on_unfreeze_cb)
         checkbox_layout.addWidget(self.clear_on_unfreeze_cb)
@@ -264,6 +270,9 @@ class Detector(AIFileManager):
         was_frozen = self.camera_manager.frozen
         self.camera_manager.toggle_freeze()
         self.update_freeze_button()
+        # If we just unfroze and "Save on Unfreeze" is checked, save the frame
+        if was_frozen and not self.camera_manager.frozen and self.save_on_unfreeze_cb.isChecked():
+            self.saveFrame()
 
     def update_freeze_button(self):
         self.freeze_btn.setDisabled(False)
@@ -271,6 +280,7 @@ class Detector(AIFileManager):
             self.freeze_btn.setText("Unfreeze")
         else:
             self.freeze_btn.setText("Freeze")
+        self.freeze_btn.repaint()
 
     def add_bbox_row(self, class_name=None, x=0, y=0, width=0, height=0):
         class_labels = self.load_class_labels()
@@ -298,7 +308,7 @@ class Detector(AIFileManager):
                     bbox_label = getattr(self, "bbox_label", None)
                     if bbox_label and r < len(bbox_label.box_colors):
                         bbox_label.box_colors[r] = index
-                        bbox_label.update()
+                        bbox_label.update() 
                     break
 
         class_combo.currentIndexChanged.connect(on_class_changed)
@@ -318,3 +328,82 @@ class Detector(AIFileManager):
                     break
 
         delete_btn.clicked.connect(on_delete_clicked)
+
+    def saveFrame(self):
+        print("Saving frame...")
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        imgFilename = f"{timestamp}.jpg"
+        dataset_path = self.dataset_path_input.text()
+        imgPath = os.path.join(dataset_path, "JPEGImages", imgFilename)
+        xmlPath = os.path.join(dataset_path, "Annotations", f"{timestamp}.xml")
+
+        # Save the captured image array as JPEG
+        if hasattr(self, "captured_img_array") and self.captured_img_array is not None:
+            img = self.captured_img_array
+            # Convert RGB or RGBA to PIL Image
+            if img.shape[2] == 3:
+                pil_img = Image.fromarray(img, mode="RGB")
+            elif img.shape[2] == 4:
+                pil_img = Image.fromarray(img, mode="RGBA").convert("RGB")
+            else:
+                raise ValueError("Unsupported image format for saving.")
+            pil_img.save(imgPath, "JPEG")
+            print(f"Saved image to {imgPath}")
+
+        # Create annotation XML
+        root = Element("annotation")
+        SubElement(root, "filename").text = imgFilename
+        SubElement(root, "folder").text = os.path.basename(dataset_path)
+        source = SubElement(root, "source")
+        SubElement(source, "database").text = os.path.basename(dataset_path)
+        SubElement(source, "annotation").text = "custom"
+        SubElement(source, "image").text = "custom"
+        size = SubElement(root, "size")
+        # Use actual image width and height
+        SubElement(size, "width").text = str(pil_img.width)
+        SubElement(size, "height").text = str(pil_img.height)
+        SubElement(size, "depth").text = "3"
+        SubElement(root, "segmented").text = "0"
+
+        # Add bounding boxes
+        for n in range(self.bbox_table.rowCount()):
+            object_elem = SubElement(root, "object")
+            class_name = self.bbox_table.cellWidget(n, 0).currentText()
+            SubElement(object_elem, "name").text = class_name
+            SubElement(object_elem, "pose").text = "unspecified"
+            SubElement(object_elem, "truncated").text = "0"
+            SubElement(object_elem, "difficult").text = "0"
+            bbox = SubElement(object_elem, "bndbox")
+            # Get values from table
+            x = int(self.bbox_table.item(n, 1).text())
+            y = int(self.bbox_table.item(n, 2).text())
+            width = int(self.bbox_table.item(n, 3).text())
+            height = int(self.bbox_table.item(n, 4).text())
+            xmin = x
+            ymin = y
+            xmax = x + width
+            ymax = y + height
+            SubElement(bbox, "xmin").text = str(xmin)
+            SubElement(bbox, "ymin").text = str(ymin)
+            SubElement(bbox, "xmax").text = str(xmax)
+            SubElement(bbox, "ymax").text = str(ymax)
+
+        tree = ElementTree(root)
+        tree.write(xmlPath)
+        print(f"Saved annotation XML to {xmlPath}")
+
+    def select_dataset_path(self):
+        super().select_dataset_path()  # Call the base class method to show dialog and save setting
+
+        # Now create the required folders in the selected path
+        dataset_path = self.dataset_path_input.text()
+        for subdir in ["Annotations", "ImageSets", "JPEGImages"]:
+            os.makedirs(os.path.join(dataset_path, subdir), exist_ok=True)
+
+    def select_class_labels_file(self):
+        super().select_class_labels_file()  # Call the base class method to show dialog and save setting
+
+        # Now create the required folder in the dataset path
+        dataset_path = self.dataset_path_input.text()
+        imagesets_main = os.path.join(dataset_path, "ImageSets", "Main") 
+        os.makedirs(imagesets_main, exist_ok=True)
