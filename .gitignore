@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+app.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test and temp files
+*.tmp
+*.bak
+*.swp
+
+# Dataset and annotation outputs (optional, uncomment if needed)
+# JPEGImages/
+# Annotations/
+# ImageSets/
+
+# Misc
+*.sqlite3
+*.db
+
+# Ignore test video
+*.mp4
