@@ -74,35 +74,45 @@ class CameraManager(QWidget):
 
     def freeze_image(self):
         logging.info("Freeze button pressed.")
+        # Use capture_image to get a PIL image directly
         if self.preview and hasattr(self.preview, "done_signal"):
             try:
                 self.preview.done_signal.disconnect(self._capture_done)
             except Exception:
                 pass  # Not previously connected
             self.preview.done_signal.connect(self._capture_done)
-        self._current_job = self.cam.capture_array(signal_function=self.preview.signal_done)
-        logging.info("Async image capture started.")
+        self._current_job = self.cam.capture_image(signal_function=self.preview.signal_done)
+        logging.info("Async image capture started (capture_image).")
 
     def _capture_done(self, job):
-        logging.info("Image capture completed (async).")
+        logging.info("Image capture completed (async, PIL image).")
         try:
-            img_array = self.cam.wait(job)
+            pil_img = self.cam.wait(job)
             from PyQt5.QtGui import QImage, QPixmap
 
-            if img_array is not None:
-                # Convert to RGB or RGBA QImage
-                if img_array.shape[2] == 3:
-                    height, width, channel = img_array.shape
-                    bytes_per_line = 3 * width
-                    qimg = QImage(img_array.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                elif img_array.shape[2] == 4:
-                    height, width, channel = img_array.shape
-                    bytes_per_line = 4 * width
-                    qimg = QImage(img_array.data, width, height, bytes_per_line, QImage.Format_RGBA8888)
+
+            logging.info(f"pil_img type: {type(pil_img)} size: {getattr(pil_img, 'size', None)} mode: {getattr(pil_img, 'mode', None)}")
+            if pil_img is not None:
+                # Convert unsupported modes to RGB
+                if pil_img.mode == "RGB":
+                    img_for_qt = pil_img
+                elif pil_img.mode == "RGBA":
+                    img_for_qt = pil_img
+                elif pil_img.mode == "RGBX":
+                    logging.info("Converting RGBX to RGB for display.")
+                    img_for_qt = pil_img.convert("RGB")
                 else:
-                    raise ValueError("Unsupported image format for display.")
+                    raise ValueError(f"Unsupported PIL image mode for display: {pil_img.mode}")
+
+                img_data = img_for_qt.tobytes()
+                width, height = img_for_qt.size
+                if img_for_qt.mode == "RGB":
+                    qimg = QImage(img_data, width, height, QImage.Format_RGB888)
+                elif img_for_qt.mode == "RGBA":
+                    qimg = QImage(img_data, width, height, QImage.Format_RGBA8888)
 
                 pixmap = QPixmap.fromImage(qimg)
+                logging.info(f"Created pixmap: {pixmap.size()}, isNull: {pixmap.isNull()}")
 
                 main_window = self.window()
                 if hasattr(main_window, "central_stack"):
@@ -123,7 +133,7 @@ class CameraManager(QWidget):
 
                     # Connect the signal to the Detector's add_bbox_row
                     detector_widget = self.file_manager  # Detector instance
-                    detector_widget.captured_img_array = img_array  # Store for later saving
+                    detector_widget.captured_img_array = pil_img  # Store for later saving
                     detector_widget.bbox_label = label   # Always set this!
                     self.bbox_label = label  # Store reference
                     label.box_completed.connect(
@@ -134,7 +144,7 @@ class CameraManager(QWidget):
                 else:
                     logging.error("MainWindow does not have a 'central_stack' attribute.")
             else:
-                logging.error("Failed to capture image: img_array is None.")
+                logging.error("Failed to capture image: pil_img is None.")
 
         except Exception as e:
             logging.error(f"Error in async image capture: {e}")
@@ -337,16 +347,14 @@ class Detector(AIFileManager):
         imgPath = os.path.join(dataset_path, "JPEGImages", imgFilename)
         xmlPath = os.path.join(dataset_path, "Annotations", f"{timestamp}.xml")
 
-        # Save the captured image array as JPEG
+        # Save the captured image (PIL Image) as JPEG
         if hasattr(self, "captured_img_array") and self.captured_img_array is not None:
-            img = self.captured_img_array
-            # Convert RGB or RGBA to PIL Image
-            if img.shape[2] == 3:
-                pil_img = Image.fromarray(img, mode="RGB")
-            elif img.shape[2] == 4:
-                pil_img = Image.fromarray(img, mode="RGBA").convert("RGB")
-            else:
-                raise ValueError("Unsupported image format for saving.")
+            pil_img = self.captured_img_array
+            # Convert to RGB if needed
+            if pil_img.mode not in ["RGB", "RGBA"]:
+                pil_img = pil_img.convert("RGB")
+            elif pil_img.mode == "RGBA":
+                pil_img = pil_img.convert("RGB")
             pil_img.save(imgPath, "JPEG")
             print(f"Saved image to {imgPath}")
 
