@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 import sys
 
 class ControlCamera(QWidget):

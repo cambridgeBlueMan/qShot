@@ -2,9 +2,9 @@
 
 import sys
 import csv
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QPainter, QPen, QImage
-from PyQt5.QtCore import Qt, QRect
+from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtGui import QPixmap, QPainter, QPen, QImage
+from PyQt6.QtCore import Qt, QRect
 
 class BBoxLabel(QLabel):
     def __init__(self, image_path):

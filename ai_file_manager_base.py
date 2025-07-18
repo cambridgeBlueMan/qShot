@@ -1,7 +1,7 @@
 # ai_file_manager_base.py
 from abc import ABC, abstractmethod
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider, QVBoxLayout
-from PyQt5.QtCore import QSettings, Qt
+from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider, QVBoxLayout
+from PyQt6.QtCore import QSettings, Qt
 
 class AIFileManager(QWidget):
     """
@@ -78,7 +78,7 @@ class AIFileManager(QWidget):
 
         # Row: JPEG Quality
         layout.addWidget(QLabel("jpeg quality"), 5, 0)
-        self.jpeg_quality_slider = QSlider(Qt.Horizontal)
+        self.jpeg_quality_slider = QSlider(Qt.Orientation.Horizontal)
         self.jpeg_quality_slider.setValue(95)
         self.jpeg_quality_slider.setMinimum(0)
         self.jpeg_quality_slider.setMaximum(100)

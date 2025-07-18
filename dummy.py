@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QLabel, QWidget, QApplication
+from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtWidgets import QLabel, QWidget, QApplication
 import random
 import sys
 
@@ -31,7 +31,7 @@ class Color(QWidget):
         super().__init__()
         self.setAutoFillBackground(True)
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
+        palette.setColor(QPalette.ColorRole.Window, QColor(color))
         self.setPalette(palette)
 
 
@@ -54,7 +54,7 @@ class Dummy(QWidget):
         else:
             color = QColor(color)
         palette = self.palette()
-        palette.setColor(QPalette.Window, color)
+        palette.setColor(QPalette.ColorRole.Window, color)
         self.setPalette(palette)
         self.label = QLabel(self)
         self.label.setText(text)

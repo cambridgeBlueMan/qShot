@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QApplication, QLabel
+from PyQt6.QtWidgets import QApplication, QLabel
 app = QApplication([])
-label = QLabel("Hello, PyQt5!")
+label = QLabel("Hello, PyQt6!")
 label.show()
 app.exec_()

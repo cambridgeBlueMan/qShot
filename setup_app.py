@@ -6,8 +6,8 @@ Run this once before using the application.
 
 import os
 import sys
-from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QSettings
+from PyQt6.QtWidgets import QApplication
 
 def setup_application():
     """Configure the application with default settings."""

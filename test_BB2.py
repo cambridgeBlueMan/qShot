@@ -1,8 +1,8 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QPainter, QPen, QImage
-from PyQt5.QtCore import Qt, QRect
+from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtGui import QPixmap, QPainter, QPen, QImage
+from PyQt6.QtCore import Qt, QRect
 import cv2
 
 # Remove the QT_QPA_PLATFORM_PLUGIN_PATH environment variable if set.
@@ -14,7 +14,7 @@ def cvimg_to_qpixmap(cv_img):
     """Convert OpenCV image (BGR) to QPixmap."""
     height, width, channel = cv_img.shape
     bytes_per_line = 3 * width
-    qimg = QImage(cv_img.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+    qimg = QImage(cv_img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888).rgbSwapped()
     return QPixmap.fromImage(qimg)
 
 class BBoxLabel(QLabel):

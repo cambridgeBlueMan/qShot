@@ -1,12 +1,12 @@
 import logging
 import os
 from datetime import datetime
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit,
     QDoubleSpinBox, QFrame, QSpinBox, QSlider, QFileDialog
 )
-from PyQt5.QtGui import QIcon, QColor, QPalette
-from PyQt5.QtCore import QTimer, Qt, QSettings
+from PyQt6.QtGui import QIcon, QColor, QPalette
+from PyQt6.QtCore import QTimer, Qt, QSettings
 from ai_file_manager_base import AIFileManager
 
 logging.basicConfig(
@@ -109,7 +109,7 @@ class CameraManager(QWidget):
         main_layout.addLayout(pos_layout)
 
         self.setLayout(main_layout)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFocus()
         logging.info("CameraManager widget initialized with camera and csi.")
 
@@ -250,10 +250,10 @@ class Classifier(AIFileManager):
 
         # --- Add a visible separator first ---
         separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
-        separator.setFrameShadow(QFrame.Sunken)
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
         palette = self.palette()
-        bg_color = palette.color(palette.Dark).name()
+        bg_color = palette.color(QPalette.ColorRole.Dark).name()
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         self.base_layout.addWidget(separator)
 

@@ -6,9 +6,9 @@ import os
 os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
 os.environ.pop("QT_PLUGIN_PATH", None)
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QApplication  # <-- Add this line
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtWidgets import QApplication  # <-- Add this line
 from picamera2 import Picamera2
 from main_window import MainWindow  # Adjust the import path as needed
 from dummy import Dummy
@@ -29,19 +29,19 @@ def set_dark_palette(app):
         app: The QApplication instance to apply the palette to.
     """
     dark_palette = QPalette()
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.Base, QColor(35, 35, 35))
-    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.Text, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
-    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
+    dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+    dark_palette.setColor(QPalette.ColorRole.Base, QColor(35, 35, 35))
+    dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
+    dark_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+    dark_palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+    dark_palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
+    dark_palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+    dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
     app.setPalette(dark_palette)
     app.setStyle("Fusion")
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         window.show()
 
         logging.info("Starting Qt event loop.")
-        sys.exit(app.exec_())  # Start the Qt event loop and keep the app running
+        sys.exit(app.exec())  # Start the Qt event loop and keep the app running
     except ValueError as e:
         logging.error(f"ValueError: {e}")
         print(f"Error: {e}")

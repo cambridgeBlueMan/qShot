@@ -1,10 +1,10 @@
 import logging
 import os
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QCheckBox, QHeaderView,
     QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget  # <-- Add QWidget here
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from ai_file_manager_base import AIFileManager
 from components.bboxlabel import BBoxLabel
 from generate_color import generate_color
@@ -62,7 +62,7 @@ class CameraManager(QWidget):
         main_layout.addLayout(camera_mode_layout)
 
         self.setLayout(main_layout)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFocus()
         logging.info("CameraManager widget initialized with camera and csi.")
 
@@ -89,7 +89,7 @@ class CameraManager(QWidget):
         try:
 
             pil_img = self.cam.wait(job)
-            from PyQt5.QtGui import QImage, QPixmap
+            from PyQt6.QtGui import QImage, QPixmap
             logging.info(f"pil_img type: {type(pil_img)} size: {getattr(pil_img, 'size', None)} mode: {getattr(pil_img, 'mode', None)}")
             if pil_img is not None:
                 # Convert unsupported modes to RGB
@@ -106,9 +106,9 @@ class CameraManager(QWidget):
                 img_data = img_for_qt.tobytes()
                 width, height = img_for_qt.size
                 if img_for_qt.mode == "RGB":
-                    qimg = QImage(img_data, width, height, QImage.Format_RGB888)
+                    qimg = QImage(img_data, width, height, QImage.Format.Format_RGB888)
                 elif img_for_qt.mode == "RGBA":
-                    qimg = QImage(img_data, width, height, QImage.Format_RGBA8888)
+                    qimg = QImage(img_data, width, height, QImage.Format.Format_RGBA8888)
 
                 pixmap = QPixmap.fromImage(qimg)
                 logging.info(f"Created pixmap: {pixmap.size()}, isNull: {pixmap.isNull()}")
@@ -221,12 +221,12 @@ class Detector(AIFileManager):
         self.bbox_table = QTableWidget(0, 6)
         self.bbox_table.setHorizontalHeaderLabels(["Class", "X", "Y", "Width", "Height", "Delete"])
         self.bbox_table.verticalHeader().setVisible(False)
-        self.bbox_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.bbox_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.bbox_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.bbox_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.bbox_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.bbox_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.bbox_table.setMinimumHeight(150)
         header = self.bbox_table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Stretch)
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.base_layout.addWidget(self.bbox_table)
 
         # --- Checkboxes row ---

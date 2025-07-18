@@ -1,5 +1,5 @@
 import logging
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton
 from ai_file_manager_base import AIFileManager
 
 logging.basicConfig(

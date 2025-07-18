@@ -1,15 +1,14 @@
 import sys
 import logging
 import os
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QAction, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget
-)
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget
+from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
 from ai_file_manager import FileManagerWidget
 from dummy import Dummy
 from picamera2 import Picamera2
-from picamera2.previews.qt import QGlPicamera2
+from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
 from components.classifier_widget import Classifier
 import importlib.util
 
@@ -79,26 +78,26 @@ class MainWindow(QMainWindow):
         logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
-        self.default_widget_name = "detector"
+        self.default_widget_name ="detector"
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
         self.left_dock.setWidget(Dummy(text="Left Dummy"))
-        self.left_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.left_dock)
+        self.left_dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_dock)
         self.left_dock.hide()  # Hide left dock on launch
 
         self.right_dock = QDockWidget("Component", self)
         # Dynamically load the default widget
         default_widget = self.load_component_widget_by_name(self.default_widget_name)
         self.right_dock.setWidget(default_widget)
-        self.right_dock.setAllowedAreas(Qt.RightDockWidgetArea)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.right_dock)
+        self.right_dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
         self.bottom_dock = QDockWidget("Bottom Dock", self)
         self.bottom_dock.setWidget(Dummy(text="Bottom Dummy"))
-        self.bottom_dock.setAllowedAreas(Qt.BottomDockWidgetArea)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.bottom_dock)
+        self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
         self.bottom_dock.hide()  # Hide bottom dock on launch
 
         logging.info("Left, right, and bottom docks added.")

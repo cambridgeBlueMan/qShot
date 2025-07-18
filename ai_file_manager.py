@@ -1,10 +1,10 @@
 import sys
 import logging
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication, QWidget, QGridLayout, QLabel, QLineEdit, QPushButton,
     QComboBox, QSlider, QFileDialog
 )
-from PyQt5.QtCore import Qt, QSettings
+from PyQt6.QtCore import Qt, QSettings
 from ai_file_manager_base import AIFileManager  # Import the base class
 
 # Configure logging to overwrite the log file on each run
@@ -88,7 +88,7 @@ class FileManagerWidget(AIFileManager):
 
         # Row 6: JPEG Quality
         layout.addWidget(QLabel("jpeg quality"), 5, 0)
-        self.jpeg_quality_slider = QSlider(Qt.Horizontal)
+        self.jpeg_quality_slider = QSlider(Qt.Orientation.Horizontal)
         self.jpeg_quality_slider.setValue(95)
         self.jpeg_quality_slider.setMinimum(0)
         self.jpeg_quality_slider.setMaximum(100)

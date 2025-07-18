@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import QPainter, QPen, QColor
-from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtGui import QPainter, QPen, QColor
+from PyQt6.QtCore import Qt, QRect, QPoint, pyqtSignal
 from generate_color import generate_color
 import random
 
