@@ -1,6 +1,11 @@
 import sys
 import logging
 import os
+
+# Remove problematic Qt environment variables
+os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
+os.environ.pop("QT_PLUGIN_PATH", None)
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QApplication  # <-- Add this line
@@ -15,13 +20,6 @@ logging.basicConfig(
     filename='app.log',
     filemode='w'
 )
-
-# Remove the QT_QPA_PLATFORM_PLUGIN_PATH environment variable if it exists.
-# OpenCV's Python bindings (cv2) sometimes set this variable to their own Qt plugin directory,
-# which can conflict with PyQt5's plugin loading and cause errors such as:
-# "Could not load the Qt platform plugin 'xcb' in ... even though it was found."
-# Unsetting this variable ensures PyQt5 can find and use the correct system Qt plugins.
-os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
 
 def set_dark_palette(app):
     """

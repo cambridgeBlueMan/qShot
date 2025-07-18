@@ -90,6 +90,7 @@ class CameraManager(QWidget):
             from PyQt5.QtGui import QImage, QPixmap
 
             if img_array is not None:
+                logging.info(f"Captured image shape: {img_array.shape}")
                 # Convert to RGB or RGBA QImage
                 if img_array.shape[2] == 3:
                     height, width, channel = img_array.shape
@@ -103,9 +104,11 @@ class CameraManager(QWidget):
                     raise ValueError("Unsupported image format for display.")
 
                 pixmap = QPixmap.fromImage(qimg)
+                logging.info(f"Created pixmap: {pixmap.size()}, isNull: {pixmap.isNull()}")
 
                 main_window = self.window()
                 if hasattr(main_window, "central_stack"):
+                    logging.info("Found central_stack, creating BBoxLabel")
                     # Remove previous captured image label if exists
                     if hasattr(main_window, "_captured_image_label") and main_window._captured_image_label:
                         main_window.central_stack.removeWidget(main_window._captured_image_label)
@@ -115,6 +118,8 @@ class CameraManager(QWidget):
                     label = BBoxLabel()
                     label.setPixmap(pixmap)
                     label.setMinimumSize(320, 240)
+                    label.setFixedSize(640, 480)
+                    label.show()
                     main_window.central_stack.addWidget(label)
                     main_window.central_stack.setCurrentWidget(label)
                     main_window._captured_image_label = label
