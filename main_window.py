@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMess
 from PyQt6.QtGui import QAction
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from ai_file_manager import FileManagerWidget
 from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2

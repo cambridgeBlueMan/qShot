@@ -4,14 +4,15 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QCheckBox, QHeaderView,
     QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget  # <-- Add QWidget here
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal, QPoint, QRect
 from ai_file_manager_base import AIFileManager
-from components.bboxlabel import BBoxLabel
 from generate_color import generate_color
 import importlib.util
 from datetime import datetime
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 from PIL import Image
+from PyQt6.QtGui import QPainter, QPen, QColor, QIcon
+import random
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,6 +21,145 @@ logging.basicConfig(
     filemode='w'
 )
 
+def generate_color(class_index, alpha=180):
+    """
+    Generate a unique color for a given class index.
+    Returns (r, g, b, a) tuple.
+    """
+    random.seed(class_index)
+    r = random.randint(50, 255)
+    g = random.randint(50, 255)
+    b = random.randint(50, 255)
+    return (r, g, b, alpha)
+
+class BBoxLabel(QLabel):
+    """
+    QLabel subclass for drawing bounding boxes on an image.
+    Stores boxes in original image coordinates so they persist and scale on resize.
+    """
+    box_completed = pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
+
+    def __init__(self, pixmap=None, parent=None):
+        super().__init__(parent)
+        if pixmap is not None:
+            self.setPixmap(pixmap)
+        self.boxes = []  # List of QRect in original image coordinates
+        self.box_colors = []  # List of class indices for each box
+        self.start = None  # In widget coords while drawing
+        self.end = None    # In widget coords while drawing
+        self.drawing = False
+        self.annotation_enabled = True
+        self._original_pixmap_size = None
+
+    def setPixmap(self, pixmap):
+        self._pixmap = pixmap
+        if pixmap:
+            super().setPixmap(
+                pixmap.scaled(
+                    self.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+            )
+        else:
+            super().setPixmap(pixmap)
+        self._original_pixmap_size = pixmap.size() if pixmap else None
+        self.update()
+
+    def enable_annotation(self, enabled=True):
+        self.annotation_enabled = enabled
+
+    def _to_image_coords(self, point):
+        """Convert widget coordinates to original image coordinates."""
+        if not self._original_pixmap_size:
+            return point
+        label_rect = self.rect()
+        scale_x = self._original_pixmap_size.width() / label_rect.width()
+        scale_y = self._original_pixmap_size.height() / label_rect.height()
+        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+
+    def _to_widget_coords(self, point):
+        """Convert original image coordinates to widget coordinates."""
+        if not self._original_pixmap_size:
+            return point
+        label_rect = self.rect()
+        scale_x = label_rect.width() / self._original_pixmap_size.width()
+        scale_y = label_rect.height() / self._original_pixmap_size.height()
+        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+
+    def mousePressEvent(self, event):
+        if self.annotation_enabled and event.button() == Qt.MouseButton.LeftButton:
+            self.start = event.pos()
+            self.end = self.start
+            self.drawing = True
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        if self.annotation_enabled and self.drawing:
+            self.end = event.pos()
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        if self.annotation_enabled and event.button() == Qt.MouseButton.LeftButton and self.drawing:
+            self.end = event.pos()
+            # Store box in original image coordinates
+            p1 = self._to_image_coords(self.start)
+            p2 = self._to_image_coords(self.end)
+            rect = QRect(p1, p2).normalized()
+            self.boxes.append(rect)
+            class_index = 0
+            self.box_colors.append(class_index)
+            self.drawing = False
+            self.start = None
+            self.end = None
+            self.update()
+            x, y, w, h = rect.getRect()
+            self.box_completed.emit(x, y, w, h, class_index)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if not self.pixmap() or not self._original_pixmap_size:
+            return
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        for i, rect in enumerate(self.boxes):
+            p1 = self._to_widget_coords(rect.topLeft())
+            p2 = self._to_widget_coords(rect.bottomRight())
+            scaled_rect = QRect(p1, p2)
+            class_index = self.box_colors[i] if i < len(self.box_colors) else 0
+            r, g, b, a = generate_color(class_index)
+            color = QColor(r, g, b, a)
+            painter.setPen(QPen(color, 2, Qt.PenStyle.SolidLine))
+            painter.drawRect(scaled_rect)
+
+        # Draw current box, scaled
+        if self.drawing and self.start and self.end:
+            painter.setPen(QPen(Qt.GlobalColor.green, 2, Qt.PenStyle.DashLine))
+            # Convert current start/end to image coords, then back to widget coords for scaling
+            p1_img = self._to_image_coords(self.start)
+            p2_img = self._to_image_coords(self.end)
+            p1 = self._to_widget_coords(p1_img)
+            p2 = self._to_widget_coords(p2_img)
+            rect = QRect(p1, p2).normalized()
+            painter.drawRect(rect)
+
+    def get_bboxes(self):
+        """Return bounding boxes as (x, y, w, h) in original image coordinates."""
+        return [rect.getRect() for rect in self.boxes]
+
+    def resizeEvent(self, event):
+        if hasattr(self, "_pixmap") and self._pixmap:
+            super().setPixmap(
+                self._pixmap.scaled(
+                    self.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+            )
+        super().resizeEvent(event)
+        
 class SaveChangesDialog(QDialog):
     """Dialog to confirm saving changes when leaving a frozen image."""
     def __init__(self, parent=None):
@@ -66,23 +206,17 @@ class CameraManager(QWidget):
         self.setFocus()
         logging.info("CameraManager widget initialized with camera and csi.")
 
-    def toggle_freeze(self):
-        if not self.frozen:
-            self.freeze_image()
-        else:
-            self.restore_preview()
-
     def freeze_image(self):
         logging.info("Freeze button pressed.")
-        # Use capture_image to get a PIL image directly
         if self.preview and hasattr(self.preview, "done_signal"):
             try:
                 self.preview.done_signal.disconnect(self._capture_done)
             except Exception:
-                pass  # Not previously connected
+                pass
             self.preview.done_signal.connect(self._capture_done)
         self._current_job = self.cam.capture_image(signal_function=self.preview.signal_done)
         logging.info("Async image capture started (capture_image).")
+        self.frozen = True
 
     def _capture_done(self, job):
         logging.info("Image capture completed (async, PIL image).")
@@ -162,6 +296,17 @@ class CameraManager(QWidget):
         else:
             logging.error("MainWindow does not have a 'central_stack' attribute.")
 
+    def toggle_freeze(self):
+        if not self.frozen:
+            self.freeze_image()
+        else:
+            self.restore_preview()
+        main_window = self.window()
+        if hasattr(main_window, "detector_widget"):
+            main_window.detector_widget.update_freeze_button()
+        elif hasattr(main_window, "parent") and hasattr(main_window.parent(), "update_freeze_button"):
+            main_window.parent().update_freeze_button()
+
     def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
         """
         Add a sensor mode dropdown to the given layout.
@@ -185,17 +330,10 @@ class CameraManager(QWidget):
         layout.addWidget(combo)
 
     def cleanup(self):
-        """
-        Called when the Detector component is being removed.
-        Shows a save dialog if frozen, and always restores preview.
-        """
-        print("CameraManager.cleanup called")
-        print(f"CameraManager.cleanup: frozen={self.frozen}")
         if self.frozen:
-            print("Showing SaveChangesDialog")
             dlg = SaveChangesDialog(self)
             dlg.exec_()
-            self.restore_preview()  # Always restore preview and remove frozen image
+            self.restore_preview()
 
     def get_bbox_label(self):
         return getattr(self, "bbox_label", None)
@@ -248,9 +386,8 @@ class Detector(AIFileManager):
         self.freeze_btn.clicked.connect(self.handle_freeze_clicked)
         button_row.addWidget(self.freeze_btn)
 
-        self.save_btn = QPushButton("Save")
+        self.save_btn = QPushButton(QIcon("save.png"), "Save")
         self.save_btn.setToolTip("Save current bounding boxes or annotations")
-        # self.save_btn.clicked.connect(self.save_annotations)  # Implement as needed
         button_row.addWidget(self.save_btn)
 
         self.base_layout.addLayout(button_row)
@@ -275,21 +412,19 @@ class Detector(AIFileManager):
         return []
 
     def handle_freeze_clicked(self):
-        self.freeze_btn.setDisabled(True)
         was_frozen = self.camera_manager.frozen
         self.camera_manager.toggle_freeze()
+        # Now update the button label based on the new state
         self.update_freeze_button()
         # If we just unfroze and "Save on Unfreeze" is checked, save the frame
         if was_frozen and not self.camera_manager.frozen and self.save_on_unfreeze_cb.isChecked():
             self.saveFrame()
 
     def update_freeze_button(self):
-        self.freeze_btn.setDisabled(False)
         if self.camera_manager.frozen:
             self.freeze_btn.setText("Unfreeze")
         else:
             self.freeze_btn.setText("Freeze")
-        self.freeze_btn.repaint()
 
     def add_bbox_row(self, class_name=None, x=0, y=0, width=0, height=0):
         class_labels = self.load_class_labels()
