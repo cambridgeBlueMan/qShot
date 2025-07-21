@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint, QRect
 from ai_file_manager_base import AIFileManager
-from generate_color import generate_color
 import importlib.util
 from datetime import datetime
 from xml.etree.ElementTree import Element, SubElement, ElementTree

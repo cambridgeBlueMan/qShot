@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *.so
-
+components/__pycache__/
 # Virtual environment
 .venv/
 venv/

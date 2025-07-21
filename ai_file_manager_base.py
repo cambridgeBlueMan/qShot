@@ -2,6 +2,8 @@
 from abc import ABC, abstractmethod
 from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider, QVBoxLayout
 from PyQt6.QtCore import QSettings, Qt
+import os
+import logging
 
 class AIFileManager(QWidget):
     """
@@ -51,6 +53,10 @@ class AIFileManager(QWidget):
         self.init_base_ui()
         self.load_settings()  # <-- Add this line!
         # Do NOT call self.setLayout(self.base_layout) here!
+
+        # Connect text changes to validation (add this after creating inputs)
+        self.dataset_path_input.textChanged.connect(self._on_paths_changed)
+        self.class_labels_input.textChanged.connect(self._on_paths_changed)
 
     def init_base_ui(self): 
         layout = QGridLayout()
@@ -115,11 +121,44 @@ class AIFileManager(QWidget):
         """Load dataset path, class labels, and jpeg quality from persistent storage under a group."""
         if self.settings_group:
             self.settings.beginGroup(self.settings_group)
-        self.dataset_path_input.setText(self.settings.value("dataset_path", ""))
-        self.class_labels_input.setText(self.settings.value("class_labels_path", ""))
+
+        dataset_path = self.settings.value("dataset_path", "")
+        labels_path = self.settings.value("class_labels_path", "")
+
+        # Debug logging
+        logging.info(f"Loading settings - labels_path from settings: '{labels_path}'")
+        logging.info(f"labels_path type: {type(labels_path)}")
+        logging.info(f"labels_path exists: {os.path.exists(labels_path)}")
+        logging.info(f"labels_path isfile: {os.path.isfile(labels_path)}")
+
+        # Dataset path - works fine
+        if os.path.isdir(dataset_path):
+            self.dataset_path_input.setText(dataset_path)
+        else:
+            self.dataset_path_input.setText("")
+            if dataset_path:
+                logging.info(f"Saved dataset path does not exist: {dataset_path}. Field left empty.")
+
+        # Make labels path exactly like dataset path
+        if labels_path and os.path.isfile(labels_path):
+            logging.info(f"Setting labels path: {labels_path}")
+            self.class_labels_input.setText(labels_path)
+        else:
+            self.class_labels_input.setText("")
+            if labels_path:
+                logging.info(f"Saved labels path does not exist: {labels_path}. Field left empty.")
+
         self.jpeg_quality_slider.setValue(int(self.settings.value("jpeg_quality", 95)))
+
         if self.settings_group:
             self.settings.endGroup()
+
+    def _on_paths_changed(self):
+        """Called when dataset or labels path changes."""
+        # Find any child widget that has the validate_and_update_buttons method
+        for child in self.findChildren(QWidget):
+            if hasattr(child, 'validate_and_update_buttons'):
+                child.validate_and_update_buttons()
 
     @abstractmethod
     def get_new_file_path(self):
@@ -128,5 +167,9 @@ class AIFileManager(QWidget):
 
     @abstractmethod
     def init_action(self):
-        """Initialize directories and populate dropdowns."""
+        """
+        Initialize directories and populate dropdowns.
+        Scan the dataset path for set/class folders and populate the dropdowns.
+        Also create 'train', 'test', and 'val' directories if missing.
+        """
         pass

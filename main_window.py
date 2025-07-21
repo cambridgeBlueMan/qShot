@@ -19,6 +19,8 @@ logging.basicConfig(
     filemode='w' 
 )
 
+DEFAULT_WIDGET = "classifier"
+
 class MainWindow(QMainWindow):
     """
     Main application window that holds the central widget, toolbars, docks, and menus.
@@ -77,7 +79,7 @@ class MainWindow(QMainWindow):
         logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
-        self.default_widget_name ="detector"
+        self.default_widget_name = DEFAULT_WIDGET
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)

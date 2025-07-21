@@ -77,6 +77,7 @@ class CameraManager(QWidget):
         self.capture_btn = QPushButton("Capture Image")
         self.capture_btn.setToolTip("Capture Image")
         self.capture_btn.clicked.connect(self.capture_image)
+        self.capture_btn.setEnabled(False)  # Start disabled
         capture_layout.addWidget(self.capture_btn)
         main_layout.addLayout(capture_layout)
 
@@ -85,6 +86,7 @@ class CameraManager(QWidget):
         self.sequence_btn = QPushButton("Capture Image Sequence")
         self.sequence_btn.setToolTip("Start or stop capturing an image sequence")
         self.sequence_btn.clicked.connect(self.toggle_sequence_capture)
+        self.sequence_btn.setEnabled(False)  # Start disabled
         sequence_layout.addWidget(self.sequence_btn)
         main_layout.addLayout(sequence_layout)
 
@@ -123,7 +125,7 @@ class CameraManager(QWidget):
         """
         logging.info("Image capture completed.")
         result = self.cam.wait(job)
-        self.file_manager.update_status_label()
+        #self.file_manager.update_status_label()
         self.capture_btn.setDisabled(False)
 
     def capture_image(self):
@@ -233,6 +235,68 @@ class CameraManager(QWidget):
         except Exception as e:
             logging.error(f"Failed to set ScalerCrop: {e}")
 
+    # Add these methods to the CameraManager class in classifier_widget.py
+
+    def validate_and_update_buttons(self):
+        """Enable/disable capture buttons based on dataset and labels validation."""
+        logging.info("validate_and_update_buttons() called")
+        dataset_valid = self.is_dataset_path_valid()
+        labels_valid = self.is_labels_file_valid()
+        
+        buttons_enabled = dataset_valid and labels_valid
+        
+        # Add debug logging for the actual button states
+        logging.info(f"Setting capture_btn.setEnabled({buttons_enabled})")
+        logging.info(f"Setting sequence_btn.setEnabled({buttons_enabled})")
+        
+        self.capture_btn.setEnabled(buttons_enabled)
+        self.sequence_btn.setEnabled(buttons_enabled)
+        
+        # Verify the button states after setting them
+        logging.info(f"capture_btn.isEnabled() = {self.capture_btn.isEnabled()}")
+        logging.info(f"sequence_btn.isEnabled() = {self.sequence_btn.isEnabled()}")
+        
+        if not buttons_enabled:
+            logging.info(f"Capture buttons disabled - Dataset valid: {dataset_valid}, Labels valid: {labels_valid}")
+            self.capture_btn.setStyleSheet("color: #333333; background-color: #888888; border: 1px solid #666666;")
+            self.sequence_btn.setStyleSheet("color: #333333; background-color: #888888; border: 1px solid #666666;")
+        else:
+            logging.info("Capture buttons enabled - Both dataset and labels are valid")
+            self.capture_btn.setStyleSheet("")
+            self.sequence_btn.setStyleSheet("")
+
+    def is_dataset_path_valid(self):
+        """Check if dataset path exists and has required structure."""
+        if not self.file_manager or not hasattr(self.file_manager, "dataset_path_input"):
+            return False
+        dataset_path = self.file_manager.dataset_path_input.text()
+        return os.path.isdir(dataset_path)
+
+    def is_labels_file_valid(self):
+        """Check if labels file exists and has valid content."""
+        if not self.file_manager or not hasattr(self.file_manager, "class_labels_input"):
+            return False
+        
+        labels_path = self.file_manager.class_labels_input.text()
+        if not os.path.isfile(labels_path):
+            return False
+        
+        # Check file content
+        try:
+            with open(labels_path, "r") as f:
+                labels = [line.strip() for line in f if line.strip()]
+            
+            if not labels:
+                logging.warning("Labels file is empty")
+                return False
+            
+            logging.info(f"Labels file is valid with {len(labels)} classes")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error reading labels file: {e}")
+            return False
+
 class Classifier(AIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
@@ -281,6 +345,9 @@ class Classifier(AIFileManager):
 
         # Populate dropdowns on init
         self.init_action()
+        
+        # Initial validation after everything is set up
+        self.camera_manager.validate_and_update_buttons()
 
     def get_new_file_path(self):
         """
@@ -302,28 +369,79 @@ class Classifier(AIFileManager):
     def init_action(self):
         """
         Scan the dataset path for set/class folders and populate the dropdowns.
+        Create 'train', 'test', and 'val' directories if missing.
+        Create class folders within each set directory based on labels.txt.
         """
         dataset_path = self.dataset_path_input.text()
         self.current_set_dropdown.clear()
         self.current_class_dropdown.clear()
+
+        # Load class labels first
+        class_labels = self.load_class_labels()
+        
+        # Ensure train, test, val directories exist
+        for set_name in ["train", "test", "val"]:
+            set_dir = os.path.join(dataset_path, set_name)
+            if not os.path.isdir(set_dir):
+                try:
+                    os.makedirs(set_dir, exist_ok=True)
+                    logging.info(f"Created missing set directory: {set_dir}")
+                except Exception as e:
+                    logging.error(f"Failed to create set directory {set_dir}: {e}")
+                    continue
+        
+            # Create class folders within each set directory
+            for class_label in class_labels:
+                class_dir = os.path.join(set_dir, class_label)
+                if not os.path.isdir(class_dir):
+                    try:
+                        os.makedirs(class_dir, exist_ok=True)
+                        logging.info(f"Created class directory: {class_dir}")
+                    except Exception as e:
+                        logging.error(f"Failed to create class directory {class_dir}: {e}")
+
         if not os.path.isdir(dataset_path):
             logging.warning(f"Dataset path does not exist: {dataset_path}")
             return
+
         sets = [d for d in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, d))]
         self.current_set_dropdown.addItems(sets)
-        if sets:
-            first_set = sets[0]
-            classes = [d for d in os.listdir(os.path.join(dataset_path, first_set))
-                       if os.path.isdir(os.path.join(dataset_path, first_set, d))]
-            self.current_class_dropdown.addItems(classes)
-        # Update classes when set changes
+
+        # Connect the signal first, then load classes once
         self.current_set_dropdown.currentIndexChanged.connect(self._update_class_dropdown)
+        
+        # Load class labels once
+        self._update_class_dropdown()
+
+        # After populating dropdowns, validate and update buttons
+        self.camera_manager.validate_and_update_buttons()
 
     def _update_class_dropdown(self):
-        dataset_path = self.dataset_path_input.text()
-        set_value = self.current_set_dropdown.currentText()
         self.current_class_dropdown.clear()
-        set_path = os.path.join(dataset_path, set_value)
-        if os.path.isdir(set_path):
-            classes = [d for d in os.listdir(set_path) if os.path.isdir(os.path.join(set_path, d))]
-            self.current_class_dropdown.addItems(classes)
+        class_labels = self.load_class_labels()
+        self.current_class_dropdown.addItems(class_labels)
+        
+        # Revalidate buttons when labels change
+        self.camera_manager.validate_and_update_buttons()
+
+    def load_class_labels(self):
+        labels_path = self.class_labels_input.text() if hasattr(self, "class_labels_input") else ""
+        if os.path.isfile(labels_path):
+            with open(labels_path, "r") as f:
+                labels = [line.strip() for line in f if line.strip()]
+            return labels
+        return []
+
+    def check_paths_and_update_fields(self):
+        """Check if dataset and labels paths exist, clear fields if not."""
+        dataset_path = self.dataset_path_input.text()
+        labels_path = self.labels_path_input.text() if hasattr(self, "labels_path_input") else ""
+        if not os.path.isdir(dataset_path):
+            logging.info(f"Dataset path does not exist: {dataset_path}. Clearing field.")
+            self.dataset_path_input.setText("")
+        if not os.path.isfile(labels_path):
+            logging.info(f"Labels path does not exist: {labels_path}. Clearing field.")
+            if hasattr(self, "class_labels_input"):
+                self.class_labels_input.setText("")
+
+
