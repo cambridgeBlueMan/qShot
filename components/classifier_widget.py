@@ -323,28 +323,38 @@ class Classifier(AIFileManager):
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         self.base_layout.addWidget(separator)
 
-        # --- Set Dropdown Row ---
+        # --- Grouped Set/Class/Image Count Row ---
+        group_layout = QVBoxLayout()
+        group_layout.setSpacing(10)
+        group_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Set Dropdown Row
         set_layout = QHBoxLayout()
         set_layout.addWidget(QLabel("Current Set:"))
         self.current_set_dropdown = QComboBox()
         set_layout.addWidget(self.current_set_dropdown)
-        self.base_layout.addLayout(set_layout)
+        group_layout.addLayout(set_layout)
 
-        # --- Class Dropdown Row ---
+        # Class Dropdown Row
         class_layout = QHBoxLayout()
         class_layout.addWidget(QLabel("Current Class:"))
         self.current_class_dropdown = QComboBox() 
         class_layout.addWidget(self.current_class_dropdown)
-        self.base_layout.addLayout(class_layout)
+        group_layout.addLayout(class_layout)
 
-        # --- Image Count Row ---
+        # Image Count Row
         image_count_layout = QHBoxLayout()
         image_count_layout.addWidget(QLabel("Image count for current set and class:"))  # <-- Updated label text
         self.image_count_label = QLabel("0")
         self.image_count_label.setMinimumWidth(40)
-        self.image_count_label.setStyleSheet("color: yellow;")
+        self.image_count_label.setStyleSheet("color: yellow; border: 1px solid red;")
         image_count_layout.addWidget(self.image_count_label)
-        self.base_layout.addLayout(image_count_layout)
+        group_layout.addLayout(image_count_layout)
+
+        # Add the grouped layout to a widget and then add to base_layout
+        group_widget = QWidget()
+        group_widget.setLayout(group_layout)
+        self.base_layout.addWidget(group_widget)
 
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
