@@ -125,8 +125,10 @@ class CameraManager(QWidget):
         """
         logging.info("Image capture completed.")
         result = self.cam.wait(job)
-        #self.file_manager.update_status_label()
         self.capture_btn.setDisabled(False)
+        # Update image count in the file manager (Classifier)
+        if self.file_manager and hasattr(self.file_manager, "update_image_count"):
+            self.file_manager.update_image_count()
 
     def capture_image(self):
         """
@@ -335,6 +337,15 @@ class Classifier(AIFileManager):
         class_layout.addWidget(self.current_class_dropdown)
         self.base_layout.addLayout(class_layout)
 
+        # --- Image Count Row ---
+        image_count_layout = QHBoxLayout()
+        image_count_layout.addWidget(QLabel("Image count for current set and class:"))  # <-- Updated label text
+        self.image_count_label = QLabel("0")
+        self.image_count_label.setMinimumWidth(40)
+        self.image_count_label.setStyleSheet("color: yellow;")
+        image_count_layout.addWidget(self.image_count_label)
+        self.base_layout.addLayout(image_count_layout)
+
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
         self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
@@ -348,6 +359,10 @@ class Classifier(AIFileManager):
         
         # Initial validation after everything is set up
         self.camera_manager.validate_and_update_buttons()
+
+        # Connect dropdown changes to update_image_count
+        self.current_set_dropdown.currentIndexChanged.connect(self.update_image_count)
+        self.current_class_dropdown.currentIndexChanged.connect(self.update_image_count)
 
     def get_new_file_path(self):
         """
@@ -412,6 +427,7 @@ class Classifier(AIFileManager):
         
         # Load class labels once
         self._update_class_dropdown()
+        self.update_image_count()  # Update image count based on current set and class
 
         # After populating dropdowns, validate and update buttons
         self.camera_manager.validate_and_update_buttons()
@@ -423,6 +439,7 @@ class Classifier(AIFileManager):
         
         # Revalidate buttons when labels change
         self.camera_manager.validate_and_update_buttons()
+        self.update_image_count()  # Update image count based on current set and class
 
     def load_class_labels(self):
         labels_path = self.class_labels_input.text() if hasattr(self, "class_labels_input") else ""
@@ -443,5 +460,17 @@ class Classifier(AIFileManager):
             logging.info(f"Labels path does not exist: {labels_path}. Clearing field.")
             if hasattr(self, "class_labels_input"):
                 self.class_labels_input.setText("")
+
+    def update_image_count(self):
+        """Update the image count label based on the current set and class selection."""
+        dataset_path = self.dataset_path_input.text()
+        set_value = self.current_set_dropdown.currentText()
+        class_value = self.current_class_dropdown.currentText()
+        count = 0
+        if dataset_path and set_value and class_value:
+            folder = os.path.join(dataset_path, set_value, class_value)
+            if os.path.isdir(folder):
+                count = len([f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))])
+        self.image_count_label.setText(str(count))
 
 
