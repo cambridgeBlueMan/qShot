@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QLineEdit,
-    QDoubleSpinBox, QFrame, QSpinBox, QSlider, QFileDialog
+    QDoubleSpinBox, QFrame, QSpinBox, QSlider, QFileDialog, QGroupBox, QGridLayout
 )
 from PyQt6.QtGui import QIcon, QColor, QPalette
 from PyQt6.QtCore import QTimer, Qt, QSettings
@@ -314,6 +314,11 @@ class Classifier(AIFileManager):
         self.modes = modes
         self.preview = preview
 
+        # Add space above separator
+        spacer_above = QWidget()
+        spacer_above.setFixedHeight(12)  # Adjust height as needed
+        self.base_layout.addWidget(spacer_above)
+
         # --- Add a visible separator first ---
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
@@ -323,38 +328,44 @@ class Classifier(AIFileManager):
         separator.setStyleSheet(f"background-color: {bg_color}; height: 2px; border: none;")
         self.base_layout.addWidget(separator)
 
+        # Add space below separator
+        spacer_below = QWidget()
+        spacer_below.setFixedHeight(12)  # Adjust height as needed
+        self.base_layout.addWidget(spacer_below)
+
         # --- Grouped Set/Class/Image Count Row ---
         group_layout = QVBoxLayout()
         group_layout.setSpacing(10)
         group_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Set Dropdown Row
-        set_layout = QHBoxLayout()
-        set_layout.addWidget(QLabel("Current Set:"))
+        # Create a group box for the controls
+        group_box = QGroupBox("Dataset Controls")
+        group_box_layout = QGridLayout()
+        group_box_layout.setSpacing(10)
+        group_box_layout.setContentsMargins(8, 8, 8, 8)
+
+        # Row 0: Set Dropdown
+        set_label = QLabel("Current Set:")
         self.current_set_dropdown = QComboBox()
-        set_layout.addWidget(self.current_set_dropdown)
-        group_layout.addLayout(set_layout)
+        group_box_layout.addWidget(set_label, 0, 0)
+        group_box_layout.addWidget(self.current_set_dropdown, 0, 1)
 
-        # Class Dropdown Row
-        class_layout = QHBoxLayout()
-        class_layout.addWidget(QLabel("Current Class:"))
+        # Row 1: Class Dropdown
+        class_label = QLabel("Current Class:")
         self.current_class_dropdown = QComboBox() 
-        class_layout.addWidget(self.current_class_dropdown)
-        group_layout.addLayout(class_layout)
+        group_box_layout.addWidget(class_label, 1, 0)
+        group_box_layout.addWidget(self.current_class_dropdown, 1, 1)
 
-        # Image Count Row
-        image_count_layout = QHBoxLayout()
-        image_count_layout.addWidget(QLabel("Image count for current set and class:"))  # <-- Updated label text
+        # Row 2: Image Count
+        image_count_label = QLabel("Image count for current set and class:")
         self.image_count_label = QLabel("0")
         self.image_count_label.setMinimumWidth(40)
-        self.image_count_label.setStyleSheet("color: yellow; border: 1px solid red;")
-        image_count_layout.addWidget(self.image_count_label)
-        group_layout.addLayout(image_count_layout)
+        self.image_count_label.setStyleSheet("color: yellow;")
+        group_box_layout.addWidget(image_count_label, 2, 0)
+        group_box_layout.addWidget(self.image_count_label, 2, 1)
 
-        # Add the grouped layout to a widget and then add to base_layout
-        group_widget = QWidget()
-        group_widget.setLayout(group_layout)
-        self.base_layout.addWidget(group_widget)
+        group_box.setLayout(group_box_layout)
+        self.base_layout.addWidget(group_box)
 
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
