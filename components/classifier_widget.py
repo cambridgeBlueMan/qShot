@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon, QColor, QPalette
 from PyQt6.QtCore import QTimer, Qt, QSettings
 from ai_file_manager_base import AIFileManager
+from app_signals import app_signals
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,8 +56,10 @@ class CameraManager(QWidget):
         camera_mode_layout = QHBoxLayout()
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
-        combo = QComboBox()
-        self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
+        self.camera_mode_combo = QComboBox()
+        self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=self.camera_mode_combo)
+        self.camera_mode_combo.currentIndexChanged.connect(self._on_mode_changed)
+        camera_mode_layout.addWidget(self.camera_mode_combo)
         main_layout.addLayout(camera_mode_layout)
 
         # Sequence interval row
@@ -114,6 +117,9 @@ class CameraManager(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFocus()
         logging.info("CameraManager widget initialized with camera and csi.")
+
+        # Listen for global mode changes
+        app_signals.mode_changed.connect(self._set_mode_from_signal)
 
     def _capture_done(self, job):
         """
@@ -299,6 +305,18 @@ class CameraManager(QWidget):
             logging.error(f"Error reading labels file: {e}")
             return False
 
+    def _on_mode_changed(self, index):
+        mode = self.camera_mode_combo.itemData(index)
+        app_signals.mode_changed.emit(mode)
+        logging.info(f"Camera mode changed: {mode}")
+
+    def _set_mode_from_signal(self, mode):
+        # Find the index for the new mode and set it
+        idx = self.camera_mode_combo.findData(mode)
+        if idx != -1 and idx != self.camera_mode_combo.currentIndex():
+            self.camera_mode_combo.setCurrentIndex(idx)
+            logging.info(f"CameraManager updated dropdown to mode: {mode}")
+
 class Classifier(AIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
@@ -384,6 +402,8 @@ class Classifier(AIFileManager):
         # Connect dropdown changes to update_image_count
         self.current_set_dropdown.currentIndexChanged.connect(self.update_image_count)
         self.current_class_dropdown.currentIndexChanged.connect(self.update_image_count)
+
+        app_signals.mode_changed.connect(self.on_global_mode_changed)
 
     def get_new_file_path(self):
         """
@@ -493,5 +513,9 @@ class Classifier(AIFileManager):
             if os.path.isdir(folder):
                 count = len([f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))])
         self.image_count_label.setText(str(count))
+
+    def on_global_mode_changed(self, mode):
+        # Example: update something in Classifier if needed
+        logging.info(f"Classifier received global mode change: {mode}")
 
 

@@ -9,6 +9,8 @@ from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
 from components.classifier_widget import Classifier
+from controls_gui import ControlsGui
+from zoomer import Zoomer
 import importlib.util
 
 # Configure logging
@@ -83,7 +85,7 @@ class MainWindow(QMainWindow):
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
-        self.left_dock.setWidget(Dummy(text="Left Dummy"))
+        self.left_dock.setWidget(Zoomer(self, cam=self.cam))  # Use Zoomer for left dock
         self.left_dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_dock)
         self.left_dock.hide()  # Hide left dock on launch
@@ -96,7 +98,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
         self.bottom_dock = QDockWidget("Bottom Dock", self)
-        self.bottom_dock.setWidget(Dummy(text="Bottom Dummy"))
+        self.bottom_dock.setWidget(ControlsGui(cam=self.cam))
         self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
         self.bottom_dock.hide()  # Hide bottom dock on launch
