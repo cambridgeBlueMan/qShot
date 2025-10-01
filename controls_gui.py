@@ -145,35 +145,35 @@ class ControlsGui(QWidget):
         self.config.SharpnessChanged.connect(self.sharpness_spin.setValue)
 
         # Coupling: update model when GUI widgets change
-        def set_contrast_slider(v):
+        def set_contrast_in_model_slider(v):
             self.config.Contrast = v / 10.0
-        def set_contrast_spin(v):
+        def set_contrast_in_model_spin(v):
             self.config.Contrast = v
-        def set_brightness_slider(v):
+        def set_brightness_in_model_slider(v):
             self.config.Brightness = v / 10.0
-        def set_brightness_spin(v):
+        def set_brightness_in_model_spin(v):
             self.config.Brightness = v
-        def set_ae_enable_checkbox(state):
+        def set_ae_enable_in_model_checkbox(state):
             self.config.AeEnable = bool(state)
-        def set_hdr_combo(v):
+        def set_hdr_in_model_combo(v):
             self.config.HdrMode = v
-        def set_hdr_spin(v):
+        def set_hdr_in_model_spin(v):
             self.config.HdrMode = v
-        def set_sharpness_slider(v):
+        def set_sharpness_in_model_slider(v):
             self.config.Sharpness = v / 10.0
-        def set_sharpness_spin(v):
+        def set_sharpness_in_model_spin(v):
             self.config.Sharpness = v
 
-        self.contrast_slider.valueChanged.connect(set_contrast_slider)
-        self.contrast_spin.valueChanged.connect(set_contrast_spin)
-        self.brightness_slider.valueChanged.connect(set_brightness_slider)
-        self.brightness_spin.valueChanged.connect(set_brightness_spin)
-        self.ae_enable_checkbox.stateChanged.connect(set_ae_enable_checkbox)
-        self.ae_enable_checkbox_dup.stateChanged.connect(set_ae_enable_checkbox)
-        self.hdr_combo.currentIndexChanged.connect(set_hdr_combo)
-        self.hdr_spin.valueChanged.connect(set_hdr_spin)
-        self.sharpness_slider.valueChanged.connect(set_sharpness_slider)
-        self.sharpness_spin.valueChanged.connect(set_sharpness_spin)
+        self.contrast_slider.valueChanged.connect(set_contrast_in_model_slider)
+        self.contrast_spin.valueChanged.connect(set_contrast_in_model_spin)
+        self.brightness_slider.valueChanged.connect(set_brightness_in_model_slider)
+        self.brightness_spin.valueChanged.connect(set_brightness_in_model_spin)
+        self.ae_enable_checkbox.stateChanged.connect(set_ae_enable_in_model_checkbox)
+        self.ae_enable_checkbox_dup.stateChanged.connect(set_ae_enable_in_model_checkbox)
+        self.hdr_combo.currentIndexChanged.connect(set_hdr_in_model_combo)
+        self.hdr_spin.valueChanged.connect(set_hdr_in_model_spin)
+        self.sharpness_slider.valueChanged.connect(set_sharpness_in_model_slider)
+        self.sharpness_spin.valueChanged.connect(set_sharpness_in_model_spin)
 
         self.setLayout(layout)
 

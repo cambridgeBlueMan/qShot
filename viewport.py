@@ -2,7 +2,7 @@ from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtg
 from PyQt6 import QtWidgets as qtw
 
-class DragButton(qtw.QPushButton):
+class Viewport(qtw.QPushButton):
     """A draggable pushbutton used to set zoom and view position within the camera sensor."""
     posChanged = qtc.pyqtSignal(int, int)
     doubleClicked = qtc.pyqtSignal()

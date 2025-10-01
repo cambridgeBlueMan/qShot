@@ -1,64 +1,70 @@
-2025-09-09 21:31:33,131 - INFO - Creating new QApplication instance.
-2025-09-09 21:31:33,234 - INFO - CSI argument provided via command line: 1
-2025-09-09 21:31:33,279 - INFO - Initialization successful.
-2025-09-09 21:31:33,279 - INFO - Camera now open.
-2025-09-09 21:31:33,281 - INFO - Camera successfully loaded with csi_arg=1
-2025-09-09 21:31:33,284 - INFO - Camera configuration has been adjusted!
-2025-09-09 21:31:33,286 - INFO - Configuration successful!
-2025-09-09 21:31:33,294 - INFO - Camera configuration has been adjusted!
-2025-09-09 21:31:33,295 - INFO - Configuration successful!
-2025-09-09 21:31:33,305 - INFO - Camera configuration has been adjusted!
-2025-09-09 21:31:33,309 - INFO - Configuration successful!
-2025-09-09 21:31:33,331 - INFO - Sensor modes loaded: [{'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1536, 864), 'fps': 120.13, 'crop_limits': (768, 432, 3072, 1728), 'exposure_limits': (9, 77208145, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (2304, 1296), 'fps': 56.03, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (13, 112015096, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (4608, 2592), 'fps': 14.35, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000)}]
-2025-09-09 21:31:33,334 - INFO - MainWindow initialized.
-2025-09-09 21:31:33,542 - INFO - Camera started
-2025-09-09 21:31:33,542 - INFO - Camera started and QGlPicamera2 preview created.
-2025-09-09 21:31:33,548 - INFO - Toolbar added.
-2025-09-09 21:31:33,551 - INFO - Save action added to toolbar.
-2025-09-09 21:31:33,561 - INFO - Status bar initialized.
-2025-09-09 21:31:33,565 - INFO - Args prepared for component: classifier
-2025-09-09 21:31:33,565 - INFO - Loading Classifier component with settings_group=classifier
-2025-09-09 21:31:33,567 - INFO - Loading settings - labels_path from settings: '/home/lea/meccano_1/labels.txt'
-2025-09-09 21:31:33,567 - INFO - labels_path type: <class 'str'>
-2025-09-09 21:31:33,567 - INFO - labels_path exists: True
-2025-09-09 21:31:33,567 - INFO - labels_path isfile: True
-2025-09-09 21:31:33,567 - INFO - Setting labels path: /home/lea/meccano_1/labels.txt
-2025-09-09 21:31:33,569 - INFO - Instantiating CameraManager for Classifier component
-2025-09-09 21:31:33,570 - INFO - Sensor mode dropdown populated with 3 modes.
-2025-09-09 21:31:33,572 - INFO - CameraManager widget initialized with camera and csi.
-2025-09-09 21:31:33,572 - INFO - Classifier widget initialized.
-2025-09-09 21:31:33,572 - INFO - validate_and_update_buttons() called
-2025-09-09 21:31:33,573 - INFO - Labels file is valid with 12 classes
-2025-09-09 21:31:33,573 - INFO - Setting capture_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - Setting sequence_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - capture_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - sequence_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - Capture buttons enabled - Both dataset and labels are valid
-2025-09-09 21:31:33,573 - INFO - validate_and_update_buttons() called
-2025-09-09 21:31:33,573 - INFO - Labels file is valid with 12 classes
-2025-09-09 21:31:33,573 - INFO - Setting capture_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - Setting sequence_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - capture_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - sequence_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - Capture buttons enabled - Both dataset and labels are valid
-2025-09-09 21:31:33,573 - INFO - validate_and_update_buttons() called
-2025-09-09 21:31:33,573 - INFO - Labels file is valid with 12 classes
-2025-09-09 21:31:33,573 - INFO - Setting capture_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - Setting sequence_btn.setEnabled(True)
-2025-09-09 21:31:33,573 - INFO - capture_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - sequence_btn.isEnabled() = True
-2025-09-09 21:31:33,573 - INFO - Capture buttons enabled - Both dataset and labels are valid
-2025-09-09 21:31:33,576 - INFO - Instantiated and inserted widget: Classifier into right dock (previous content cleaned up)
-2025-09-09 21:31:33,579 - INFO - Left, right, and bottom docks added.
-2025-09-09 21:31:33,580 - INFO - Controls menu added to menu bar.
-2025-09-09 21:31:33,580 - INFO - Components menu added to menu bar.
-2025-09-09 21:31:33,580 - INFO - Added 'classifier' to Components menu.
-2025-09-09 21:31:33,580 - INFO - Added 'detector' to Components menu.
-2025-09-09 21:31:33,580 - INFO - Added 'test' to Components menu.
-2025-09-09 21:31:33,580 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
-2025-09-09 21:31:33,581 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
-2025-09-09 21:31:33,581 - INFO - View menu with dock toggle actions added.
-2025-09-09 21:31:33,581 - INFO - Main window instantiated and about to be shown.
-2025-09-09 21:31:33,591 - INFO - Starting Qt event loop.
-2025-09-09 21:33:13,086 - INFO - Camera stopped
-2025-09-09 21:33:13,288 - INFO - Camera closed successfully.
+2025-09-23 17:42:56,002 - INFO - Creating new QApplication instance.
+2025-09-23 17:42:56,115 - INFO - CSI argument provided via command line: 1
+2025-09-23 17:42:56,116 - INFO - Initialization successful.
+2025-09-23 17:42:56,116 - INFO - Camera now open.
+2025-09-23 17:42:56,117 - INFO - Camera successfully loaded with csi_arg=1
+2025-09-23 17:42:56,118 - INFO - Camera configuration has been adjusted!
+2025-09-23 17:42:56,119 - INFO - Configuration successful!
+2025-09-23 17:42:56,123 - INFO - Camera configuration has been adjusted!
+2025-09-23 17:42:56,124 - INFO - Configuration successful!
+2025-09-23 17:42:56,131 - INFO - Camera configuration has been adjusted!
+2025-09-23 17:42:56,132 - INFO - Configuration successful!
+2025-09-23 17:42:56,147 - INFO - Sensor modes loaded: [{'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1536, 864), 'fps': 120.13, 'crop_limits': (768, 432, 3072, 1728), 'exposure_limits': (9, 77208145, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (2304, 1296), 'fps': 56.03, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (13, 112015096, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (4608, 2592), 'fps': 14.35, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000)}]
+2025-09-23 17:42:56,148 - INFO - MainWindow initialized.
+2025-09-23 17:42:56,264 - INFO - Camera started
+2025-09-23 17:42:56,264 - INFO - Camera started and QGlPicamera2 preview created.
+2025-09-23 17:42:56,269 - INFO - Toolbar added.
+2025-09-23 17:42:56,273 - INFO - Save action added to toolbar.
+2025-09-23 17:42:56,284 - INFO - Status bar initialized.
+2025-09-23 17:42:56,287 - INFO - Args prepared for component: classifier
+2025-09-23 17:42:56,288 - INFO - Loading Classifier component with settings_group=classifier
+2025-09-23 17:42:56,290 - INFO - Loading settings - labels_path from settings: '/home/lea/meccano_1/labels.txt'
+2025-09-23 17:42:56,290 - INFO - labels_path type: <class 'str'>
+2025-09-23 17:42:56,290 - INFO - labels_path exists: True
+2025-09-23 17:42:56,290 - INFO - labels_path isfile: True
+2025-09-23 17:42:56,290 - INFO - Setting labels path: /home/lea/meccano_1/labels.txt
+2025-09-23 17:42:56,292 - INFO - Instantiating CameraManager for Classifier component
+2025-09-23 17:42:56,292 - INFO - Sensor mode dropdown populated with 3 modes.
+2025-09-23 17:42:56,294 - INFO - CameraManager widget initialized with camera and csi.
+2025-09-23 17:42:56,294 - INFO - Classifier widget initialized.
+2025-09-23 17:42:56,294 - INFO - validate_and_update_buttons() called
+2025-09-23 17:42:56,295 - INFO - Labels file is valid with 12 classes
+2025-09-23 17:42:56,295 - INFO - Setting capture_btn.setEnabled(True)
+2025-09-23 17:42:56,295 - INFO - Setting sequence_btn.setEnabled(True)
+2025-09-23 17:42:56,295 - INFO - capture_btn.isEnabled() = True
+2025-09-23 17:42:56,295 - INFO - sequence_btn.isEnabled() = True
+2025-09-23 17:42:56,295 - INFO - Capture buttons enabled - Both dataset and labels are valid
+2025-09-23 17:42:56,295 - INFO - validate_and_update_buttons() called
+2025-09-23 17:42:56,295 - INFO - Labels file is valid with 12 classes
+2025-09-23 17:42:56,296 - INFO - Setting capture_btn.setEnabled(True)
+2025-09-23 17:42:56,296 - INFO - Setting sequence_btn.setEnabled(True)
+2025-09-23 17:42:56,296 - INFO - capture_btn.isEnabled() = True
+2025-09-23 17:42:56,296 - INFO - sequence_btn.isEnabled() = True
+2025-09-23 17:42:56,296 - INFO - Capture buttons enabled - Both dataset and labels are valid
+2025-09-23 17:42:56,296 - INFO - validate_and_update_buttons() called
+2025-09-23 17:42:56,296 - INFO - Labels file is valid with 12 classes
+2025-09-23 17:42:56,296 - INFO - Setting capture_btn.setEnabled(True)
+2025-09-23 17:42:56,296 - INFO - Setting sequence_btn.setEnabled(True)
+2025-09-23 17:42:56,296 - INFO - capture_btn.isEnabled() = True
+2025-09-23 17:42:56,296 - INFO - sequence_btn.isEnabled() = True
+2025-09-23 17:42:56,296 - INFO - Capture buttons enabled - Both dataset and labels are valid
+2025-09-23 17:42:56,299 - INFO - Instantiated and inserted widget: Classifier into right dock (previous content cleaned up)
+2025-09-23 17:42:56,302 - INFO - Left, right, and bottom docks added.
+2025-09-23 17:42:56,303 - INFO - Controls menu added to menu bar.
+2025-09-23 17:42:56,303 - INFO - Components menu added to menu bar.
+2025-09-23 17:42:56,303 - INFO - Added 'classifier' to Components menu.
+2025-09-23 17:42:56,303 - INFO - Added 'detector' to Components menu.
+2025-09-23 17:42:56,303 - INFO - Added 'test' to Components menu.
+2025-09-23 17:42:56,303 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
+2025-09-23 17:42:56,304 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
+2025-09-23 17:42:56,304 - INFO - View menu with dock toggle actions added.
+2025-09-23 17:42:56,304 - INFO - Main window instantiated and about to be shown.
+2025-09-23 17:42:56,313 - INFO - Starting Qt event loop.
+2025-09-23 17:43:18,650 - INFO - Camera mode changed: {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (2304, 1296), 'fps': 56.03, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (13, 112015096, 20000)}
+2025-09-23 17:44:01,693 - INFO - Camera mode changed: {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (4608, 2592), 'fps': 14.35, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000)}
+2025-09-23 17:44:05,997 - INFO - Camera mode changed: {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1536, 864), 'fps': 120.13, 'crop_limits': (768, 432, 3072, 1728), 'exposure_limits': (9, 77208145, 20000)}
+2025-09-23 17:44:11,677 - INFO - Camera mode changed: {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (2304, 1296), 'fps': 56.03, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (13, 112015096, 20000)}
+2025-09-23 17:44:13,981 - INFO - Camera mode changed: {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (4608, 2592), 'fps': 14.35, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000)}
+2025-09-23 17:44:22,691 - INFO - Camera stopped
+2025-09-23 17:44:22,710 - INFO - Camera closed successfully.
+2025-09-23 17:44:22,910 - INFO - Camera closed successfully.

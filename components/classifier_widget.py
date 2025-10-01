@@ -9,6 +9,7 @@ from PyQt6.QtGui import QIcon, QColor, QPalette
 from PyQt6.QtCore import QTimer, Qt, QSettings
 from ai_file_manager_base import AIFileManager
 from app_signals import app_signals
+from config_model import config_model
 
 logging.basicConfig(
     level=logging.INFO,
@@ -306,9 +307,13 @@ class CameraManager(QWidget):
             return False
 
     def _on_mode_changed(self, index):
-        mode = self.camera_mode_combo.itemData(index)
-        app_signals.mode_changed.emit(mode)
+        mode = self.cam.sensor_modes[index]
+        #app_signals.mode_changed.emit(mode)
+
+        config_model.set_nested('sensor', 'output_size', mode['size'])
+        config_model.set_nested('sensor', 'bit_depth', mode['bit_depth'])
         logging.info(f"Camera mode changed: {mode}")
+        print(config_model.to_dict())
 
     def _set_mode_from_signal(self, mode):
         # Find the index for the new mode and set it

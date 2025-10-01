@@ -1,8 +1,9 @@
 from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtg
-from dragbutton import DragButton
+from viewport import Viewport
 from app_signals import app_signals
+from config_model import config_model
 
 class Zoomer(qtw.QWidget):
     """A widget for controlling zoom using a DragButton."""
@@ -23,7 +24,8 @@ class Zoomer(qtw.QWidget):
         frame_layout.setContentsMargins(0, 0, 0, 0)
 
         # DragButton inside the frame 
-        self.viewport = DragButton(self.zoom_frame)
+        
+        self.viewport = Viewport(self.zoom_frame)
         self.viewport.scrolled['int'].connect(self.setViewportSize) # type: ignore
 
         if cam is not None:
