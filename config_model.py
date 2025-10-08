@@ -9,24 +9,21 @@ create_still_configuration, or create_video_configuration) and emits a signal wh
 This enables robust two-way data binding with the GUI.
 
 Typical usage:
-    config_model = ConfigModel()
+    config_model = ConfigModel(initial_config)
     config_model.set_config(picam2.create_preview_configuration())
     config_model.configChanged.connect(some_slot)
 """
 
 from PyQt6.QtCore import QObject, pyqtSignal
-from picamera2 import Picamera2
 
 class ConfigModel(QObject):
     configChanged = pyqtSignal(dict)
 
-    def __init__(self, initial_config=None):
+    def __init__(self, initial_config):
         super().__init__()
-        if initial_config is not None:
-            self._config = initial_config
-        else:
-            cam = Picamera2()
-            self._config = cam.create_preview_configuration()
+        if initial_config is None:
+            raise ValueError("ConfigModel requires an initial_config dictionary.")
+        self._config = initial_config
 
     @property
     def config(self):
@@ -59,14 +56,16 @@ class ConfigModel(QObject):
         """Return the current configuration as a dictionary."""
         return dict(self._config)
 
-# Create a singleton instance for use throughout the app
-config_model = ConfigModel()
+# Do NOT create a singleton instance at module level!
+# Instead, create and share the instance in your main application code, e.g.:
+# config_model = ConfigModel(picam2.create_preview_configuration())
 
 if __name__ == "__main__":
     # Simple test of ConfigModel with Picamera2
     from PyQt6.QtWidgets import QApplication
     import sys
     import pprint
+    from picamera2 import Picamera2
 
     app = QApplication(sys.argv)
     picam2 = Picamera2()

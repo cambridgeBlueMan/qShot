@@ -42,7 +42,7 @@ class ControlsModel(QObject):
     ColourTemperatureChanged = pyqtSignal(int)
     SaturationChanged = pyqtSignal(float)
     CnnEnableInputTensorChanged = pyqtSignal(bool)
-    FrameDurationLimitsChanged = pyqtSignal(int)
+    FrameDurationLimitsChanged = pyqtSignal(tuple)
     ScalerCropChanged = pyqtSignal(tuple)
     NoiseReductionModeChanged = pyqtSignal(int)
     SharpnessChanged = pyqtSignal(float)
@@ -73,7 +73,7 @@ class ControlsModel(QObject):
         self._ColourTemperature = None
         self._Saturation = 1.0
         self._CnnEnableInputTensor = False
-        self._FrameDurationLimits = 33333
+        self._FrameDurationLimits = (33333, 33333)
         self._ScalerCrop = None
         self._NoiseReductionMode = 0
         self._Sharpness = 1.0
@@ -368,16 +368,19 @@ class ControlsModel(QObject):
             self.CnnEnableInputTensorChanged.emit(value)
 
     @property
-    def FrameDurationLimits(self) -> int:
-        """Get the frame duration limits in microseconds."""
+    def FrameDurationLimits(self) -> tuple:
+        """Get the frame duration limits as a tuple (min_duration, max_duration)."""
         return self._FrameDurationLimits
 
     @FrameDurationLimits.setter
-    def FrameDurationLimits(self, value: int):
+    def FrameDurationLimits(self, value: tuple):
         """Set the frame duration limits, emitting the FrameDurationLimitsChanged signal."""
-        if value != self._FrameDurationLimits:
+        if self._FrameDurationLimits != value:
             self._FrameDurationLimits = value
             self.FrameDurationLimitsChanged.emit(value)
+            # Update the camera controls if camera instance is available
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"FrameDurationLimits": value})
 
     @property
     def ScalerCrop(self) -> Optional[Tuple[int, int, int, int]]:

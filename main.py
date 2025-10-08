@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import QApplication  # <-- Add this line
 from picamera2 import Picamera2
 from main_window import MainWindow  # Adjust the import path as needed
 from dummy import Dummy
+from config_model import ConfigModel
 
 # Configure logging
 logging.basicConfig(
@@ -69,16 +70,16 @@ if __name__ == "__main__":
             csi_arg = 0
             logging.info("No CSI argument provided, defaulting to 0.")
 
+        logging.info("About to create Picamera2 instance...")
         camera = Picamera2(csi_arg)
         logging.info(f"Camera successfully loaded with csi_arg={csi_arg}")
 
-        # Get sensor_modes and make available globally
-        modes = camera.sensor_modes
-        logging.info(f"Sensor modes loaded: {modes}")
+        # Create the initial config model using the camera's preview configuration
+        config_model = ConfigModel(camera.create_preview_configuration())
+        logging.info("ConfigModel instance created with preview configuration.")
 
-        # Load and show the main window after camera is loaded
-        window = MainWindow(csi_arg, camera, modes)  # Pass the camera instance to MainWindow
-        logging.info("Main window instantiated and about to be shown.")
+        # Pass config_model to MainWindow if needed, or set it as a global/shared object
+        window = MainWindow(cam=camera, config_model=config_model)
 
         # Set window size to available screen geometry (excluding system bars)
         screen = app.primaryScreen()
@@ -146,4 +147,9 @@ This file is the central launcher for your AI Capture application, handling all 
 configuration, and error management tasks before handing control to the main window and the
 Qt event loop.
 """
+
+logging.info("Detecting available cameras...")
+camera_info_list = Picamera2.global_camera_info()
+for idx, info in enumerate(camera_info_list):
+    logging.info(f"Camera {idx}: {info}")
 

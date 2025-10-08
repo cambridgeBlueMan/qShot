@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon, QColor, QPalette
 from PyQt6.QtCore import QTimer, Qt, QSettings
 from ai_file_manager_base import AIFileManager
 from app_signals import app_signals
-from config_model import config_model
+# from config_model import config_model
 
 logging.basicConfig(
     level=logging.INFO,
@@ -26,7 +26,7 @@ class CameraManager(QWidget):
     Handles single and interval image capture, as well as UI feedback for sequence capture.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
+    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, config_model=None, parent=None):
         """
         Initialize the CameraManager widget.
 
@@ -44,6 +44,8 @@ class CameraManager(QWidget):
         self.modes = modes
         self.file_manager = file_manager
         self.preview = preview
+        self.config_model = config_model  # <-- Store the config_model
+
         self.sequence_running = False  # Track sequence state
         self.sequence_flash_on = False  # Track flash state
         self.sequence_timer = QTimer(self)
@@ -329,13 +331,14 @@ class Classifier(AIFileManager):
     Row 2: CameraManager widget
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
+    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None, config_model=None):
         logging.info(f"Loading Classifier component with settings_group={settings_group}")
         super().__init__(parent, settings_group=settings_group)
         self.cam = cam
         self.csi = csi
         self.modes = modes
         self.preview = preview
+        self.config_model = config_model  # <-- Store config_model
 
         # Add space above separator
         spacer_above = QWidget()
@@ -392,7 +395,9 @@ class Classifier(AIFileManager):
 
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
-        self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
+        self.camera_manager = CameraManager(
+            cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview, config_model=self.config_model
+        )
         self.base_layout.addWidget(self.camera_manager)
 
         self.setLayout(self.base_layout)  # Only call setLayout here!

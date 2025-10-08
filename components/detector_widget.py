@@ -180,13 +180,16 @@ class CameraManager(QWidget):
     Handles single image capture and UI feedback.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, parent=None):
+    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, config_model=None, parent=None):
         super().__init__(parent)
         self.cam = cam
         self.csi = csi
         self.modes = modes
         self.file_manager = file_manager
         self.preview = preview
+        self.config_model = config_model  # <-- Store config_model
+
+
         self.frozen = False  # Track freeze state
 
         main_layout = QVBoxLayout()
@@ -342,16 +345,19 @@ class Detector(AIFileManager):
     Detector widget for annotation. Inherits file management UI from AIFileManager.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None):
+    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None, config_model=None):
         logging.info(f"Loading Detector component with settings_group={settings_group}")
         super().__init__(parent, settings_group=settings_group)
         self.cam = cam
         self.csi = csi
         self.modes = modes
         self.preview = preview
+        self.config_model = config_model  # <-- Store config_model
 
         # --- CameraManager ---
-        self.camera_manager = CameraManager(cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview)
+        self.camera_manager = CameraManager(
+            cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview, config_model=self.config_model
+        )
         self.base_layout.addWidget(self.camera_manager)
 
         # --- Table Widget for bounding boxes ---

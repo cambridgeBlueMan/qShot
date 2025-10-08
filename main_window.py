@@ -21,7 +21,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "classifier"
+DEFAULT_WIDGET = "test"
 
 class MainWindow(QMainWindow):
     """
@@ -29,23 +29,26 @@ class MainWindow(QMainWindow):
     Provides the main interface for the application, including camera preview, file management,
     and user controls.
     """
-    def __init__(self, csi=0, cam=None, modes=None):
+    def __init__(self, cam=None, config_model=None):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
 
         Args:
-            csi: Camera serial interface index.
-            cam: Camera object (Picamera2 instance). If None, a new camera is instantiated.
-            modes: List of camera modes. If None, loaded from the camera.
+            cam: Camera object (Picamera2 instance). Must not be None.
+            config_model: Configuration model object. Must not be None.
         """
+        if cam is None:
+            raise ValueError("A valid camera instance must be provided to MainWindow.")
+        if config_model is None:
+            raise ValueError("A valid config_model must be provided to MainWindow.")
         super().__init__()
         self.setWindowTitle("Camera Capture App")
         logging.info("MainWindow initialized.")
 
         # Store arguments as instance attributes
-        self.csi = csi
-        self.cam = cam if cam is not None else Picamera2(csi)
-        self.modes = modes if modes is not None else self.cam.sensor_modes
+        self.cam = cam
+        self.config_model = config_model
+        self.modes = self.cam.sensor_modes
 
         # Central stacked widget
         self.central_stack = QStackedWidget()
@@ -258,9 +261,9 @@ class MainWindow(QMainWindow):
         """
         args = {
             "cam": self.cam,
-            "csi": self.csi,
             "modes": self.modes,
             "preview": self.preview,
+            "config_model": self.config_model,  # <-- Add this line
         }
         if name is not None:
             args["settings_group"] = name

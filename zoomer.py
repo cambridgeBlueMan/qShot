@@ -3,7 +3,7 @@ from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtg
 from viewport import Viewport
 from app_signals import app_signals
-from config_model import config_model
+# from config_model import config_model
 
 class Zoomer(qtw.QWidget):
     """A widget for controlling zoom using a DragButton."""
