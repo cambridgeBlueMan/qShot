@@ -43,10 +43,14 @@ class Test(AIFileManager):
         super().__init__(parent)
 
         self.cam = kwargs.get("cam")
-        self.modes = kwargs.get("modes")
-        self.preview = kwargs.get("preview")
+        # Assign self.modes to the camera's modes if cam is provided
+        self.modes = self.cam.sensor_modes
+        # self.preview = kwargs.get("preview")
         self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")
         self.settings_group = kwargs.get("settings_group")
+
+        
 
         # Create widgets first
         self.label = QLabel("This is the Test widget.")

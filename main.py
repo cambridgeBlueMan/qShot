@@ -13,6 +13,7 @@ from picamera2 import Picamera2
 from main_window import MainWindow  # Adjust the import path as needed
 from dummy import Dummy
 from config_model import ConfigModel
+from controls_model import ControlsModel
 
 # Configure logging
 logging.basicConfig(
@@ -78,8 +79,12 @@ if __name__ == "__main__":
         config_model = ConfigModel(camera.create_preview_configuration())
         logging.info("ConfigModel instance created with preview configuration.")
 
+        # Create the controls model using the camera's controls configuration
+        controls_model = ControlsModel()
+        logging.info("ControlsModel instance created with controls configuration.")
+
         # Pass config_model to MainWindow if needed, or set it as a global/shared object
-        window = MainWindow(cam=camera, config_model=config_model)
+        window = MainWindow(cam=camera, config_model=config_model, controls_model=controls_model)
 
         # Set window size to available screen geometry (excluding system bars)
         screen = app.primaryScreen()

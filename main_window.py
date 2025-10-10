@@ -1,3 +1,58 @@
+"""
+Main Window Module
+------------------
+
+This module implements the MainWindow class, which is the central GUI window for the AI Capture application.
+It manages the camera preview, dynamic loading of component widgets, dock widgets, toolbars, menus, and
+application-wide state such as configuration and controls models.
+
+Classes and Responsibilities:
+----------------------------
+
+- MainWindow: The main application window (inherits from QMainWindow).
+    - Holds the central camera preview widget (QGlPicamera2).
+    - Manages left, right, and bottom dock widgets for additional tools and components.
+    - Dynamically loads component widgets (such as classifier, detector, test, etc.) into the right dock.
+    - Provides a toolbar with actions (e.g., save).
+    - Manages a menu bar with "Controls", "Components", and "View" menus.
+    - Handles application-wide state: camera instance, config_model, controls_model, and sensor modes.
+    - Provides methods for reporting menu status, saving files, and loading components.
+    - Ensures proper cleanup and replacement of widgets when switching components.
+
+Class Interactions and Workflow:
+-------------------------------
+
+1. Initialization
+   - MainWindow is created with references to the camera, config_model, and controls_model.
+   - Sets up the central camera preview widget using QGlPicamera2.
+   - Initializes left, right, and bottom dock widgets for tools and dynamically loaded components.
+   - Populates the menu bar with controls, components, and view toggles.
+   - Dynamically discovers and adds all *_widget.py components in the components/ directory to the Components menu.
+
+2. Dynamic Component Loading
+   - When a user selects a component from the Components menu, MainWindow dynamically loads the corresponding widget class from the components/ directory.
+   - Uses get_component_args() to pass shared state (camera, config_model, controls_model, etc.) to the component.
+   - Ensures the previous widget is properly cleaned up and deleted before inserting the new one.
+
+3. Toolbar and Menu Actions
+   - Provides a toolbar with a save action, which opens a file dialog and saves a text file.
+   - Menu actions for toggling dock widgets and reporting the status of checkable menu items.
+
+4. Application State Management
+   - Maintains references to the camera, config_model, controls_model, and sensor modes.
+   - Shares these objects with all dynamically loaded components for consistent state and configuration.
+
+Summary Table
+-------------
+
+| Class      | Role/Responsibility                                   | Interacts With                |
+|------------|------------------------------------------------------|-------------------------------|
+| MainWindow | Main GUI window, manages preview, docks, menus, state| Camera, config_model, controls_model, all component widgets |
+| QGlPicamera2 | Camera preview widget                              | MainWindow, camera            |
+| Component Widgets | Dynamically loaded tools (classifier, detector, test, etc.) | MainWindow, receive shared state |
+
+"""
+
 import sys
 import logging
 import os
@@ -28,14 +83,31 @@ class MainWindow(QMainWindow):
     Main application window that holds the central widget, toolbars, docks, and menus.
     Provides the main interface for the application, including camera preview, file management,
     and user controls.
+
+    Responsibilities:
+    - Holds the central camera preview widget (QGlPicamera2).
+    - Manages left, right, and bottom dock widgets for additional tools and components.
+    - Dynamically loads component widgets (such as classifier, detector, test, etc.) into the right dock.
+    - Provides a toolbar with actions (e.g., save).
+    - Manages a menu bar with "Controls", "Components", and "View" menus.
+    - Handles application-wide state: camera instance, config_model, controls_model, and sensor modes.
+    - Provides methods for reporting menu status, saving files, and loading components.
+    - Ensures proper cleanup and replacement of widgets when switching components.
+
+    Interactions:
+    - Receives camera, config_model, and controls_model from the main application.
+    - Shares these objects with all dynamically loaded components for consistent state and configuration.
+    - Interacts with QGlPicamera2 for camera preview, and with all component widgets via dynamic loading.
     """
-    def __init__(self, cam=None, config_model=None):
+
+    def __init__(self, cam=None, config_model=None, controls_model=None):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
 
         Args:
             cam: Camera object (Picamera2 instance). Must not be None.
             config_model: Configuration model object. Must not be None.
+            controls_model: Controls model object. Optional.
         """
         if cam is None:
             raise ValueError("A valid camera instance must be provided to MainWindow.")
@@ -48,6 +120,7 @@ class MainWindow(QMainWindow):
         # Store arguments as instance attributes
         self.cam = cam
         self.config_model = config_model
+        self.controls_model = controls_model
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
@@ -258,12 +331,13 @@ class MainWindow(QMainWindow):
     def get_component_args(self, name=None):
         """
         Prepare a dictionary of arguments to pass to component widgets.
+        Includes camera, config_model, controls_model, and optionally a settings_group name.
         """
         args = {
             "cam": self.cam,
-            "modes": self.modes,
             "preview": self.preview,
-            "config_model": self.config_model,  # <-- Add this line
+            "config_model": self.config_model,
+            "controls_model": self.controls_model,
         }
         if name is not None:
             args["settings_group"] = name

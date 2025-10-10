@@ -26,7 +26,7 @@ class CameraManager(QWidget):
     Handles single and interval image capture, as well as UI feedback for sequence capture.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, config_model=None, parent=None):
+    def __init__(self, file_manager=None, parent=None, **kwargs):
         """
         Initialize the CameraManager widget.
 
@@ -39,13 +39,15 @@ class CameraManager(QWidget):
             parent: Parent QWidget.
         """
         super().__init__(parent)
-        self.cam = cam
-        self.csi = csi
-        self.modes = modes
-        self.file_manager = file_manager
-        self.preview = preview
-        self.config_model = config_model  # <-- Store the config_model
-
+        self.file_manager = file_manager  # <-- Add this line
+        self.cam = kwargs.get("cam")
+        # Assign self.modes to the camera's modes if cam is provided
+        self.modes = self.cam.sensor_modes
+        self.preview = kwargs.get("preview")
+        self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")
+        self.settings_group = kwargs.get("settings_group")
+        
         self.sequence_running = False  # Track sequence state
         self.sequence_flash_on = False  # Track flash state
         self.sequence_timer = QTimer(self)
@@ -60,7 +62,7 @@ class CameraManager(QWidget):
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
         self.camera_mode_combo = QComboBox()
-        self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=self.camera_mode_combo)
+        self._add_sensor_mode_dropdown(camera_mode_layout, self.modes, combo=self.camera_mode_combo)
         self.camera_mode_combo.currentIndexChanged.connect(self._on_mode_changed)
         camera_mode_layout.addWidget(self.camera_mode_combo)
         main_layout.addLayout(camera_mode_layout)
@@ -312,10 +314,10 @@ class CameraManager(QWidget):
         mode = self.cam.sensor_modes[index]
         #app_signals.mode_changed.emit(mode)
 
-        config_model.set_nested('sensor', 'output_size', mode['size'])
-        config_model.set_nested('sensor', 'bit_depth', mode['bit_depth'])
+        self.config_model.set_nested('sensor', 'output_size', mode['size'])
+        self.config_model.set_nested('sensor', 'bit_depth', mode['bit_depth'])
         logging.info(f"Camera mode changed: {mode}")
-        print(config_model.to_dict())
+        print(self.config_model.to_dict())
 
     def _set_mode_from_signal(self, mode):
         # Find the index for the new mode and set it
@@ -331,14 +333,25 @@ class Classifier(AIFileManager):
     Row 2: CameraManager widget
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None, config_model=None):
-        logging.info(f"Loading Classifier component with settings_group={settings_group}")
-        super().__init__(parent, settings_group=settings_group)
-        self.cam = cam
-        self.csi = csi
-        self.modes = modes
-        self.preview = preview
-        self.config_model = config_model  # <-- Store config_model
+    def __init__(self, parent=None, **kwargs):
+        """
+        Initialize the Classifier widget.
+
+        Args (passed via kwargs):
+            cam: Camera object.
+            config_model: Configuration model object.
+            controls_model: Controls model object.
+            settings_group: Optional settings group name.
+            csi, modes, preview, parent: Other optional arguments.
+        """
+        logging.info(f"Loading Classifier component with settings_group={kwargs.get('settings_group')}")
+        super().__init__(kwargs.get("parent", None), settings_group=kwargs.get("settings_group"))
+
+        self.cam = kwargs.get("cam")
+        self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")
+        self.settings_group = kwargs.get("settings_group")
+
 
         # Add space above separator
         spacer_above = QWidget()
@@ -395,9 +408,7 @@ class Classifier(AIFileManager):
 
         # CameraManager controls (was Transport)
         logging.info("Instantiating CameraManager for Classifier component")
-        self.camera_manager = CameraManager(
-            cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview, config_model=self.config_model
-        )
+        self.camera_manager = CameraManager(file_manager=self, **kwargs)
         self.base_layout.addWidget(self.camera_manager)
 
         self.setLayout(self.base_layout)  # Only call setLayout here!

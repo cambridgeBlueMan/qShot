@@ -1,8 +1,87 @@
+"""
+Detector Widget Module
+----------------------
+
+This module implements the Detector widget for an AI annotation/capture application using PyQt6.
+It provides a GUI for capturing images from a camera, drawing bounding boxes, managing class labels,
+and saving both images and annotation data (in Pascal VOC XML format).
+
+Classes and Responsibilities:
+----------------------------
+
+- Detector: The main widget for annotation, file management, and UI.
+    - Manages dataset paths, class labels, and annotation table.
+    - Integrates CameraManager for image capture and annotation.
+    - Handles saving images and annotations in Pascal VOC format.
+    - Provides UI for freezing/unfreezing camera, saving, and managing bounding boxes.
+    - Instantiates CameraManager and passes itself for callback.
+    - Receives bounding box data from BBoxLabel via CameraManager.
+    - Updates annotation table and manages annotation data.
+
+- CameraManager: Handles camera controls, image capture, and preview.
+    - Receives camera and configuration objects.
+    - Provides UI for selecting camera mode.
+    - Handles freezing/unfreezing the camera preview.
+    - On freeze, captures an image, displays it in a BBoxLabel, and enables annotation.
+    - On unfreeze, restores the live preview.
+    - Connects bounding box completion to the Detector widget for annotation management.
+    - Instantiated and managed by the Detector widget.
+    - Communicates with Detector to update annotation data.
+
+- BBoxLabel: A QLabel subclass for drawing and storing bounding boxes on images.
+    - Handles mouse events to let the user draw bounding boxes.
+    - Scales boxes correctly when the widget is resized.
+    - Stores all boxes and their associated class indices.
+    - Emits box_completed signal when a new box is drawn.
+    - Used by CameraManager to display and annotate captured images.
+    - Connected to the Detector widget to add new bounding box rows to the annotation table.
+
+- SaveChangesDialog: A dialog to confirm saving changes before leaving a frozen image.
+    - Simple dialog with "Yes" and "No" buttons.
+    - Used to prompt the user to save changes before discarding or switching images.
+
+Class Interactions and Workflow:
+-------------------------------
+
+1. Initialization
+   - Detector is created, receiving camera/config objects.
+   - Detector creates a CameraManager and passes itself as file_manager.
+   - CameraManager sets up camera controls and mode selection.
+
+2. Image Capture and Annotation
+   - User clicks "Freeze" in Detector, which calls CameraManager.toggle_freeze().
+   - CameraManager captures an image, displays it in a BBoxLabel.
+   - User draws bounding boxes on the image; BBoxLabel emits box_completed.
+   - Detector.add_bbox_row() is called to add the new box to the annotation table.
+
+3. Annotation Management
+   - User can edit class labels, delete boxes, or add more boxes.
+   - Table rows are kept in sync with the bounding boxes in BBoxLabel.
+
+4. Saving
+   - User clicks "Save" to write the image and annotation XML to disk.
+   - Detector.saveFrame() saves the image and generates Pascal VOC XML with all bounding boxes.
+
+5. Cleanup
+   - On unfreeze or navigation, SaveChangesDialog may prompt the user to save changes.
+
+Summary Table
+-------------
+
+| Class         | Role/Responsibility                                   | Interacts With         |
+|---------------|------------------------------------------------------|------------------------|
+| Detector      | Main annotation widget, manages UI and saving         | CameraManager, BBoxLabel |
+| CameraManager | Camera controls, image capture, annotation preview    | Detector, BBoxLabel    |
+| BBoxLabel     | Drawing/storing bounding boxes, emits box_completed   | CameraManager, Detector|
+| SaveChangesDialog | Prompt user to save changes                       | Detector               |
+
+"""
+
 import logging
 import os
 from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QCheckBox, QHeaderView,
-    QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget  # <-- Add QWidget here
+    QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint, QRect
 from ai_file_manager_base import AIFileManager
@@ -35,6 +114,15 @@ class BBoxLabel(QLabel):
     """
     QLabel subclass for drawing bounding boxes on an image.
     Stores boxes in original image coordinates so they persist and scale on resize.
+
+    Responsibilities:
+    - Handles mouse events for drawing bounding boxes.
+    - Stores boxes in original image coordinates.
+    - Emits a signal when a box is completed.
+
+    Interactions:
+    - Used by CameraManager to display and annotate captured images.
+    - Connected to Detector to add new bounding box rows to the annotation table.
     """
     box_completed = pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
 
@@ -160,7 +248,9 @@ class BBoxLabel(QLabel):
         super().resizeEvent(event)
         
 class SaveChangesDialog(QDialog):
-    """Dialog to confirm saving changes when leaving a frozen image."""
+    """
+    Dialog to confirm saving changes when leaving a frozen image.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Save Changes?")
@@ -176,19 +266,29 @@ class SaveChangesDialog(QDialog):
 
 class CameraManager(QWidget):
     """
-    CameraManager widget that receives camera and csi information and provides capture controls.
-    Handles single image capture and UI feedback.
+    Widget that provides camera controls and image capture functionality.
+
+    Responsibilities:
+    - Allows freezing (capturing) the current camera image.
+    - Displays the captured image using BBoxLabel for annotation.
+    - Handles restoring the live preview.
+    - Provides UI for selecting camera mode.
+
+    Interactions:
+    - Instantiated by Detector.
+    - Communicates with Detector to update annotation data.
+    - Uses BBoxLabel for drawing and storing bounding boxes.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, file_manager=None, preview=None, config_model=None, parent=None):
+    def __init__(self, file_manager=None, parent=None, **kwargs):
         super().__init__(parent)
-        self.cam = cam
-        self.csi = csi
-        self.modes = modes
         self.file_manager = file_manager
-        self.preview = preview
-        self.config_model = config_model  # <-- Store config_model
-
+        self.cam = kwargs.get("cam")
+        self.modes = self.cam.sensor_modes
+        self.preview = kwargs.get("preview")
+        self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")
+        self.settings_group = kwargs.get("settings_group")
 
         self.frozen = False  # Track freeze state
 
@@ -200,7 +300,7 @@ class CameraManager(QWidget):
         camera_mode_label = QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
         combo = QComboBox()
-        self._add_sensor_mode_dropdown(camera_mode_layout, modes, combo=combo)
+        self._add_sensor_mode_dropdown(camera_mode_layout, self.modes, combo=combo)
         main_layout.addLayout(camera_mode_layout)
 
         self.setLayout(main_layout)
@@ -343,20 +443,34 @@ class CameraManager(QWidget):
 class Detector(AIFileManager):
     """
     Detector widget for annotation. Inherits file management UI from AIFileManager.
+
+    Responsibilities:
+    - Manages dataset paths, class labels, and annotation table.
+    - Integrates CameraManager for image capture and annotation.
+    - Handles saving images and annotations in Pascal VOC format.
+    - Provides UI for freezing/unfreezing camera, saving, and managing bounding boxes.
+
+    Interactions:
+    - Instantiates CameraManager and passes itself for callback.
+    - Receives bounding box data from BBoxLabel via CameraManager.
+    - Updates annotation table and manages annotation data.
     """
 
-    def __init__(self, cam=None, csi=0, modes=None, preview=None, parent=None, settings_group=None, config_model=None):
-        logging.info(f"Loading Detector component with settings_group={settings_group}")
-        super().__init__(parent, settings_group=settings_group)
-        self.cam = cam
-        self.csi = csi
-        self.modes = modes
-        self.preview = preview
-        self.config_model = config_model  # <-- Store config_model
+    def __init__(self, parent=None, **kwargs):
+        logging.info(f"Loading Detector component with settings_group={kwargs.get('settings_group')}")
+        super().__init__(parent, settings_group=kwargs.get("settings_group"))
+
+        self.cam = kwargs.get("cam")
+        self.csi = kwargs.get("csi", 0)
+        self.modes = self.cam.sensor_modes
+        self.preview = kwargs.get("preview")
+        self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")
+        self.settings_group = kwargs.get("settings_group")
 
         # --- CameraManager ---
         self.camera_manager = CameraManager(
-            cam=cam, csi=csi, modes=modes, file_manager=self, preview=preview, config_model=self.config_model
+            file_manager=self, **kwargs
         )
         self.base_layout.addWidget(self.camera_manager)
 
