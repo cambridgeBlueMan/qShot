@@ -5,12 +5,17 @@ from viewport import Viewport
 from app_signals import app_signals
 # from config_model import config_model
 
+MAXIMUM_FRAME_SIZE = (500, 400)
+
 class Zoomer(qtw.QWidget):
     """A widget for controlling zoom using a DragButton."""
 
-    def __init__(self, parent=None, cam=None, preview=None):
+    def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         layout = qtw.QVBoxLayout(self)
+
+        self.cam = kwargs.get("cam")
+        self.preview = kwargs.get("preview")
 
         # Checkbox to enable zoom
         self.enable_zoom_checkbox = qtw.QCheckBox("Enable zoom")
@@ -19,24 +24,23 @@ class Zoomer(qtw.QWidget):
         # QFrame for zoom area
         self.zoom_frame = qtw.QFrame(self)
         self.zoom_frame.setFrameShape(qtw.QFrame.Shape.Box)
-        self.zoom_frame.setFixedSize(507, 380)
+        frame_width, frame_height = self._calculate_frame_size()
+        self.zoom_frame.setFixedSize(frame_width, frame_height)
         frame_layout = qtw.QVBoxLayout(self.zoom_frame)
         frame_layout.setContentsMargins(0, 0, 0, 0)
 
-        # DragButton inside the frame 
-        
         self.viewport = Viewport(self.zoom_frame)
         self.viewport.scrolled['int'].connect(self.setViewportSize) # type: ignore
 
-        if cam is not None:
-            self.viewport.setCamera(cam)
+        if self.cam is not None:
+            self.viewport.setCamera(self.cam)
         frame_layout.addWidget(self.viewport)
 
         layout.addWidget(self.zoom_frame)
 
         # Add preview widget if provided
-        if preview is not None:
-            layout.addWidget(preview)
+        # if self.preview is not None:
+        #    layout.addWidget(self.preview)
 
         self.setLayout(layout)
         app_signals.mode_changed.connect(self.on_global_mode_changed) 
@@ -66,6 +70,22 @@ class Zoomer(qtw.QWidget):
         new_width = max(10, min(self.viewport.bWidth + (step if delta > 0 else -step), self.zoom_frame.width()))
         new_height = max(10, min(self.viewport.bHeight + (step if delta > 0 else -step), self.zoom_frame.height()))
         self.viewport.setSize(new_width, new_height)
+
+    def _calculate_frame_size(self):
+        """Calculate the zoom frame size based on camera PixelArraySize and MAXIMUM_FRAME_SIZE."""
+        frame_width, frame_height = MAXIMUM_FRAME_SIZE
+        if (
+            self.cam is not None and
+            hasattr(self.cam, "camera_properties") and
+            isinstance(self.cam.camera_properties, dict) and
+            "PixelArraySize" in self.cam.camera_properties
+        ):
+            sensor_width, sensor_height = self.cam.camera_properties["PixelArraySize"]
+            max_width, max_height = MAXIMUM_FRAME_SIZE
+            scale_factor = min(max_width / sensor_width, max_height / sensor_height, 1.0)
+            frame_width = int(sensor_width * scale_factor)
+            frame_height = int(sensor_height * scale_factor)
+        return frame_width, frame_height
 
 if __name__ == "__main__":
     import sys

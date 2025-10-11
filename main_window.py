@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
 
         # Add dock widgets
         self.left_dock = QDockWidget("Left Dock", self)
-        self.left_dock.setWidget(Zoomer(self, cam=self.cam))  # Use Zoomer for left dock
+        self.left_dock.setWidget(Zoomer(self, **self.get_component_args()))
         self.left_dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_dock)
         self.left_dock.hide()  # Hide left dock on launch
