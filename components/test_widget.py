@@ -4,7 +4,6 @@ from ai_file_manager_base import AIFileManager
 from res_combo import ResCombo
 # from config_model import config_model
 from app_signals import app_signals  # <-- Include app_signals
-from controls_model import controls_model
 import pprint
 
 logging.basicConfig(
@@ -126,7 +125,7 @@ class Test(AIFileManager):
         framerate = self.framerate_combo.itemData(index)
         if framerate:
             frame_duration = int(1e6 / framerate)
-            controls_model.FrameDurationLimits = (frame_duration, frame_duration)
+            self.controls_model.FrameDurationLimits = (frame_duration, frame_duration)
             logging.info(f"Test widget framerate changed: {framerate} fps (FrameDurationLimits set to ({frame_duration}, {frame_duration}))")
             pp = pprint.PrettyPrinter(indent=2)
             if self.config_model:

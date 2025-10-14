@@ -3,9 +3,18 @@ from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtg
 from viewport import Viewport
 from app_signals import app_signals
-# from config_model import config_model
+from config_model import ConfigModel
+from controls_model import ControlsModel
+import logging
 
-MAXIMUM_FRAME_SIZE = (500, 400)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='app.log',
+    filemode='w' 
+)
+SENSOR_FRAME_DIVIDER = 8
 
 class Zoomer(qtw.QWidget):
     """A widget for controlling zoom using a DragButton."""
@@ -16,6 +25,8 @@ class Zoomer(qtw.QWidget):
 
         self.cam = kwargs.get("cam")
         self.preview = kwargs.get("preview")
+        self.config_model = kwargs.get("config_model")
+        self.controls_model = kwargs.get("controls_model")  # <-- Add this line
 
         # Checkbox to enable zoom
         self.enable_zoom_checkbox = qtw.QCheckBox("Enable zoom")
@@ -24,13 +35,29 @@ class Zoomer(qtw.QWidget):
         # QFrame for zoom area
         self.zoom_frame = qtw.QFrame(self)
         self.zoom_frame.setFrameShape(qtw.QFrame.Shape.Box)
+
         frame_width, frame_height = self._calculate_frame_size()
         self.zoom_frame.setFixedSize(frame_width, frame_height)
         frame_layout = qtw.QVBoxLayout(self.zoom_frame)
         frame_layout.setContentsMargins(0, 0, 0, 0)
 
         self.viewport = Viewport(self.zoom_frame)
-        self.viewport.scrolled['int'].connect(self.setViewportSize) # type: ignore
+        # Set initial viewport size and position based on config_model
+        output_size = None
+        if self.config_model is not None:
+            output_size = self.config_model.get_nested('sensor', 'output_size')
+        logging.info(f"Zoomer: output_size from config_model is {output_size}")  # <-- Log value here
+
+        if output_size is not None:
+            viewport_width, viewport_height = self._calculate_frame_size(output_size)
+            self.viewport.setSize(viewport_width, viewport_height)
+        else:
+            viewport_width, viewport_height = self._calculate_frame_size()
+            self.viewport.setSize(viewport_width, viewport_height)
+        self.viewport.move(0, 0)        
+        # Connect signals to slots
+        self.viewport.scrolled['int'].connect(self.setViewportSize)    # Already present
+        self.viewport.posChanged.connect(self.setViewportPos)  # Add this line
 
         if self.cam is not None:
             self.viewport.setCamera(self.cam)
@@ -43,14 +70,27 @@ class Zoomer(qtw.QWidget):
         #    layout.addWidget(self.preview)
 
         self.setLayout(layout)
+
         app_signals.mode_changed.connect(self.on_global_mode_changed) 
+        self.config_model.configChanged.connect(self.on_config_changed)  # <-- Connect signal here
 
     def on_global_mode_changed(self, mode):
         # Handle mode change here (update UI, internal state, etc.)
         print(f"Zoomer received global mode change: {mode}")
         # Add any logic you need for reacting to mode changes
 
-
+    def on_config_changed(self, config_dict):
+        """
+        Slot to handle config_model configChanged signal.
+        Expects the full config dictionary as payload.
+        Uses the 'size' key from the 'main' dictionary and scales it.
+        """
+        main_dict = config_dict.get('main', {})
+        size_tuple = main_dict.get('size', None)
+        logging.info(f"Zoomer: config_changed received main.size = {size_tuple}")
+        if size_tuple is not None and isinstance(size_tuple, (tuple, list)) and len(size_tuple) == 2:
+            viewport_width, viewport_height = self._calculate_frame_size(size_tuple)
+            self.viewport.setSize(viewport_width, viewport_height)
 
     def eventFilter(self, obj, event):
         if event.type() == qtc.QEvent.Type.Close:
@@ -59,21 +99,85 @@ class Zoomer(qtw.QWidget):
 
     def setViewportSize(self, delta):
         """
-        Adjust the viewport (DragButton) size in response to mouse wheel events.
-
-        Parameters:
-            delta (int): The vertical scroll amount from the wheel event.
-                         Positive for zoom in, negative for zoom out.
+        Adjust the viewport (DragButton) size in response to mouse wheel events,
+        using logic similar to zoomTab.
         """
-        # Example logic: increase/decrease size by 5 pixels per wheel step
-        step = 5
-        new_width = max(10, min(self.viewport.bWidth + (step if delta > 0 else -step), self.zoom_frame.width()))
-        new_height = max(10, min(self.viewport.bHeight + (step if delta > 0 else -step), self.zoom_frame.height()))
+        # Get current size and position
+        old_width = self.viewport.bWidth
+        old_height = self.viewport.bHeight
+        old_x = self.viewport.x()
+        old_y = self.viewport.y()
+
+        # Scale factor: zoom in/out by 10% per wheel step
+        scale = 1.1 if delta > 0 else 0.9
+
+        # Calculate new size
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
+
+        # Clamp to minimum and maximum
+        min_size = 10
+        max_width = self.zoom_frame.width()
+        max_height = self.zoom_frame.height()
+        new_width = max(min_size, min(new_width, max_width))
+        new_height = max(min_size, min(new_height, max_height))
+
+        # Center the viewport on its old center
+        center_x = old_x + old_width // 2
+        center_y = old_y + old_height // 2
+        new_x = max(0, min(center_x - new_width // 2, max_width - new_width))
+        new_y = max(0, min(center_y - new_height // 2, max_height - new_height))
+
+        # Apply new size and position
+        self.viewport.setGeometry(new_x, new_y, new_width, new_height)
         self.viewport.setSize(new_width, new_height)
 
-    def _calculate_frame_size(self):
-        """Calculate the zoom frame size based on camera PixelArraySize and MAXIMUM_FRAME_SIZE."""
-        frame_width, frame_height = MAXIMUM_FRAME_SIZE
+        # Pass new ScalerCrop to controls_model
+        if self.controls_model is not None:
+            scaler_crop = self._get_scaler_crop()
+            if scaler_crop:
+                self.controls_model.ScalerCrop = scaler_crop
+                logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
+
+    def setViewportPos(self, x, y):
+        """
+        Slot to handle viewport position changes.
+        """
+        # Pass new ScalerCrop to controls_model
+        if self.controls_model is not None:
+            scaler_crop = self._get_scaler_crop()
+            if scaler_crop:
+                self.controls_model.ScalerCrop = scaler_crop
+                logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
+
+    def _calculate_frame_size(self, size_tuple=None):
+        """
+        Calculate the zoom frame or viewport size based on a given size_tuple
+        (e.g., output_size from config), or fall back to camera PixelArraySize.
+        Uses SENSOR_FRAME_DIVIDER to scale the size.
+        """
+        if size_tuple is not None:
+            sensor_width, sensor_height = size_tuple
+        elif (
+            self.cam is not None and
+            hasattr(self.cam, "camera_properties") and
+            isinstance(self.cam.camera_properties, dict) and
+            "PixelArraySize" in self.cam.camera_properties
+        ):
+            sensor_width, sensor_height = self.cam.camera_properties["PixelArraySize"]
+        else:
+            # Fallback to a default size if nothing is available
+            return 640 // SENSOR_FRAME_DIVIDER, 480 // SENSOR_FRAME_DIVIDER
+
+        frame_width = max(1, sensor_width // SENSOR_FRAME_DIVIDER)
+        frame_height = max(1, sensor_height // SENSOR_FRAME_DIVIDER)
+        return frame_width, frame_height
+
+    def _get_scaler_crop(self):
+        """
+        Calculate the ScalerCrop rectangle (x, y, w, h) in sensor coordinates
+        based on the viewport's position and size.
+        """
         if (
             self.cam is not None and
             hasattr(self.cam, "camera_properties") and
@@ -81,11 +185,19 @@ class Zoomer(qtw.QWidget):
             "PixelArraySize" in self.cam.camera_properties
         ):
             sensor_width, sensor_height = self.cam.camera_properties["PixelArraySize"]
-            max_width, max_height = MAXIMUM_FRAME_SIZE
-            scale_factor = min(max_width / sensor_width, max_height / sensor_height, 1.0)
-            frame_width = int(sensor_width * scale_factor)
-            frame_height = int(sensor_height * scale_factor)
-        return frame_width, frame_height
+        else:
+            return None
+
+        # Map viewport position/size to sensor coordinates
+        x = self.viewport.x() * SENSOR_FRAME_DIVIDER
+        y = self.viewport.y() * SENSOR_FRAME_DIVIDER
+        w = self.viewport.bWidth * SENSOR_FRAME_DIVIDER
+        h = self.viewport.bHeight * SENSOR_FRAME_DIVIDER
+
+        # Clamp to sensor bounds
+        x = max(0, min(x, sensor_width - w))
+        y = max(0, min(y, sensor_height - h))
+        return (x, y, w, h)
 
 if __name__ == "__main__":
     import sys
@@ -96,7 +208,13 @@ if __name__ == "__main__":
     camera = Picamera2()
     preview = QGlPicamera2(camera)
     camera.start()
-    zoomer = Zoomer(cam=camera)
+    # Use a real preview configuration for the config model
+    config_model = ConfigModel(initial_config=camera.create_preview_configuration())
+    config_model.set_nested('main', 'size', (320, 240))
+    main_size = config_model.get_nested('main', 'size')
+    print(f"Test: config_model['main']['size'] = {main_size}")
+
+    zoomer = Zoomer(cam=camera, config_model=config_model)
 
     # Create a container widget and layout
     container = qtw.QWidget()

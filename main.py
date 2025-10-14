@@ -80,7 +80,7 @@ if __name__ == "__main__":
         logging.info("ConfigModel instance created with preview configuration.")
 
         # Create the controls model using the camera's controls configuration
-        controls_model = ControlsModel()
+        controls_model = ControlsModel(cam=camera)
         logging.info("ControlsModel instance created with controls configuration.")
 
         # Pass config_model to MainWindow if needed, or set it as a global/shared object

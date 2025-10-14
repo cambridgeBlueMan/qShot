@@ -11,14 +11,13 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QCheckBox, QComboBox, QGroupBox
 )
 from PyQt6.QtCore import Qt
-from controls_model import controls_model
 
 class ControlsGui(QWidget):
-    def __init__(self, cam, parent=None):
+    def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.setWindowTitle("CameraControlsModel Test GUI")
-        self.cam = cam  # Store the passed camera instance
-        self.config = controls_model
+        self.cam = kwargs.get("cam")
+        self.controls_model = kwargs.get("controls_model")
         layout = QVBoxLayout()
 
         # Contrast (float, 0.0-32.0) - slider and spinbox
@@ -26,11 +25,11 @@ class ControlsGui(QWidget):
         contrast_layout = QHBoxLayout()
         self.contrast_slider = QSlider(Qt.Orientation.Horizontal)
         self.contrast_slider.setRange(0, 320)
-        self.contrast_slider.setValue(int(self.config.Contrast * 10))
+        self.contrast_slider.setValue(int(self.controls_model.Contrast * 10))
         self.contrast_spin = QDoubleSpinBox()
         self.contrast_spin.setRange(0.0, 32.0)
         self.contrast_spin.setSingleStep(0.1)
-        self.contrast_spin.setValue(self.config.Contrast)
+        self.contrast_spin.setValue(self.controls_model.Contrast)
         contrast_layout.addWidget(QLabel("Slider:"))
         contrast_layout.addWidget(self.contrast_slider)
         contrast_layout.addWidget(QLabel("SpinBox:"))
@@ -43,11 +42,11 @@ class ControlsGui(QWidget):
         brightness_layout = QHBoxLayout()
         self.brightness_slider = QSlider(Qt.Orientation.Horizontal)
         self.brightness_slider.setRange(-10, 10)
-        self.brightness_slider.setValue(int(self.config.Brightness * 10))
+        self.brightness_slider.setValue(int(self.controls_model.Brightness * 10))
         self.brightness_spin = QDoubleSpinBox()
         self.brightness_spin.setRange(-1.0, 1.0)
         self.brightness_spin.setSingleStep(0.1)
-        self.brightness_spin.setValue(self.config.Brightness)
+        self.brightness_spin.setValue(self.controls_model.Brightness)
         brightness_layout.addWidget(QLabel("Slider:"))
         brightness_layout.addWidget(self.brightness_slider)
         brightness_layout.addWidget(QLabel("SpinBox:"))
@@ -59,9 +58,9 @@ class ControlsGui(QWidget):
         ae_enable_group = QGroupBox("AeEnable")
         ae_enable_layout = QHBoxLayout()
         self.ae_enable_checkbox = QCheckBox("Enable AE")
-        self.ae_enable_checkbox.setChecked(self.config.AeEnable)
+        self.ae_enable_checkbox.setChecked(self.controls_model.AeEnable)
         self.ae_enable_checkbox_dup = QCheckBox("Enable AE (duplicate)")
-        self.ae_enable_checkbox_dup.setChecked(self.config.AeEnable)
+        self.ae_enable_checkbox_dup.setChecked(self.controls_model.AeEnable)
         ae_enable_layout.addWidget(self.ae_enable_checkbox)
         ae_enable_layout.addWidget(self.ae_enable_checkbox_dup)
         ae_enable_group.setLayout(ae_enable_layout)
@@ -72,10 +71,10 @@ class ControlsGui(QWidget):
         hdr_layout = QHBoxLayout()
         self.hdr_combo = QComboBox()
         self.hdr_combo.addItems([str(i) for i in range(5)])
-        self.hdr_combo.setCurrentIndex(self.config.HdrMode)
+        self.hdr_combo.setCurrentIndex(self.controls_model.HdrMode)
         self.hdr_spin = QSpinBox()
         self.hdr_spin.setRange(0, 4)
-        self.hdr_spin.setValue(self.config.HdrMode)
+        self.hdr_spin.setValue(self.controls_model.HdrMode)
         hdr_layout.addWidget(QLabel("ComboBox:"))
         hdr_layout.addWidget(self.hdr_combo)
         hdr_layout.addWidget(QLabel("SpinBox:"))
@@ -88,11 +87,11 @@ class ControlsGui(QWidget):
         sharpness_layout = QHBoxLayout()
         self.sharpness_slider = QSlider(Qt.Orientation.Horizontal)
         self.sharpness_slider.setRange(0, 160)
-        self.sharpness_slider.setValue(int(self.config.Sharpness * 10))
+        self.sharpness_slider.setValue(int(self.controls_model.Sharpness * 10))
         self.sharpness_spin = QDoubleSpinBox()
         self.sharpness_spin.setRange(0.0, 16.0)
         self.sharpness_spin.setSingleStep(0.1)
-        self.sharpness_spin.setValue(self.config.Sharpness)
+        self.sharpness_spin.setValue(self.controls_model.Sharpness)
         sharpness_layout.addWidget(QLabel("Slider:"))
         sharpness_layout.addWidget(self.sharpness_slider)
         sharpness_layout.addWidget(QLabel("SpinBox:"))
@@ -101,68 +100,68 @@ class ControlsGui(QWidget):
         layout.addWidget(sharpness_group)
 
         # Connect all CameraControlsModel signals to their slots
-        self.config.ContrastChanged.connect(self.on_contrast_changed)
-        self.config.BrightnessChanged.connect(self.on_brightness_changed)
-        self.config.SharpnessChanged.connect(self.on_sharpness_changed)
-        self.config.AeEnableChanged.connect(self.on_ae_enable_changed)
-        self.config.HdrModeChanged.connect(self.on_hdr_mode_changed)
-        self.config.AeExposureModeChanged.connect(self.on_ae_exposure_mode_changed)
-        self.config.AeConstraintModeChanged.connect(self.on_ae_constraint_mode_changed)
-        self.config.ExposureTimeModeChanged.connect(self.on_exposure_time_mode_changed)
-        self.config.AeMeteringModeChanged.connect(self.on_ae_metering_mode_changed)
-        self.config.AeFlickerPeriodChanged.connect(self.on_ae_flicker_period_changed)
-        self.config.AnalogueGainModeChanged.connect(self.on_analogue_gain_mode_changed)
-        self.config.AnalogueGainChanged.connect(self.on_analogue_gain_changed)
-        self.config.StatsOutputEnableChanged.connect(self.on_stats_output_enable_changed)
-        self.config.SyncFramesChanged.connect(self.on_sync_frames_changed)
-        self.config.ExposureTimeChanged.connect(self.on_exposure_time_changed)
-        self.config.AeFlickerModeChanged.connect(self.on_ae_flicker_mode_changed)
-        self.config.SyncModeChanged.connect(self.on_sync_mode_changed)
-        self.config.AwbEnableChanged.connect(self.on_awb_enable_changed)
-        self.config.ColourGainsChanged.connect(self.on_colour_gains_changed)
-        self.config.AwbModeChanged.connect(self.on_awb_mode_changed)
-        self.config.ScalerCropsChanged.connect(self.on_scaler_crops_changed)
-        self.config.ColourTemperatureChanged.connect(self.on_colour_temperature_changed)
-        self.config.SaturationChanged.connect(self.on_saturation_changed)
-        self.config.CnnEnableInputTensorChanged.connect(self.on_cnn_enable_input_tensor_changed)
-        self.config.FrameDurationLimitsChanged.connect(self.on_frame_duration_limits_changed)
-        self.config.ScalerCropChanged.connect(self.on_scaler_crop_changed)
-        self.config.NoiseReductionModeChanged.connect(self.on_noise_reduction_mode_changed)
-        self.config.ExposureValueChanged.connect(self.on_exposure_value_changed)
-        self.config.resolutionChanged.connect(self.on_resolution_changed)
-        self.config.formatChanged.connect(self.on_format_changed)
+        self.controls_model.ContrastChanged.connect(self.on_contrast_changed)
+        self.controls_model.BrightnessChanged.connect(self.on_brightness_changed)
+        self.controls_model.SharpnessChanged.connect(self.on_sharpness_changed)
+        self.controls_model.AeEnableChanged.connect(self.on_ae_enable_changed)
+        self.controls_model.HdrModeChanged.connect(self.on_hdr_mode_changed)
+        self.controls_model.AeExposureModeChanged.connect(self.on_ae_exposure_mode_changed)
+        self.controls_model.AeConstraintModeChanged.connect(self.on_ae_constraint_mode_changed)
+        self.controls_model.ExposureTimeModeChanged.connect(self.on_exposure_time_mode_changed)
+        self.controls_model.AeMeteringModeChanged.connect(self.on_ae_metering_mode_changed)
+        self.controls_model.AeFlickerPeriodChanged.connect(self.on_ae_flicker_period_changed)
+        self.controls_model.AnalogueGainModeChanged.connect(self.on_analogue_gain_mode_changed)
+        self.controls_model.AnalogueGainChanged.connect(self.on_analogue_gain_changed)
+        self.controls_model.StatsOutputEnableChanged.connect(self.on_stats_output_enable_changed)
+        self.controls_model.SyncFramesChanged.connect(self.on_sync_frames_changed)
+        self.controls_model.ExposureTimeChanged.connect(self.on_exposure_time_changed)
+        self.controls_model.AeFlickerModeChanged.connect(self.on_ae_flicker_mode_changed)
+        self.controls_model.SyncModeChanged.connect(self.on_sync_mode_changed)
+        self.controls_model.AwbEnableChanged.connect(self.on_awb_enable_changed)
+        self.controls_model.ColourGainsChanged.connect(self.on_colour_gains_changed)
+        self.controls_model.AwbModeChanged.connect(self.on_awb_mode_changed)
+        self.controls_model.ScalerCropsChanged.connect(self.on_scaler_crops_changed)
+        self.controls_model.ColourTemperatureChanged.connect(self.on_colour_temperature_changed)
+        self.controls_model.SaturationChanged.connect(self.on_saturation_changed)
+        self.controls_model.CnnEnableInputTensorChanged.connect(self.on_cnn_enable_input_tensor_changed)
+        self.controls_model.FrameDurationLimitsChanged.connect(self.on_frame_duration_limits_changed)
+        self.controls_model.ScalerCropChanged.connect(self.on_scaler_crop_changed)
+        self.controls_model.NoiseReductionModeChanged.connect(self.on_noise_reduction_mode_changed)
+        self.controls_model.ExposureValueChanged.connect(self.on_exposure_value_changed)
+        self.controls_model.resolutionChanged.connect(self.on_resolution_changed)
+        self.controls_model.formatChanged.connect(self.on_format_changed)
 
         # Coupling: update GUI widgets when model changes
-        self.config.ContrastChanged.connect(lambda v: self.contrast_slider.setValue(int(v * 10)))
-        self.config.ContrastChanged.connect(self.contrast_spin.setValue)
-        self.config.BrightnessChanged.connect(lambda v: self.brightness_slider.setValue(int(v * 10)))
-        self.config.BrightnessChanged.connect(self.brightness_spin.setValue)
-        self.config.AeEnableChanged.connect(self.ae_enable_checkbox.setChecked)
-        self.config.AeEnableChanged.connect(self.ae_enable_checkbox_dup.setChecked)
-        self.config.HdrModeChanged.connect(self.hdr_combo.setCurrentIndex)
-        self.config.HdrModeChanged.connect(self.hdr_spin.setValue)
-        self.config.SharpnessChanged.connect(lambda v: self.sharpness_slider.setValue(int(v * 10)))
-        self.config.SharpnessChanged.connect(self.sharpness_spin.setValue)
+        self.controls_model.ContrastChanged.connect(lambda v: self.contrast_slider.setValue(int(v * 10)))
+        self.controls_model.ContrastChanged.connect(self.contrast_spin.setValue)
+        self.controls_model.BrightnessChanged.connect(lambda v: self.brightness_slider.setValue(int(v * 10)))
+        self.controls_model.BrightnessChanged.connect(self.brightness_spin.setValue)
+        self.controls_model.AeEnableChanged.connect(self.ae_enable_checkbox.setChecked)
+        self.controls_model.AeEnableChanged.connect(self.ae_enable_checkbox_dup.setChecked)
+        self.controls_model.HdrModeChanged.connect(self.hdr_combo.setCurrentIndex)
+        self.controls_model.HdrModeChanged.connect(self.hdr_spin.setValue)
+        self.controls_model.SharpnessChanged.connect(lambda v: self.sharpness_slider.setValue(int(v * 10)))
+        self.controls_model.SharpnessChanged.connect(self.sharpness_spin.setValue)
 
         # Coupling: update model when GUI widgets change
         def set_contrast_in_model_slider(v):
-            self.config.Contrast = v / 10.0
+            self.controls_model.Contrast = v / 10.0
         def set_contrast_in_model_spin(v):
-            self.config.Contrast = v
+            self.controls_model.Contrast = v
         def set_brightness_in_model_slider(v):
-            self.config.Brightness = v / 10.0
+            self.controls_model.Brightness = v / 10.0
         def set_brightness_in_model_spin(v):
-            self.config.Brightness = v
+            self.controls_model.Brightness = v
         def set_ae_enable_in_model_checkbox(state):
-            self.config.AeEnable = bool(state)
+            self.controls_model.AeEnable = bool(state)
         def set_hdr_in_model_combo(v):
-            self.config.HdrMode = v
+            self.controls_model.HdrMode = v
         def set_hdr_in_model_spin(v):
-            self.config.HdrMode = v
+            self.controls_model.HdrMode = v
         def set_sharpness_in_model_slider(v):
-            self.config.Sharpness = v / 10.0
+            self.controls_model.Sharpness = v / 10.0
         def set_sharpness_in_model_spin(v):
-            self.config.Sharpness = v
+            self.controls_model.Sharpness = v
 
         self.contrast_slider.valueChanged.connect(set_contrast_in_model_slider)
         self.contrast_spin.valueChanged.connect(set_contrast_in_model_spin)

@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
         self.bottom_dock = QDockWidget("Bottom Dock", self)
-        self.bottom_dock.setWidget(ControlsGui(cam=self.cam))
+        self.bottom_dock.setWidget(ControlsGui(**self.get_component_args()))
         self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
         self.bottom_dock.hide()  # Hide bottom dock on launch

@@ -16,6 +16,7 @@ Signals can be connected to GUI widgets to update the interface when the model c
 from picamera2 import Picamera2
 from PyQt6.QtCore import QObject, pyqtSignal
 from typing import Tuple, Optional
+import logging
 
 class ControlsModel(QObject):
     resolutionChanged = pyqtSignal(tuple)
@@ -49,8 +50,9 @@ class ControlsModel(QObject):
     AeEnableChanged = pyqtSignal(bool)
     ExposureValueChanged = pyqtSignal(float)
 
-    def __init__(self):
+    def __init__(self, cam=None):
         super().__init__()
+        self.cam = cam
         self._AeExposureMode = 0
         self._Contrast = 1.0
         self._AeConstraintMode = 0
@@ -320,18 +322,6 @@ class ControlsModel(QObject):
             self.AwbModeChanged.emit(value)
 
     @property
-    def ScalerCrops(self) -> Optional[Tuple[int, int, int, int]]:
-        """Get the scaler crops as a (top, right, bottom, left) tuple."""
-        return self._ScalerCrops
-
-    @ScalerCrops.setter
-    def ScalerCrops(self, value: Optional[Tuple[int, int, int, int]]):
-        """Set the scaler crops, emitting the ScalerCropsChanged signal."""
-        if value != self._ScalerCrops:
-            self._ScalerCrops = value
-            self.ScalerCropsChanged.emit(value)
-
-    @property
     def ColourTemperature(self) -> Optional[int]:
         """Get the colour temperature in Kelvin, or None if not set."""
         return self._ColourTemperature
@@ -393,6 +383,9 @@ class ControlsModel(QObject):
         if value != self._ScalerCrop:
             self._ScalerCrop = value
             self.ScalerCropChanged.emit(value)
+            # Update the camera controls if camera instance is available
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"ScalerCrop": value})
 
     @property
     def NoiseReductionMode(self) -> int:
@@ -469,5 +462,4 @@ class ControlsModel(QObject):
         """
         # ...existing code for to_video_config...
 
-# Create a single shared instance for the whole application
-controls_model = ControlsModel()
+
