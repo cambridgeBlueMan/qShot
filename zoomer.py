@@ -42,26 +42,14 @@ class Zoomer(qtw.QWidget):
         frame_layout.setContentsMargins(0, 0, 0, 0)
 
         self.viewport = Viewport(self.zoom_frame)
-        # Set initial viewport size and position based on config_model
-        output_size = None
-        if self.config_model is not None:
-            output_size = self.config_model.get_nested('sensor', 'output_size')
-        logging.info(f"Zoomer: output_size from config_model is {output_size}")  # <-- Log value here
+        self.viewport.setParent(self.zoom_frame)
+        self.viewport.move(0, 0)
 
-        if output_size is not None:
-            viewport_width, viewport_height = self._calculate_frame_size(output_size)
-            self.viewport.setSize(viewport_width, viewport_height)
-        else:
-            viewport_width, viewport_height = self._calculate_frame_size()
-            self.viewport.setSize(viewport_width, viewport_height)
-        self.viewport.move(0, 0)        
         # Connect signals to slots
-        self.viewport.scrolled['int'].connect(self.setViewportSize)    # Already present
-        self.viewport.posChanged.connect(self.setViewportPos)  # Add this line
+        self.viewport.scrolled.connect(self.setViewportSize)
+        self.viewport.posChanged.connect(self.setViewportPos)
 
-        if self.cam is not None:
-            self.viewport.setCamera(self.cam)
-        frame_layout.addWidget(self.viewport)
+        # Do NOT add self.viewport to any layout!
 
         layout.addWidget(self.zoom_frame)
 
@@ -73,6 +61,9 @@ class Zoomer(qtw.QWidget):
 
         app_signals.mode_changed.connect(self.on_global_mode_changed) 
         self.config_model.configChanged.connect(self.on_config_changed)  # <-- Connect signal here
+
+        if self.cam is not None:
+            self.viewport.setCamera(self.cam)
 
     def on_global_mode_changed(self, mode):
         # Handle mode change here (update UI, internal state, etc.)
@@ -115,12 +106,19 @@ class Zoomer(qtw.QWidget):
         new_width = int(old_width * scale)
         new_height = int(old_height * scale)
 
-        # Clamp to minimum and maximum
+        # Clamp to minimum and maximum, preserving aspect ratio
         min_size = 10
         max_width = self.zoom_frame.width()
         max_height = self.zoom_frame.height()
-        new_width = max(min_size, min(new_width, max_width))
-        new_height = max(min_size, min(new_height, max_height))
+
+        # Compute scale factors for width and height
+        scale_w = max_width / new_width if new_width > max_width else 1.0
+        scale_h = max_height / new_height if new_height > max_height else 1.0
+        overall_scale = min(scale_w, scale_h, 1.0)
+
+        # Apply the overall scale to both dimensions
+        new_width = max(min_size, int(new_width * overall_scale))
+        new_height = max(min_size, int(new_height * overall_scale))
 
         # Center the viewport on its old center
         center_x = old_x + old_width // 2
