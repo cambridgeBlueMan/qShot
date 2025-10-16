@@ -21,6 +21,7 @@ class Zoomer(qtw.QWidget):
 
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
+        self.zoomsets_model = kwargs.get("zoomsets_model")
         layout = qtw.QVBoxLayout(self)
 
         self.cam = kwargs.get("cam")

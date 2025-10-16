@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
     - Interacts with QGlPicamera2 for camera preview, and with all component widgets via dynamic loading.
     """
 
-    def __init__(self, cam=None, config_model=None, controls_model=None):
+    def __init__(self, cam=None, config_model=None, controls_model=None, zoomsets_model=None):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
 
@@ -121,6 +121,7 @@ class MainWindow(QMainWindow):
         self.cam = cam
         self.config_model = config_model
         self.controls_model = controls_model
+        self.zoomsets_model = zoomsets_model  # Store the model
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
@@ -338,10 +339,10 @@ class MainWindow(QMainWindow):
             "preview": self.preview,
             "config_model": self.config_model,
             "controls_model": self.controls_model,
+            "zoomsets_model": self.zoomsets_model,  # Add this line
         }
         if name is not None:
             args["settings_group"] = name
-            logging.info(f"Args prepared for component: {name}")
         return args
 
 if __name__ == "__main__":
