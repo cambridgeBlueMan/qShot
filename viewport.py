@@ -7,7 +7,6 @@ class Viewport(qtw.QPushButton):
     posChanged = qtc.pyqtSignal(int, int)
     doubleClicked = qtc.pyqtSignal()
     scrolled = qtc.pyqtSignal(int)
-    clicked = qtc.pyqtSignal()
 
     global newPos
 
@@ -19,17 +18,6 @@ class Viewport(qtw.QPushButton):
         self.containerWidth = win.frameGeometry().width()
         self.containerHeight = win.frameGeometry().height()
         qtc.QMetaObject.connectSlotsByName(self)
-        self.timer = qtc.QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.clicked.emit)
-        self.clicked.connect(self.checkDoubleClick)
-
-    def checkDoubleClick(self):
-        if self.timer.isActive():
-            self.doubleClicked.emit()
-            self.timer.stop()
-        else:
-            self.timer.start(350)
 
     def setContainerSize(self, x, y):
         self.containerWidth = x
@@ -44,12 +32,6 @@ class Viewport(qtw.QPushButton):
         self.bHeight = h
 
     def wheelEvent(self, event):
-        """
-        Handle mouse wheel events.
-
-        Emits the 'scrolled' signal with the vertical scroll delta (event.angleDelta().y()).
-        This can be used to zoom in/out or adjust other parameters in response to mouse wheel movement.
-        """
         self.scrolled.emit(event.angleDelta().y())
 
     def mousePressEvent(self, event):
@@ -102,8 +84,9 @@ class Viewport(qtw.QPushButton):
                 return
         super().mouseReleaseEvent(event)
 
-def clicked():
-    pass
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit()
+        super().mouseDoubleClickEvent(event)
 
 class DummyCam:
     camera_properties = {'ScalerCropMaximum': [176, 144]}
@@ -112,8 +95,7 @@ if __name__ == "__main__":
     app = qtw.QApplication([])
     w = qtw.QWidget()
     w.resize(800, 600)
-    button = DragButton(w)
-    button.setCamera(DummyCam())  # <-- Add this line
-    button.clicked.connect(clicked)
+    button = Viewport(w)
+    button.setCamera(DummyCam())
     w.show()
     app.exec()

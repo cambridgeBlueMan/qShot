@@ -58,6 +58,21 @@ class Zoomer(qtw.QWidget):
         # if self.preview is not None:
         #    layout.addWidget(self.preview)
 
+        # Zoom sets view
+        self.zoomsets_view = qtw.QTableView(self)
+        self.zoomsets_view.setModel(self.zoomsets_model)
+        layout.addWidget(self.zoomsets_view)
+
+        # Add button to save current viewport as preset
+        self.save_preset_button = qtw.QPushButton("Save Preset", self)
+        self.save_preset_button.clicked.connect(self.save_current_viewport_as_preset)
+        layout.addWidget(self.save_preset_button)
+
+        # Add button to delete selected preset(s)
+        self.delete_preset_button = qtw.QPushButton("Delete Selected Preset(s)", self)
+        self.delete_preset_button.clicked.connect(self.delete_selected_presets)
+        layout.addWidget(self.delete_preset_button)
+
         self.setLayout(layout)
 
         app_signals.mode_changed.connect(self.on_global_mode_changed) 
@@ -65,6 +80,9 @@ class Zoomer(qtw.QWidget):
 
         if self.cam is not None:
             self.viewport.setCamera(self.cam)
+
+        # Connect doubleClicked signal to save_current_viewport_as_preset slot
+        self.viewport.doubleClicked.connect(self.save_current_viewport_as_preset)
 
     def on_global_mode_changed(self, mode):
         # Handle mode change here (update UI, internal state, etc.)
@@ -197,6 +215,29 @@ class Zoomer(qtw.QWidget):
         x = max(0, min(x, sensor_width - w))
         y = max(0, min(y, sensor_height - h))
         return (x, y, w, h)
+
+    def save_current_viewport_as_preset(self):
+        """
+        Save the current viewport position and size as a new preset in the zoomsets model.
+        """
+        x = self.viewport.x()
+        y = self.viewport.y()
+        w = self.viewport.bWidth
+        h = self.viewport.bHeight
+        speed = 1  # Default or get from UI if available
+        pause = 1.0  # Default or get from UI if available
+        zdata = [x, y, w, h, speed, pause]
+        if self.zoomsets_model is not None:
+            self.zoomsets_model.insertRows(self.zoomsets_model.rowCount(), 1, zdata=zdata)
+
+    def delete_selected_presets(self):
+        """
+        Delete the selected rows from the zoomsets table.
+        """
+        selection = self.zoomsets_view.selectionModel().selectedRows()
+        # Remove from bottom up to avoid row index shifting
+        for index in sorted(selection, key=lambda x: x.row(), reverse=True):
+            self.zoomsets_model.removeRows(index.row(), 1)
 
 if __name__ == "__main__":
     import sys

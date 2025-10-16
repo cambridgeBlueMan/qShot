@@ -1,139 +1,185 @@
-2025-10-16 15:06:39,248 - INFO - Creating new QApplication instance.
-2025-10-16 15:06:39,322 - INFO - CSI argument provided via command line: 0
-2025-10-16 15:06:39,323 - INFO - About to create Picamera2 instance...
-2025-10-16 15:06:39,448 - INFO - Initialization successful.
-2025-10-16 15:06:39,448 - INFO - Camera now open.
-2025-10-16 15:06:39,452 - INFO - Camera successfully loaded with csi_arg=0
-2025-10-16 15:06:39,453 - INFO - ConfigModel instance created with preview configuration.
-2025-10-16 15:06:39,453 - INFO - ControlsModel instance created with controls configuration.
-2025-10-16 15:06:39,455 - INFO - MainWindow initialized.
-2025-10-16 15:06:39,459 - INFO - Camera configuration has been adjusted!
-2025-10-16 15:06:39,460 - INFO - Configuration successful!
-2025-10-16 15:06:39,583 - INFO - Camera started
-2025-10-16 15:06:39,584 - INFO - Camera started and QGlPicamera2 preview created.
-2025-10-16 15:06:39,597 - INFO - Toolbar added.
-2025-10-16 15:06:39,607 - INFO - Save action added to toolbar.
-2025-10-16 15:06:39,621 - INFO - Status bar initialized.
-2025-10-16 15:06:39,630 - INFO - Args prepared for component: test
-2025-10-16 15:06:39,635 - INFO - Loading settings - labels_path from settings: ''
-2025-10-16 15:06:39,635 - INFO - labels_path type: <class 'str'>
-2025-10-16 15:06:39,635 - INFO - labels_path exists: False
-2025-10-16 15:06:39,635 - INFO - labels_path isfile: False
-2025-10-16 15:06:39,642 - INFO - Sensor mode dropdown populated with 1 modes.
-2025-10-16 15:06:39,643 - INFO - Zoomer: config_changed received main.size = (640, 480)
-2025-10-16 15:06:40,152 - INFO - Camera stopped
-2025-10-16 15:06:40,153 - INFO - Camera configuration has been adjusted!
-2025-10-16 15:06:40,156 - INFO - Configuration successful!
-2025-10-16 15:06:40,168 - INFO - Camera started
-2025-10-16 15:06:40,169 - INFO - Zoomer: config_changed received main.size = (640, 480)
-2025-10-16 15:06:40,213 - INFO - Camera stopped
-2025-10-16 15:06:40,218 - INFO - Configuration successful!
-2025-10-16 15:06:40,240 - INFO - Camera started
-2025-10-16 15:06:40,240 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 1456, 1088), 'exposure_limits': (29, 15534385, 20000), 'format': SRGGB10_CSI2P, 'fps': 60.38, 'size': (1456, 1088), 'unpacked': 'SRGGB10'}
-2025-10-16 15:06:40,241 - INFO - Zoomer: config_changed received main.size = (320, 200)
-2025-10-16 15:06:40,285 - INFO - Camera stopped
-2025-10-16 15:06:40,297 - INFO - Configuration successful!
-2025-10-16 15:06:40,314 - INFO - Camera started
-2025-10-16 15:06:40,316 - INFO - Zoomer: config_changed received main.size = (960, 540)
-2025-10-16 15:06:40,357 - INFO - Camera stopped
-2025-10-16 15:06:40,376 - INFO - Configuration successful!
-2025-10-16 15:06:40,410 - INFO - Camera started
-2025-10-16 15:06:40,411 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
-2025-10-16 15:06:40,414 - INFO - Test widget framerate changed: 60 fps (FrameDurationLimits set to (16666, 16666))
-2025-10-16 15:06:40,422 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
-2025-10-16 15:06:40,459 - INFO - Left, right, and bottom docks added.
-2025-10-16 15:06:40,467 - INFO - Controls menu added to menu bar.
-2025-10-16 15:06:40,468 - INFO - Components menu added to menu bar.
-2025-10-16 15:06:40,469 - INFO - Added 'classifier' to Components menu.
-2025-10-16 15:06:40,469 - INFO - Added 'detector' to Components menu.
-2025-10-16 15:06:40,470 - INFO - Added 'test' to Components menu.
-2025-10-16 15:06:40,470 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
-2025-10-16 15:06:40,471 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
-2025-10-16 15:06:40,472 - INFO - View menu with dock toggle actions added.
-2025-10-16 15:06:40,528 - INFO - Starting Qt event loop.
-2025-10-16 15:06:48,137 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:48,153 - INFO - Zoomer: set ScalerCrop to (8, 0, 960, 536)
-2025-10-16 15:06:48,171 - INFO - Zoomer: set ScalerCrop to (32, 0, 960, 536)
-2025-10-16 15:06:48,187 - INFO - Zoomer: set ScalerCrop to (48, 0, 960, 536)
-2025-10-16 15:06:48,240 - INFO - Zoomer: set ScalerCrop to (64, 0, 960, 536)
-2025-10-16 15:06:48,297 - INFO - Zoomer: set ScalerCrop to (112, 0, 960, 536)
-2025-10-16 15:06:48,299 - INFO - Zoomer: set ScalerCrop to (200, 0, 960, 536)
-2025-10-16 15:06:48,333 - INFO - Zoomer: set ScalerCrop to (216, 0, 960, 536)
-2025-10-16 15:06:48,346 - INFO - Zoomer: set ScalerCrop to (256, 0, 960, 536)
-2025-10-16 15:06:48,390 - INFO - Zoomer: set ScalerCrop to (280, 0, 960, 536)
-2025-10-16 15:06:48,394 - INFO - Zoomer: set ScalerCrop to (328, 0, 960, 536)
-2025-10-16 15:06:48,418 - INFO - Zoomer: set ScalerCrop to (344, 0, 960, 536)
-2025-10-16 15:06:48,470 - INFO - Zoomer: set ScalerCrop to (368, 0, 960, 536)
-2025-10-16 15:06:48,473 - INFO - Zoomer: set ScalerCrop to (408, 0, 960, 536)
-2025-10-16 15:06:48,490 - INFO - Zoomer: set ScalerCrop to (424, 0, 960, 536)
-2025-10-16 15:06:48,505 - INFO - Zoomer: set ScalerCrop to (440, 0, 960, 536)
-2025-10-16 15:06:48,543 - INFO - Zoomer: set ScalerCrop to (472, 0, 960, 536)
-2025-10-16 15:06:48,555 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,570 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,701 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,722 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,752 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,806 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,812 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,825 - INFO - Zoomer: set ScalerCrop to (496, 0, 960, 536)
-2025-10-16 15:06:48,852 - INFO - Zoomer: set ScalerCrop to (496, 8, 960, 536)
-2025-10-16 15:06:48,856 - INFO - Zoomer: set ScalerCrop to (496, 8, 960, 536)
-2025-10-16 15:06:48,892 - INFO - Zoomer: set ScalerCrop to (496, 8, 960, 536)
-2025-10-16 15:06:49,543 - INFO - Zoomer: set ScalerCrop to (496, 8, 960, 536)
-2025-10-16 15:06:49,575 - INFO - Zoomer: set ScalerCrop to (496, 32, 960, 536)
-2025-10-16 15:06:49,595 - INFO - Zoomer: set ScalerCrop to (496, 80, 960, 536)
-2025-10-16 15:06:49,602 - INFO - Zoomer: set ScalerCrop to (496, 104, 960, 536)
-2025-10-16 15:06:49,660 - INFO - Zoomer: set ScalerCrop to (496, 128, 960, 536)
-2025-10-16 15:06:49,674 - INFO - Zoomer: set ScalerCrop to (496, 208, 960, 536)
-2025-10-16 15:06:49,694 - INFO - Zoomer: set ScalerCrop to (496, 240, 960, 536)
-2025-10-16 15:06:49,715 - INFO - Zoomer: set ScalerCrop to (496, 272, 960, 536)
-2025-10-16 15:06:49,725 - INFO - Zoomer: set ScalerCrop to (496, 328, 960, 536)
-2025-10-16 15:06:49,752 - INFO - Zoomer: set ScalerCrop to (496, 344, 960, 536)
-2025-10-16 15:06:49,808 - INFO - Zoomer: set ScalerCrop to (496, 376, 960, 536)
-2025-10-16 15:06:49,810 - INFO - Zoomer: set ScalerCrop to (496, 464, 960, 536)
-2025-10-16 15:06:49,832 - INFO - Zoomer: set ScalerCrop to (496, 496, 960, 536)
-2025-10-16 15:06:49,860 - INFO - Zoomer: set ScalerCrop to (496, 528, 960, 536)
-2025-10-16 15:06:49,884 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:49,914 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:49,950 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:50,019 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:50,098 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:50,398 - INFO - Zoomer: set ScalerCrop to (496, 552, 960, 536)
-2025-10-16 15:06:50,425 - INFO - Zoomer: set ScalerCrop to (488, 552, 960, 536)
-2025-10-16 15:06:50,446 - INFO - Zoomer: set ScalerCrop to (480, 552, 960, 536)
-2025-10-16 15:06:50,462 - INFO - Zoomer: set ScalerCrop to (456, 552, 960, 536)
-2025-10-16 15:06:50,478 - INFO - Zoomer: set ScalerCrop to (432, 552, 960, 536)
-2025-10-16 15:06:50,507 - INFO - Zoomer: set ScalerCrop to (400, 552, 960, 536)
-2025-10-16 15:06:50,523 - INFO - Zoomer: set ScalerCrop to (264, 552, 960, 536)
-2025-10-16 15:06:50,578 - INFO - Zoomer: set ScalerCrop to (224, 552, 960, 536)
-2025-10-16 15:06:50,602 - INFO - Zoomer: set ScalerCrop to (120, 552, 960, 536)
-2025-10-16 15:06:50,618 - INFO - Zoomer: set ScalerCrop to (88, 552, 960, 536)
-2025-10-16 15:06:50,699 - INFO - Zoomer: set ScalerCrop to (48, 552, 960, 536)
-2025-10-16 15:06:50,825 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:50,877 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:50,905 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:50,921 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:50,980 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:51,353 - INFO - Zoomer: set ScalerCrop to (0, 552, 960, 536)
-2025-10-16 15:06:51,369 - INFO - Zoomer: set ScalerCrop to (0, 544, 960, 536)
-2025-10-16 15:06:51,386 - INFO - Zoomer: set ScalerCrop to (0, 528, 960, 536)
-2025-10-16 15:06:51,402 - INFO - Zoomer: set ScalerCrop to (0, 496, 960, 536)
-2025-10-16 15:06:51,424 - INFO - Zoomer: set ScalerCrop to (0, 456, 960, 536)
-2025-10-16 15:06:51,435 - INFO - Zoomer: set ScalerCrop to (0, 424, 960, 536)
-2025-10-16 15:06:51,479 - INFO - Zoomer: set ScalerCrop to (0, 392, 960, 536)
-2025-10-16 15:06:51,485 - INFO - Zoomer: set ScalerCrop to (0, 328, 960, 536)
-2025-10-16 15:06:51,510 - INFO - Zoomer: set ScalerCrop to (0, 296, 960, 536)
-2025-10-16 15:06:51,539 - INFO - Zoomer: set ScalerCrop to (0, 264, 960, 536)
-2025-10-16 15:06:51,551 - INFO - Zoomer: set ScalerCrop to (0, 192, 960, 536)
-2025-10-16 15:06:51,582 - INFO - Zoomer: set ScalerCrop to (0, 144, 960, 536)
-2025-10-16 15:06:51,608 - INFO - Zoomer: set ScalerCrop to (0, 72, 960, 536)
-2025-10-16 15:06:51,625 - INFO - Zoomer: set ScalerCrop to (0, 48, 960, 536)
-2025-10-16 15:06:51,683 - INFO - Zoomer: set ScalerCrop to (0, 32, 960, 536)
-2025-10-16 15:06:51,705 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:51,721 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:51,737 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:51,798 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:51,802 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:51,867 - INFO - Zoomer: set ScalerCrop to (0, 0, 960, 536)
-2025-10-16 15:06:54,457 - INFO - Camera stopped
-2025-10-16 15:06:54,665 - INFO - Camera closed successfully.
+2025-10-16 17:45:07,480 - INFO - Creating new QApplication instance.
+2025-10-16 17:45:07,535 - INFO - CSI argument provided via command line: 0
+2025-10-16 17:45:07,536 - INFO - About to create Picamera2 instance...
+2025-10-16 17:45:07,651 - INFO - Initialization successful.
+2025-10-16 17:45:07,652 - INFO - Camera now open.
+2025-10-16 17:45:07,653 - INFO - Camera successfully loaded with csi_arg=0
+2025-10-16 17:45:07,654 - INFO - ConfigModel instance created with preview configuration.
+2025-10-16 17:45:07,654 - INFO - ControlsModel instance created with controls configuration.
+2025-10-16 17:45:07,656 - INFO - ZoomsetsModel instance created.
+2025-10-16 17:45:07,659 - INFO - MainWindow initialized.
+2025-10-16 17:45:07,660 - INFO - Camera configuration has been adjusted!
+2025-10-16 17:45:07,663 - INFO - Configuration successful!
+2025-10-16 17:45:07,742 - INFO - Camera started
+2025-10-16 17:45:07,742 - INFO - Camera started and QGlPicamera2 preview created.
+2025-10-16 17:45:07,750 - INFO - Toolbar added.
+2025-10-16 17:45:07,754 - INFO - Save action added to toolbar.
+2025-10-16 17:45:07,764 - INFO - Status bar initialized.
+2025-10-16 17:45:07,774 - INFO - Loading settings - labels_path from settings: ''
+2025-10-16 17:45:07,774 - INFO - labels_path type: <class 'str'>
+2025-10-16 17:45:07,774 - INFO - labels_path exists: False
+2025-10-16 17:45:07,774 - INFO - labels_path isfile: False
+2025-10-16 17:45:07,779 - INFO - Sensor mode dropdown populated with 1 modes.
+2025-10-16 17:45:07,779 - INFO - Zoomer: config_changed received main.size = (640, 480)
+2025-10-16 17:45:08,311 - INFO - Camera stopped
+2025-10-16 17:45:08,312 - INFO - Camera configuration has been adjusted!
+2025-10-16 17:45:08,316 - INFO - Configuration successful!
+2025-10-16 17:45:08,332 - INFO - Camera started
+2025-10-16 17:45:08,332 - INFO - Zoomer: config_changed received main.size = (640, 480)
+2025-10-16 17:45:08,372 - INFO - Camera stopped
+2025-10-16 17:45:08,378 - INFO - Configuration successful!
+2025-10-16 17:45:08,394 - INFO - Camera started
+2025-10-16 17:45:08,395 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 1456, 1088), 'exposure_limits': (29, 15534385, 20000), 'format': SRGGB10_CSI2P, 'fps': 60.38, 'size': (1456, 1088), 'unpacked': 'SRGGB10'}
+2025-10-16 17:45:08,395 - INFO - Zoomer: config_changed received main.size = (320, 200)
+2025-10-16 17:45:08,442 - INFO - Camera stopped
+2025-10-16 17:45:08,449 - INFO - Configuration successful!
+2025-10-16 17:45:08,464 - INFO - Camera started
+2025-10-16 17:45:08,465 - INFO - Zoomer: config_changed received main.size = (960, 540)
+2025-10-16 17:45:08,504 - INFO - Camera stopped
+2025-10-16 17:45:08,514 - INFO - Configuration successful!
+2025-10-16 17:45:08,558 - INFO - Camera started
+2025-10-16 17:45:08,559 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
+2025-10-16 17:45:08,559 - INFO - Test widget framerate changed: 60 fps (FrameDurationLimits set to (16666, 16666))
+2025-10-16 17:45:08,570 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
+2025-10-16 17:45:08,592 - INFO - Left, right, and bottom docks added.
+2025-10-16 17:45:08,599 - INFO - Controls menu added to menu bar.
+2025-10-16 17:45:08,602 - INFO - Components menu added to menu bar.
+2025-10-16 17:45:08,602 - INFO - Added 'classifier' to Components menu.
+2025-10-16 17:45:08,602 - INFO - Added 'detector' to Components menu.
+2025-10-16 17:45:08,602 - INFO - Added 'test' to Components menu.
+2025-10-16 17:45:08,602 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
+2025-10-16 17:45:08,602 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
+2025-10-16 17:45:08,603 - INFO - View menu with dock toggle actions added.
+2025-10-16 17:45:08,630 - INFO - Starting Qt event loop.
+2025-10-16 17:45:20,212 - INFO - Zoomer: config_changed received main.size = (1280, 800)
+2025-10-16 17:45:20,217 - INFO - Camera stopped
+2025-10-16 17:45:20,225 - INFO - Configuration successful!
+2025-10-16 17:45:20,242 - INFO - Camera started
+2025-10-16 17:45:38,372 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:45:38,405 - INFO - Zoomer: set ScalerCrop to (8, 0, 1280, 800)
+2025-10-16 17:45:38,422 - INFO - Zoomer: set ScalerCrop to (24, 0, 1280, 800)
+2025-10-16 17:45:38,439 - INFO - Zoomer: set ScalerCrop to (40, 0, 1280, 800)
+2025-10-16 17:45:38,453 - INFO - Zoomer: set ScalerCrop to (64, 0, 1280, 800)
+2025-10-16 17:45:38,474 - INFO - Zoomer: set ScalerCrop to (96, 0, 1280, 800)
+2025-10-16 17:45:38,485 - INFO - Zoomer: set ScalerCrop to (128, 0, 1280, 800)
+2025-10-16 17:45:38,501 - INFO - Zoomer: set ScalerCrop to (152, 0, 1280, 800)
+2025-10-16 17:45:38,518 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,533 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,549 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,564 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,581 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,596 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,612 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,628 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:38,644 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:40,228 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:45:40,260 - INFO - Zoomer: set ScalerCrop to (176, 8, 1280, 800)
+2025-10-16 17:45:40,277 - INFO - Zoomer: set ScalerCrop to (176, 24, 1280, 800)
+2025-10-16 17:45:40,293 - INFO - Zoomer: set ScalerCrop to (176, 40, 1280, 800)
+2025-10-16 17:45:40,309 - INFO - Zoomer: set ScalerCrop to (176, 56, 1280, 800)
+2025-10-16 17:45:40,325 - INFO - Zoomer: set ScalerCrop to (176, 80, 1280, 800)
+2025-10-16 17:45:40,341 - INFO - Zoomer: set ScalerCrop to (176, 112, 1280, 800)
+2025-10-16 17:45:40,358 - INFO - Zoomer: set ScalerCrop to (176, 144, 1280, 800)
+2025-10-16 17:45:40,374 - INFO - Zoomer: set ScalerCrop to (176, 176, 1280, 800)
+2025-10-16 17:45:40,391 - INFO - Zoomer: set ScalerCrop to (176, 208, 1280, 800)
+2025-10-16 17:45:40,408 - INFO - Zoomer: set ScalerCrop to (176, 224, 1280, 800)
+2025-10-16 17:45:40,422 - INFO - Zoomer: set ScalerCrop to (176, 240, 1280, 800)
+2025-10-16 17:45:40,441 - INFO - Zoomer: set ScalerCrop to (176, 256, 1280, 800)
+2025-10-16 17:45:40,454 - INFO - Zoomer: set ScalerCrop to (176, 272, 1280, 800)
+2025-10-16 17:45:40,476 - INFO - Zoomer: set ScalerCrop to (176, 280, 1280, 800)
+2025-10-16 17:45:40,485 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:45:42,036 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:45:42,053 - INFO - Zoomer: set ScalerCrop to (168, 288, 1280, 800)
+2025-10-16 17:45:42,076 - INFO - Zoomer: set ScalerCrop to (160, 288, 1280, 800)
+2025-10-16 17:45:42,085 - INFO - Zoomer: set ScalerCrop to (152, 288, 1280, 800)
+2025-10-16 17:45:42,101 - INFO - Zoomer: set ScalerCrop to (136, 288, 1280, 800)
+2025-10-16 17:45:42,118 - INFO - Zoomer: set ScalerCrop to (112, 288, 1280, 800)
+2025-10-16 17:45:42,133 - INFO - Zoomer: set ScalerCrop to (88, 288, 1280, 800)
+2025-10-16 17:45:42,149 - INFO - Zoomer: set ScalerCrop to (56, 288, 1280, 800)
+2025-10-16 17:45:42,165 - INFO - Zoomer: set ScalerCrop to (32, 288, 1280, 800)
+2025-10-16 17:45:42,436 - INFO - Zoomer: set ScalerCrop to (24, 288, 1280, 800)
+2025-10-16 17:45:42,485 - INFO - Zoomer: set ScalerCrop to (16, 288, 1280, 800)
+2025-10-16 17:45:42,501 - INFO - Zoomer: set ScalerCrop to (16, 288, 1280, 800)
+2025-10-16 17:45:42,516 - INFO - Zoomer: set ScalerCrop to (8, 288, 1280, 800)
+2025-10-16 17:45:42,533 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:45:42,549 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:45:42,565 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:45:42,581 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:45:42,596 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:46:25,783 - INFO - Zoomer: set ScalerCrop to (0, 288, 1280, 800)
+2025-10-16 17:46:25,799 - INFO - Zoomer: set ScalerCrop to (8, 288, 1280, 800)
+2025-10-16 17:46:25,815 - INFO - Zoomer: set ScalerCrop to (16, 280, 1280, 800)
+2025-10-16 17:46:25,831 - INFO - Zoomer: set ScalerCrop to (24, 272, 1280, 800)
+2025-10-16 17:46:25,848 - INFO - Zoomer: set ScalerCrop to (56, 248, 1280, 800)
+2025-10-16 17:46:25,865 - INFO - Zoomer: set ScalerCrop to (88, 216, 1280, 800)
+2025-10-16 17:46:25,880 - INFO - Zoomer: set ScalerCrop to (120, 184, 1280, 800)
+2025-10-16 17:46:25,896 - INFO - Zoomer: set ScalerCrop to (152, 160, 1280, 800)
+2025-10-16 17:46:25,928 - INFO - Zoomer: set ScalerCrop to (160, 152, 1280, 800)
+2025-10-16 17:46:25,944 - INFO - Zoomer: set ScalerCrop to (168, 144, 1280, 800)
+2025-10-16 17:46:25,960 - INFO - Zoomer: set ScalerCrop to (176, 136, 1280, 800)
+2025-10-16 17:46:25,976 - INFO - Zoomer: set ScalerCrop to (176, 120, 1280, 800)
+2025-10-16 17:46:25,992 - INFO - Zoomer: set ScalerCrop to (176, 112, 1280, 800)
+2025-10-16 17:46:26,008 - INFO - Zoomer: set ScalerCrop to (176, 88, 1280, 800)
+2025-10-16 17:46:26,024 - INFO - Zoomer: set ScalerCrop to (176, 64, 1280, 800)
+2025-10-16 17:46:26,072 - INFO - Zoomer: set ScalerCrop to (176, 48, 1280, 800)
+2025-10-16 17:46:26,088 - INFO - Zoomer: set ScalerCrop to (176, 40, 1280, 800)
+2025-10-16 17:46:26,104 - INFO - Zoomer: set ScalerCrop to (176, 32, 1280, 800)
+2025-10-16 17:46:26,120 - INFO - Zoomer: set ScalerCrop to (176, 16, 1280, 800)
+2025-10-16 17:46:26,136 - INFO - Zoomer: set ScalerCrop to (176, 8, 1280, 800)
+2025-10-16 17:46:26,247 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:46:27,815 - INFO - Zoomer: set ScalerCrop to (176, 0, 1280, 800)
+2025-10-16 17:46:27,848 - INFO - Zoomer: set ScalerCrop to (168, 0, 1280, 800)
+2025-10-16 17:46:27,864 - INFO - Zoomer: set ScalerCrop to (136, 0, 1280, 800)
+2025-10-16 17:46:27,880 - INFO - Zoomer: set ScalerCrop to (104, 0, 1280, 800)
+2025-10-16 17:46:27,896 - INFO - Zoomer: set ScalerCrop to (80, 0, 1280, 800)
+2025-10-16 17:46:27,912 - INFO - Zoomer: set ScalerCrop to (48, 0, 1280, 800)
+2025-10-16 17:46:27,928 - INFO - Zoomer: set ScalerCrop to (24, 0, 1280, 800)
+2025-10-16 17:46:27,944 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:27,960 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:27,976 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:27,992 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:28,008 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:28,119 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:28,135 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:28,151 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:29,383 - INFO - Zoomer: set ScalerCrop to (0, 0, 1280, 800)
+2025-10-16 17:46:29,399 - INFO - Zoomer: set ScalerCrop to (8, 0, 1280, 800)
+2025-10-16 17:46:29,416 - INFO - Zoomer: set ScalerCrop to (16, 8, 1280, 800)
+2025-10-16 17:46:29,432 - INFO - Zoomer: set ScalerCrop to (32, 16, 1280, 800)
+2025-10-16 17:46:29,448 - INFO - Zoomer: set ScalerCrop to (64, 32, 1280, 800)
+2025-10-16 17:46:29,464 - INFO - Zoomer: set ScalerCrop to (96, 48, 1280, 800)
+2025-10-16 17:46:29,480 - INFO - Zoomer: set ScalerCrop to (120, 64, 1280, 800)
+2025-10-16 17:46:29,496 - INFO - Zoomer: set ScalerCrop to (144, 80, 1280, 800)
+2025-10-16 17:46:29,512 - INFO - Zoomer: set ScalerCrop to (176, 104, 1280, 800)
+2025-10-16 17:46:29,528 - INFO - Zoomer: set ScalerCrop to (176, 120, 1280, 800)
+2025-10-16 17:46:29,547 - INFO - Zoomer: set ScalerCrop to (176, 128, 1280, 800)
+2025-10-16 17:46:29,560 - INFO - Zoomer: set ScalerCrop to (176, 144, 1280, 800)
+2025-10-16 17:46:29,576 - INFO - Zoomer: set ScalerCrop to (176, 144, 1280, 800)
+2025-10-16 17:46:29,592 - INFO - Zoomer: set ScalerCrop to (176, 152, 1280, 800)
+2025-10-16 17:46:29,624 - INFO - Zoomer: set ScalerCrop to (176, 152, 1280, 800)
+2025-10-16 17:46:29,640 - INFO - Zoomer: set ScalerCrop to (176, 160, 1280, 800)
+2025-10-16 17:46:29,656 - INFO - Zoomer: set ScalerCrop to (176, 168, 1280, 800)
+2025-10-16 17:46:29,672 - INFO - Zoomer: set ScalerCrop to (176, 184, 1280, 800)
+2025-10-16 17:46:29,688 - INFO - Zoomer: set ScalerCrop to (176, 192, 1280, 800)
+2025-10-16 17:46:29,704 - INFO - Zoomer: set ScalerCrop to (176, 200, 1280, 800)
+2025-10-16 17:46:29,720 - INFO - Zoomer: set ScalerCrop to (176, 208, 1280, 800)
+2025-10-16 17:46:29,752 - INFO - Zoomer: set ScalerCrop to (176, 208, 1280, 800)
+2025-10-16 17:46:29,773 - INFO - Zoomer: set ScalerCrop to (176, 216, 1280, 800)
+2025-10-16 17:46:29,784 - INFO - Zoomer: set ScalerCrop to (176, 224, 1280, 800)
+2025-10-16 17:46:29,800 - INFO - Zoomer: set ScalerCrop to (176, 224, 1280, 800)
+2025-10-16 17:46:29,816 - INFO - Zoomer: set ScalerCrop to (176, 232, 1280, 800)
+2025-10-16 17:46:29,832 - INFO - Zoomer: set ScalerCrop to (176, 232, 1280, 800)
+2025-10-16 17:46:29,848 - INFO - Zoomer: set ScalerCrop to (176, 248, 1280, 800)
+2025-10-16 17:46:29,864 - INFO - Zoomer: set ScalerCrop to (176, 264, 1280, 800)
+2025-10-16 17:46:29,881 - INFO - Zoomer: set ScalerCrop to (176, 280, 1280, 800)
+2025-10-16 17:46:29,896 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,912 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,928 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,944 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,960 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,975 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:29,991 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:30,007 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:30,151 - INFO - Zoomer: set ScalerCrop to (176, 288, 1280, 800)
+2025-10-16 17:46:53,792 - INFO - Camera stopped
+2025-10-16 17:46:53,992 - INFO - Camera closed successfully.
