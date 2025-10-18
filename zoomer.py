@@ -5,6 +5,7 @@ from viewport import Viewport
 from app_signals import app_signals
 from config_model import ConfigModel
 from controls_model import ControlsModel
+from player import Player
 import logging
 
 # Configure logging
@@ -15,6 +16,26 @@ logging.basicConfig(
     filemode='w' 
 )
 SENSOR_FRAME_DIVIDER = 8
+
+def apply_scaler_crop_from_player(controls_model, cam=None):
+    """
+    Adapter for Player: receives interpolated state dict with keys x,y,w,h
+    and applies as ScalerCrop via controls_model or directly to cam.
+    """
+    def apply_fn(state):
+        try:
+            crop = (int(state.get('x', 0)), int(state.get('y', 0)),
+                    int(state.get('w', 0)), int(state.get('h', 0)))
+            if controls_model is not None:
+                controls_model.ScalerCrop = crop
+            elif cam is not None:
+                try:
+                    cam.set_controls({"ScalerCrop": list(crop)})
+                except Exception:
+                    logging.exception("Failed to set controls on cam")
+        except Exception:
+            logging.exception("apply_fn failed")
+    return apply_fn
 
 class Zoomer(qtw.QWidget):
     """A widget for controlling zoom using a DragButton."""
@@ -61,17 +82,62 @@ class Zoomer(qtw.QWidget):
         # Zoom sets view
         self.zoomsets_view = qtw.QTableView(self)
         self.zoomsets_view.setModel(self.zoomsets_model)
+        # select entire rows on click, single selection only
+        self.zoomsets_view.setSelectionBehavior(qtw.QAbstractItemView.SelectionBehavior.SelectRows)
         layout.addWidget(self.zoomsets_view)
 
-        # Add button to save current viewport as preset
-        self.save_preset_button = qtw.QPushButton("Save Preset", self)
-        self.save_preset_button.clicked.connect(self.save_current_viewport_as_preset)
-        layout.addWidget(self.save_preset_button)
+        # Add buttons row: Add (save) and Delete
+        btn_row = qtw.QHBoxLayout()
 
-        # Add button to delete selected preset(s)
-        self.delete_preset_button = qtw.QPushButton("Delete Selected Preset(s)", self)
-        self.delete_preset_button.clicked.connect(self.delete_selected_presets)
-        layout.addWidget(self.delete_preset_button)
+        self.add_button = qtw.QPushButton("Add", self)
+        self.add_button.setToolTip("Save the current viewport position and size as a new preset.")
+        self.add_button.clicked.connect(self.save_current_viewport_as_preset)
+        btn_row.addWidget(self.add_button)
+
+        self.delete_button = qtw.QPushButton("Delete", self)
+        self.delete_button.setToolTip("Delete the currently selected preset(s) from the presets table.")
+        self.delete_button.clicked.connect(self.delete_selected_presets)
+        btn_row.addWidget(self.delete_button)
+
+        layout.addLayout(btn_row)
+        # Player controls row: start/end row selectors and Play/Stop
+        if self.zoomsets_model is not None:
+            player_row = qtw.QHBoxLayout()
+
+            self.start_label = qtw.QLabel("Start row:", self)
+            player_row.addWidget(self.start_label)
+            self.start_spin = qtw.QSpinBox(self)
+            self.start_spin.setMinimum(0)
+            self.start_spin.setMaximum(max(0, self.zoomsets_model.rowCount() - 1))
+            player_row.addWidget(self.start_spin)
+
+            self.end_label = qtw.QLabel("End row:", self)
+            player_row.addWidget(self.end_label)
+            self.end_spin = qtw.QSpinBox(self)
+            self.end_spin.setMinimum(0)
+            self.end_spin.setMaximum(max(0, self.zoomsets_model.rowCount() - 1))
+            player_row.addWidget(self.end_spin)
+
+            self.play_button = qtw.QPushButton("Play", self)
+            self.play_button.setToolTip("Interpolate controls from Start row to End row using the duration value.")
+            self.play_button.clicked.connect(self._on_play_clicked)
+            player_row.addWidget(self.play_button)
+
+            self.stop_button = qtw.QPushButton("Stop", self)
+            self.stop_button.setToolTip("Stop the running player.")
+            self.stop_button.clicked.connect(self._on_stop_clicked)
+            self.stop_button.setEnabled(False)
+            player_row.addWidget(self.stop_button)
+
+            layout.addLayout(player_row)
+
+            # Keep spin ranges in sync with model changes
+            try:
+                self.zoomsets_model.rowsInserted.connect(self._update_row_spin_ranges)
+                self.zoomsets_model.rowsRemoved.connect(self._update_row_spin_ranges)
+                self.zoomsets_model.modelReset.connect(self._update_row_spin_ranges)
+            except Exception:
+                pass
 
         self.setLayout(layout)
 
@@ -229,6 +295,8 @@ class Zoomer(qtw.QWidget):
         zdata = [x, y, w, h, speed, pause]
         if self.zoomsets_model is not None:
             self.zoomsets_model.insertRows(self.zoomsets_model.rowCount(), 1, zdata=zdata)
+            # keep spinners up to date
+            self._update_row_spin_ranges()
 
     def delete_selected_presets(self):
         """
@@ -239,30 +307,56 @@ class Zoomer(qtw.QWidget):
         for index in sorted(selection, key=lambda x: x.row(), reverse=True):
             self.zoomsets_model.removeRows(index.row(), 1)
 
-if __name__ == "__main__":
-    import sys
-    from picamera2 import Picamera2
-    from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
+    def play_range(self, start_row, end_row):
+        if self.zoomsets_model is None:
+            return
+        apply_fn = apply_scaler_crop_from_player(self.controls_model, cam=self.cam)
+        self.player = Player(self.zoomsets_model, apply_fn, start_row, end_row, fps=30)
+        self.player.progress.connect(lambda p: logging.info(f"Player progress: {p:.2f}"))
+        self.player.finished.connect(lambda: logging.info("Player finished"))
+        self.player.stopped.connect(lambda: logging.info("Player stopped"))
+        # update UI when player finishes / is stopped
+        self.player.finished.connect(self._on_player_done)
+        self.player.stopped.connect(self._on_player_done)
+        self.play_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+        self.player.start()
 
-    app = qtw.QApplication(sys.argv)
-    camera = Picamera2()
-    preview = QGlPicamera2(camera)
-    camera.start()
-    # Use a real preview configuration for the config model
-    config_model = ConfigModel(initial_config=camera.create_preview_configuration())
-    config_model.set_nested('main', 'size', (320, 240))
-    main_size = config_model.get_nested('main', 'size')
-    print(f"Test: config_model['main']['size'] = {main_size}")
+    def _on_play_clicked(self):
+        if self.zoomsets_model is None:
+            return
+        start = int(self.start_spin.value())
+        end = int(self.end_spin.value())
+        if start > end:
+            start, end = end, start
+        self.play_range(start, end)
 
-    zoomer = Zoomer(cam=camera, config_model=config_model)
+    def _on_stop_clicked(self):
+        if hasattr(self, "player") and self.player is not None:
+            try:
+                self.player.stop()
+            except Exception:
+                logging.exception("Failed to stop player")
 
-    # Create a container widget and layout
-    container = qtw.QWidget()
-    layout = qtw.QHBoxLayout(container)
-    layout.addWidget(zoomer)
-    layout.addWidget(preview)
-    container.setWindowTitle("Zoomer & Preview")
-    container.resize(1100, 400)
-    container.show()
+    def _on_player_done(self):
+        # Called when player finishes or is stopped
+        try:
+            self.play_button.setEnabled(True)
+            self.stop_button.setEnabled(False)
+        except Exception:
+            pass
 
-    sys.exit(app.exec())
+    def _update_row_spin_ranges(self, *args, **kwargs):
+        """
+        Keep start/end spinboxes in sync with the current zoomsets_model row count.
+        """
+        if self.zoomsets_model is None:
+            return
+        max_idx = max(0, self.zoomsets_model.rowCount() - 1)
+        # preserve current values where possible
+        s = min(self.start_spin.value() if hasattr(self, "start_spin") else 0, max_idx)
+        e = min(self.end_spin.value() if hasattr(self, "end_spin") else 0, max_idx)
+        self.start_spin.setMaximum(max_idx)
+        self.end_spin.setMaximum(max_idx)
+        self.start_spin.setValue(s)
+        self.end_spin.setValue(e)
