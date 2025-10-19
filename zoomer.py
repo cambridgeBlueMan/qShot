@@ -284,15 +284,28 @@ class Zoomer(qtw.QWidget):
 
     def save_current_viewport_as_preset(self):
         """
-        Save the current viewport position and size as a new preset in the zoomsets model.
+        Save the current viewport as a preset in SENSOR coordinates.
+        Store as [x, y, w, h, duration (s), pause (s)] where duration is a float.
         """
-        x = self.viewport.x()
-        y = self.viewport.y()
-        w = self.viewport.bWidth
-        h = self.viewport.bHeight
-        speed = 1  # Default or get from UI if available
-        pause = 1.0  # Default or get from UI if available
-        zdata = [x, y, w, h, speed, pause]
+        # Prefer canonical mapping to sensor coordinates
+        scaler_crop = self._get_scaler_crop()
+
+        if scaler_crop is None:
+            # Fallback: map widget coords -> sensor coords using SENSOR_FRAME_DIVIDER
+            x = self.viewport.x() * SENSOR_FRAME_DIVIDER
+            y = self.viewport.y() * SENSOR_FRAME_DIVIDER
+            w = self.viewport.bWidth * SENSOR_FRAME_DIVIDER
+            h = self.viewport.bHeight * SENSOR_FRAME_DIVIDER
+            scaler_crop = (int(x), int(y), int(w), int(h))
+        else:
+            scaler_crop = tuple(int(v) for v in scaler_crop)
+
+        # defaults: duration in seconds (float) and pause in seconds (float)
+        duration = 3.0
+        pause = 1.0
+
+        zdata = [scaler_crop[0], scaler_crop[1], scaler_crop[2], scaler_crop[3], float(duration), float(pause)]
+
         if self.zoomsets_model is not None:
             self.zoomsets_model.insertRows(self.zoomsets_model.rowCount(), 1, zdata=zdata)
             # keep spinners up to date
