@@ -76,9 +76,9 @@ if __name__ == "__main__":
         camera = Picamera2(csi_arg)
         logging.info(f"Camera successfully loaded with csi_arg={csi_arg}")
 
-        # Create the initial config model using the camera's preview configuration
-        config_model = ConfigModel(camera.create_preview_configuration())
-        logging.info("ConfigModel instance created with preview configuration.")
+        # Create the initial config model using the camera's video configuration
+        config_model = ConfigModel(camera.create_video_configuration())
+        logging.info("ConfigModel instance created with video configuration.")
 
         # Create the controls model using the camera's controls configuration
         controls_model = ControlsModel(cam=camera)

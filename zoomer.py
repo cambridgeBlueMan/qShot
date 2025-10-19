@@ -38,8 +38,38 @@ def apply_scaler_crop_from_player(controls_model, cam=None):
     return apply_fn
 
 class Zoomer(qtw.QWidget):
-    """A widget for controlling zoom using a DragButton."""
+    """
+    Zoomer: Main UI/controller for managing camera zoom presets and playback.
 
+    Responsibilities:
+    - Hosts the draggable Viewport widget for interactive zoom region selection.
+    - Displays and manages a table of zoom presets (sensor coordinates, duration, pause).
+    - Provides Add/Delete buttons for preset management.
+    - Provides UI controls to select start/end rows and play back interpolated zoom transitions using Player.
+    - Connects Player's `state` signal to main-thread slots that update ControlsModel or camera controls.
+    - Handles all camera/control writes on the main (GUI) thread for thread safety.
+    - Keeps UI elements (spinboxes, table) in sync with the underlying model.
+
+    Key Interactions:
+    - User drags or resizes the Viewport: emits posChanged/scrolled, updates ControlsModel.ScalerCrop.
+    - Double-click or Add button: saves current viewport as a new preset (in sensor coordinates).
+    - Delete button: removes selected preset(s) from the table.
+    - Play: interpolates between selected start/end presets over the specified duration using Player.
+    - Stop: halts playback and re-enables UI controls.
+
+    Signals/Slots:
+    - Connects to app_signals and config_model for global mode/config changes.
+    - Connects Player's state/progress/finished/stopped signals for real-time feedback and control.
+
+    Threading:
+    - All camera/control updates are performed on the main thread.
+    - Player runs in a background thread and emits state for main-thread application.
+
+    Extensibility:
+    - Designed to support additional "players" for other camera controls.
+    - Can be extended to support multiple concurrent control streams.
+
+    """
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.zoomsets_model = kwargs.get("zoomsets_model")
@@ -60,20 +90,13 @@ class Zoomer(qtw.QWidget):
 
         frame_width, frame_height = self._calculate_frame_size()
         self.zoom_frame.setFixedSize(frame_width, frame_height)
-        frame_layout = qtw.QVBoxLayout(self.zoom_frame)
-        frame_layout.setContentsMargins(0, 0, 0, 0)
 
+        layout.addWidget(self.zoom_frame)
+
+        # Create the viewport widget inside the zoom_frame
         self.viewport = Viewport(self.zoom_frame)
         self.viewport.setParent(self.zoom_frame)
         self.viewport.move(0, 0)
-
-        # Connect signals to slots
-        self.viewport.scrolled.connect(self.setViewportSize)
-        self.viewport.posChanged.connect(self.setViewportPos)
-
-        # Do NOT add self.viewport to any layout!
-
-        layout.addWidget(self.zoom_frame)
 
         # Add preview widget if provided
         # if self.preview is not None:
@@ -220,18 +243,25 @@ class Zoomer(qtw.QWidget):
             scaler_crop = self._get_scaler_crop()
             if scaler_crop:
                 self.controls_model.ScalerCrop = scaler_crop
-                logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
+                #logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
 
     def setViewportPos(self, x, y):
         """
         Slot to handle viewport position changes.
         """
+        # When moving, clamp so the viewport stays inside the frame
+        max_x = self.zoom_frame.width() - self.viewport.bWidth
+        max_y = self.zoom_frame.height() - self.viewport.bHeight
+        x = max(0, min(x, max_x))
+        y = max(0, min(y, max_y))
+        self.viewport.move(x, y)
+
         # Pass new ScalerCrop to controls_model
         if self.controls_model is not None:
             scaler_crop = self._get_scaler_crop()
             if scaler_crop:
                 self.controls_model.ScalerCrop = scaler_crop
-                logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
+                #logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
 
     def _calculate_frame_size(self, size_tuple=None):
         """
@@ -250,7 +280,9 @@ class Zoomer(qtw.QWidget):
             sensor_width, sensor_height = self.cam.camera_properties["PixelArraySize"]
         else:
             # Fallback to a default size if nothing is available
-            return 640 // SENSOR_FRAME_DIVIDER, 480 // SENSOR_FRAME_DIVIDER
+            frame_width = 640 // SENSOR_FRAME_DIVIDER
+            frame_height = 480 // SENSOR_FRAME_DIVIDER
+            return frame_width, frame_height
 
         frame_width = max(1, sensor_width // SENSOR_FRAME_DIVIDER)
         frame_height = max(1, sensor_height // SENSOR_FRAME_DIVIDER)
@@ -324,8 +356,8 @@ class Zoomer(qtw.QWidget):
         if self.zoomsets_model is None:
             return
         apply_fn = apply_scaler_crop_from_player(self.controls_model, cam=self.cam)
-        self.player = Player(self.zoomsets_model, apply_fn, start_row, end_row, fps=30)
-        self.player.progress.connect(lambda p: logging.info(f"Player progress: {p:.2f}"))
+        self.player = Player(self.zoomsets_model, apply_fn, start_row, end_row, steps_per_second=30)
+        # self.player.progress.connect(lambda p: logging.info(f"Player progress: {p:.2f}"))
         self.player.finished.connect(lambda: logging.info("Player finished"))
         self.player.stopped.connect(lambda: logging.info("Player stopped"))
         # update UI when player finishes / is stopped

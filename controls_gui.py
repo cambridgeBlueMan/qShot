@@ -178,152 +178,152 @@ class ControlsGui(QWidget):
 
     # --- Camera control slots ---
     def on_contrast_changed(self, value):
-        print(f"[Camera] Contrast changed to {value}")
+        # print(f"[Camera] Contrast changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Contrast": value})
 
     def on_brightness_changed(self, value):
-        print(f"[Camera] Brightness changed to {value}")
+        # print(f"[Camera] Brightness changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Brightness": value})
 
     def on_sharpness_changed(self, value):
-        print(f"[Camera] Sharpness changed to {value}")
+        # print(f"[Camera] Sharpness changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Sharpness": value})
 
     def on_ae_enable_changed(self, value):
-        print(f"[Camera] AE Enable changed to {value}")
+        # print(f"[Camera] AE Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeEnable": value})
 
     def on_hdr_mode_changed(self, value):
-        print(f"[Camera] HDR Mode changed to {value}")
+        # print(f"[Camera] HDR Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"HdrMode": value})
 
     def on_ae_exposure_mode_changed(self, value):
-        print(f"[Camera] AE Exposure Mode changed to {value}")
+        # print(f"[Camera] AE Exposure Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeExposureMode": value})
 
     def on_ae_constraint_mode_changed(self, value):
-        print(f"[Camera] AE Constraint Mode changed to {value}")
+        # print(f"[Camera] AE Constraint Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeConstraintMode": value})
 
     def on_exposure_time_mode_changed(self, value):
-        print(f"[Camera] Exposure Time Mode changed to {value}")
+        # print(f"[Camera] Exposure Time Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureTimeMode": value})
 
     def on_ae_metering_mode_changed(self, value):
-        print(f"[Camera] AE Metering Mode changed to {value}")
+        # print(f"[Camera] AE Metering Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeMeteringMode": value})
 
     def on_ae_flicker_period_changed(self, value):
-        print(f"[Camera] AE Flicker Period changed to {value}")
+        # print(f"[Camera] AE Flicker Period changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeFlickerPeriod": value})
 
     def on_analogue_gain_mode_changed(self, value):
-        print(f"[Camera] Analogue Gain Mode changed to {value}")
+        # print(f"[Camera] Analogue Gain Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AnalogueGainMode": value})
 
     def on_analogue_gain_changed(self, value):
-        print(f"[Camera] Analogue Gain changed to {value}")
+        # print(f"[Camera] Analogue Gain changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AnalogueGain": value})
 
     def on_stats_output_enable_changed(self, value):
-        print(f"[Camera] Stats Output Enable changed to {value}")
+        # print(f"[Camera] Stats Output Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"StatsOutputEnable": value})
 
     def on_sync_frames_changed(self, value):
-        print(f"[Camera] Sync Frames changed to {value}")
+        # print(f"[Camera] Sync Frames changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"SyncFrames": value})
 
     def on_exposure_time_changed(self, value):
-        print(f"[Camera] Exposure Time changed to {value}")
+        # print(f"[Camera] Exposure Time changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureTime": value})
 
     def on_ae_flicker_mode_changed(self, value):
-        print(f"[Camera] AE Flicker Mode changed to {value}")
+        # print(f"[Camera] AE Flicker Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeFlickerMode": value})
 
     def on_sync_mode_changed(self, value):
-        print(f"[Camera] Sync Mode changed to {value}")
+        # print(f"[Camera] Sync Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"SyncMode": value})
 
     def on_awb_enable_changed(self, value):
-        print(f"[Camera] AWB Enable changed to {value}")
+        # print(f"[Camera] AWB Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AwbEnable": value})
 
     def on_colour_gains_changed(self, value):
-        print(f"[Camera] Colour Gains changed to {value}")
+        # print(f"[Camera] Colour Gains changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ColourGains": value})
 
     def on_awb_mode_changed(self, value):
-        print(f"[Camera] AWB Mode changed to {value}")
+        # print(f"[Camera] AWB Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AwbMode": value})
 
     def on_scaler_crops_changed(self, value):
-        print(f"[Camera] Scaler Crops changed to {value}")
+        # print(f"[Camera] Scaler Crops changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ScalerCrops": value})
 
     def on_colour_temperature_changed(self, value):
-        print(f"[Camera] Colour Temperature changed to {value}")
+        # print(f"[Camera] Colour Temperature changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ColourTemperature": value})
 
     def on_saturation_changed(self, value):
-        print(f"[Camera] Saturation changed to {value}")
+        # print(f"[Camera] Saturation changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Saturation": value})
 
     def on_cnn_enable_input_tensor_changed(self, value):
-        print(f"[Camera] CNN Enable Input Tensor changed to {value}")
+        # print(f"[Camera] CNN Enable Input Tensor changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"CnnEnableInputTensor": value})
 
     def on_frame_duration_limits_changed(self, value):
-        print(f"[Camera] Frame Duration Limits changed to {value}")
+        # print(f"[Camera] Frame Duration Limits changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"FrameDurationLimits": value})
 
     def on_scaler_crop_changed(self, value):
-        print(f"[Camera] Scaler Crop changed to {value}")
+        # print(f"[Camera] Scaler Crop changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ScalerCrop": value})
 
     def on_noise_reduction_mode_changed(self, value):
-        print(f"[Camera] Noise Reduction Mode changed to {value}")
+        # print(f"[Camera] Noise Reduction Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"NoiseReductionMode": value})
 
     def on_exposure_value_changed(self, value):
-        print(f"[Camera] Exposure Value changed to {value}")
+        # print(f"[Camera] Exposure Value changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureValue": value})
 
     def on_resolution_changed(self, value):
-        print(f"[Camera] Resolution changed to {value}")
+        # print(f"[Camera] Resolution changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Resolution": value})
 
     def on_format_changed(self, value):
-        print(f"[Camera] Format changed to {value}")
+        # print(f"[Camera] Format changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Format": value})
 
