@@ -173,6 +173,10 @@ class Zoomer(qtw.QWidget):
         # Connect doubleClicked signal to save_current_viewport_as_preset slot
         self.viewport.doubleClicked.connect(self.save_current_viewport_as_preset)
 
+        # Connect viewport signals to slots
+        self.viewport.scrolled.connect(self.setViewportSize)
+        self.viewport.posChanged.connect(self.setViewportPos)
+
     def on_global_mode_changed(self, mode):
         # Handle mode change here (update UI, internal state, etc.)
         print(f"Zoomer received global mode change: {mode}")
@@ -243,7 +247,6 @@ class Zoomer(qtw.QWidget):
             scaler_crop = self._get_scaler_crop()
             if scaler_crop:
                 self.controls_model.ScalerCrop = scaler_crop
-                #logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
 
     def setViewportPos(self, x, y):
         """
@@ -261,7 +264,6 @@ class Zoomer(qtw.QWidget):
             scaler_crop = self._get_scaler_crop()
             if scaler_crop:
                 self.controls_model.ScalerCrop = scaler_crop
-                #logging.info(f"Zoomer: set ScalerCrop to {scaler_crop}")
 
     def _calculate_frame_size(self, size_tuple=None):
         """
