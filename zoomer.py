@@ -130,15 +130,15 @@ class Zoomer(qtw.QWidget):
             self.start_label = qtw.QLabel("Start row:", self)
             player_row.addWidget(self.start_label)
             self.start_spin = qtw.QSpinBox(self)
-            self.start_spin.setMinimum(0)
-            self.start_spin.setMaximum(max(0, self.zoomsets_model.rowCount() - 1))
+            self.start_spin.setMinimum(1)
+            self.start_spin.setMaximum(max(1, self.zoomsets_model.rowCount()))
             player_row.addWidget(self.start_spin)
 
             self.end_label = qtw.QLabel("End row:", self)
             player_row.addWidget(self.end_label)
             self.end_spin = qtw.QSpinBox(self)
-            self.end_spin.setMinimum(0)
-            self.end_spin.setMaximum(max(0, self.zoomsets_model.rowCount() - 1))
+            self.end_spin.setMinimum(1)
+            self.end_spin.setMaximum(max(1, self.zoomsets_model.rowCount()))
             player_row.addWidget(self.end_spin)
 
             self.play_button = qtw.QPushButton("Play", self)
@@ -372,8 +372,9 @@ class Zoomer(qtw.QWidget):
     def _on_play_clicked(self):
         if self.zoomsets_model is None:
             return
-        start = int(self.start_spin.value())
-        end = int(self.end_spin.value())
+        # Adjust for 1-based UI to 0-based model indices
+        start = int(self.start_spin.value()) - 1
+        end = int(self.end_spin.value()) - 1
         if start > end:
             start, end = end, start
         self.play_range(start, end)
@@ -399,11 +400,13 @@ class Zoomer(qtw.QWidget):
         """
         if self.zoomsets_model is None:
             return
-        max_idx = max(0, self.zoomsets_model.rowCount() - 1)
-        # preserve current values where possible
-        s = min(self.start_spin.value() if hasattr(self, "start_spin") else 0, max_idx)
-        e = min(self.end_spin.value() if hasattr(self, "end_spin") else 0, max_idx)
-        self.start_spin.setMaximum(max_idx)
-        self.end_spin.setMaximum(max_idx)
+        max_row = max(1, self.zoomsets_model.rowCount())
+        # preserve current values where possible, clamp to valid range
+        s = min(self.start_spin.value() if hasattr(self, "start_spin") else 1, max_row)
+        e = min(self.end_spin.value() if hasattr(self, "end_spin") else 1, max_row)
+        self.start_spin.setMinimum(1)
+        self.end_spin.setMinimum(1)
+        self.start_spin.setMaximum(max_row)
+        self.end_spin.setMaximum(max_row)
         self.start_spin.setValue(s)
         self.end_spin.setValue(e)
