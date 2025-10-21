@@ -49,6 +49,7 @@ class ControlsModel(QObject):
     SharpnessChanged = pyqtSignal(float)
     AeEnableChanged = pyqtSignal(bool)
     ExposureValueChanged = pyqtSignal(float)
+    AfRangeChanged = pyqtSignal(int)  # Add this signal for AF range
 
     def __init__(self, cam=None):
         super().__init__()
@@ -81,6 +82,12 @@ class ControlsModel(QObject):
         self._Sharpness = 1.0
         self._AeEnable = True
         self._ExposureValue = 0.0
+        self._AfRange = 0  # Default to 'Normal' (see mapping below)
+
+        # AF range mapping:
+        # 0: 'Normal'
+        # 1: 'Macro'
+        # 2: 'Full'
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -434,6 +441,23 @@ class ControlsModel(QObject):
         if value != self._ExposureValue:
             self._ExposureValue = value
             self.ExposureValueChanged.emit(value)
+
+    @property
+    def AfRange(self) -> int:
+        """Get the autofocus range as an integer (0: Normal, 1: Macro, 2: Full)."""
+        return self._AfRange
+
+    @AfRange.setter
+    def AfRange(self, value: int):
+        """Set the autofocus range, emit signal, update camera, and log value."""
+        if value != self._AfRange:
+            self._AfRange = value
+            self.AfRangeChanged.emit(value)
+            af_range_names = ["Normal", "Macro", "Full"]
+            name = af_range_names[value] if 0 <= value < len(af_range_names) else "Unknown"
+            logging.info(f"AfRange set to index {value} ({name})")
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"AfRange": value})
 
     def to_preview_config(self, picam2: Picamera2):
         """
