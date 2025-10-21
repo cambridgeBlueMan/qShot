@@ -56,7 +56,7 @@ Summary Table
 import sys
 import logging
 import os
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PyQt6.QtGui import QAction
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
@@ -174,8 +174,27 @@ class MainWindow(QMainWindow):
         self.right_dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
+        # Add a bottom dock with 3 equally sized columns, one is ControlsGui
         self.bottom_dock = QDockWidget("Bottom Dock", self)
-        self.bottom_dock.setWidget(ControlsGui(**self.get_component_args()))
+        bottom_widget = QWidget(self.bottom_dock)
+        bottom_layout = QHBoxLayout(bottom_widget)
+        bottom_layout.setContentsMargins(0, 0, 0, 0)
+        bottom_layout.setSpacing(0)
+
+        # First column: placeholder widget
+        col1 = QWidget(bottom_widget)
+        col1.setMinimumWidth(10)
+        # Second column: ControlsGui
+        controls_gui = ControlsGui(**self.get_component_args())
+        # Third column: placeholder widget
+        col3 = QWidget(bottom_widget)
+        col3.setMinimumWidth(10)
+
+        bottom_layout.addWidget(col1, 1)
+        bottom_layout.addWidget(controls_gui, 1)
+        bottom_layout.addWidget(col3, 1)
+        bottom_widget.setLayout(bottom_layout)
+        self.bottom_dock.setWidget(bottom_widget)
         self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
         self.bottom_dock.hide()  # Hide bottom dock on launch
@@ -350,8 +369,19 @@ if __name__ == "__main__":
     Entry point for the application. Initializes QApplication, shows the main window,
     and enters the Qt event loop.
     """
+    from controls_model import ControlsModel
+    from config_model import ConfigModel
+
     app = QApplication(sys.argv)
-    window = MainWindow()
+    # Dummy camera and models for testing
+    class DummyCam:
+        sensor_modes = ["mode1", "mode2"]
+        def start(self): pass
+
+    cam = DummyCam()
+    config_model = ConfigModel()
+    controls_model = ControlsModel()
+    window = MainWindow(cam=cam, config_model=config_model, controls_model=controls_model)
     window.show()
     logging.info("MainWindow shown. Entering Qt event loop.")
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
