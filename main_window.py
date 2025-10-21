@@ -67,6 +67,7 @@ from components.classifier_widget import Classifier
 from controls_gui import ControlsGui
 from zoomer import Zoomer
 import importlib.util
+from autofocus_control import AutofocusControlWidget
 
 # Configure logging
 logging.basicConfig(
@@ -182,19 +183,19 @@ class MainWindow(QMainWindow):
         bottom_layout.setSpacing(0)
 
         # First column: placeholder widget
-        col1 = QWidget(bottom_widget)
-        col1.setMinimumWidth(10)
+        bottom_col1 = AutofocusControlWidget(**self.get_component_args())
         # Second column: ControlsGui
-        controls_gui = ControlsGui(**self.get_component_args())
+        bottom_col2 = ControlsGui(**self.get_component_args())
         # Third column: placeholder widget
-        col3 = QWidget(bottom_widget)
-        col3.setMinimumWidth(10)
+        bottom_col3 = QWidget(bottom_widget)
+        bottom_col3.setMinimumWidth(10)
 
-        bottom_layout.addWidget(col1, 1)
-        bottom_layout.addWidget(controls_gui, 1)
-        bottom_layout.addWidget(col3, 1)
+        bottom_layout.addWidget(bottom_col1, 1)
+        bottom_layout.addWidget(bottom_col2, 1)
+        bottom_layout.addWidget(bottom_col3, 1)
         bottom_widget.setLayout(bottom_layout)
         self.bottom_dock.setWidget(bottom_widget)
+        
         self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
         self.bottom_dock.hide()  # Hide bottom dock on launch
