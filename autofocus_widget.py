@@ -1,11 +1,11 @@
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSlider, QCheckBox, QComboBox
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSlider, QCheckBox, QComboBox, QDial
 from PyQt6.QtCore import Qt
 from base_control_widget import BaseControlWidget
 
-class AutofocusControlWidget(BaseControlWidget):
+class AutofocusWidget(BaseControlWidget):
     """
     A simple autofocus control widget with three radio buttons: Manual, Continuous, Auto,
-    a diopter adjustment slider, two option checkboxes, and an AF range combo box.
+    a diopter adjustment slider, two option checkboxes, an AF range combo box, and a QDial.
     """
     def init_ui(self):
         layout = QVBoxLayout(self)
@@ -21,6 +21,11 @@ class AutofocusControlWidget(BaseControlWidget):
         select_af_mode.addWidget(self.manual_radio)
         select_af_mode.addWidget(self.continuous_radio)
         select_af_mode.addWidget(self.auto_radio)
+
+        self.manual_radio.setChecked(True)
+        self.manual_radio.toggled.connect(lambda checked: checked and self.setAfMode(0))
+        self.continuous_radio.toggled.connect(lambda checked: checked and self.setAfMode(1))
+        self.auto_radio.toggled.connect(lambda checked: checked and self.setAfMode(2))
 
         self.af_trigger = QPushButton("Trigger", self)
         self.af_trigger.clicked.connect(self.trigger_autofocus)
@@ -46,9 +51,11 @@ class AutofocusControlWidget(BaseControlWidget):
         self.use_windows_checkbox = QCheckBox("Use Windows for Af", self)
         options_row.addWidget(self.fast_autofocus_checkbox)
         options_row.addWidget(self.use_windows_checkbox)
+        self.use_windows_checkbox.toggled.connect(self.setAfMetering)
+        self.fast_autofocus_checkbox.toggled.connect(self.setAfSpeed)
         layout.addLayout(options_row)
 
-        # New row: Af Range label and combo box
+        # Row: Af Range label and combo box
         af_range_row = QHBoxLayout()
         af_range_label = QLabel("Af Range", self)
         af_range_row.addWidget(af_range_label)
@@ -57,6 +64,16 @@ class AutofocusControlWidget(BaseControlWidget):
         af_range_row.addWidget(self.af_range_combo)
         layout.addLayout(af_range_row)
         self.af_range_combo.currentIndexChanged.connect(self.setAfRange)
+
+        # New row: QDial with dimensions 100x100
+        dial_row = QHBoxLayout()
+        dial_label = QLabel("Dial", self)
+        dial_row.addWidget(dial_label)
+        self.qdial = QDial(self)
+        self.qdial.setMinimumSize(100, 100)
+        self.qdial.setMaximumSize(100, 100)
+        dial_row.addWidget(self.qdial)
+        layout.addLayout(dial_row)
 
         self.setLayout(layout)
 
@@ -72,3 +89,16 @@ class AutofocusControlWidget(BaseControlWidget):
             self.cam.autofocus()
         else:
             print("Autofocus not available on this camera.")
+
+    def setAfMode(self, mode):
+        # Example method to handle AF mode change
+        #print(f"AF Mode set to {mode}")
+        self.controls_model.AfMode = mode
+
+    def setAfMetering(self, checked):
+        # Set AfMetering to 1 if checked (Windows), 0 if unchecked (Global)
+        self.controls_model.AfMetering = 1 if checked else 0
+
+    def setAfSpeed(self, checked):
+        # Set AfSpeed to 1 if checked (Fast), 0 if unchecked (Slow)
+        self.controls_model.AfSpeed = 1 if checked else 0

@@ -67,7 +67,7 @@ from components.classifier_widget import Classifier
 from controls_gui import ControlsGui
 from zoomer import Zoomer
 import importlib.util
-from autofocus_control import AutofocusControlWidget
+from autofocus_widget import AutofocusWidget
 
 # Configure logging
 logging.basicConfig(
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
         bottom_layout.setSpacing(0)
 
         # First column: placeholder widget
-        bottom_col1 = AutofocusControlWidget(**self.get_component_args())
+        bottom_col1 = AutofocusWidget(**self.get_component_args())
         # Second column: ControlsGui
         bottom_col2 = ControlsGui(**self.get_component_args())
         # Third column: placeholder widget
