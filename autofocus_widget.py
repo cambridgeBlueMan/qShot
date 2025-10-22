@@ -41,7 +41,9 @@ class AutofocusWidget(BaseControlWidget):
         self.diopter_slider.setMinimum(0)
         self.diopter_slider.setMaximum(100)
         self.diopter_slider.setValue(0)
+        self.diopter_slider.valueChanged.connect(self.setDiopters)
         diopter_row.addWidget(self.diopter_slider)
+
         layout.addLayout(diopter_row)
 
         # Row: Fast Autofocus and Use Windows for Af checkboxes
@@ -70,8 +72,10 @@ class AutofocusWidget(BaseControlWidget):
         dial_label = QLabel("Dial", self)
         dial_row.addWidget(dial_label)
         self.qdial = QDial(self)
-        self.qdial.setMinimumSize(100, 100)
-        self.qdial.setMaximumSize(100, 100)
+        self.qdial.setMinimum(0)
+        self.qdial.setMaximum(100)
+        self.qdial.setValue(0)
+        self.qdial.valueChanged.connect(self.setDiopters)
         dial_row.addWidget(self.qdial)
         layout.addLayout(dial_row)
 
@@ -102,3 +106,16 @@ class AutofocusWidget(BaseControlWidget):
     def setAfSpeed(self, checked):
         # Set AfSpeed to 1 if checked (Fast), 0 if unchecked (Slow)
         self.controls_model.AfSpeed = 1 if checked else 0
+
+    def setDialValue(self, value):
+        # Example: connect to a controls_model property if needed
+        # self.controls_model.DialValue = value
+        pass  # Replace with actual logic as needed
+
+    def setDiopters(self, value):
+        # Convert value from 0-100 to 0.0-10.0
+        lens_position = value / 10.0
+        # Pass to LensPosition control in controls_model (when implemented)
+        # self.controls_model.LensPosition = lens_position
+        # For now, you can print or log the value
+        print(f"Diopters/LensPosition set to {lens_position}")

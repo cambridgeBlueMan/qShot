@@ -54,6 +54,7 @@ class ControlsModel(QObject):
     AfSpeedChanged = pyqtSignal(int)  # Signal for AF speed
     AfMeteringChanged = pyqtSignal(int)  # Signal for AF metering
     AfCycleDone = pyqtSignal(bool)  # Signal for AF cycle completion (True=success, False=failure)
+    LensPositionChanged = pyqtSignal(float)  # Signal for lens position changes
 
     def __init__(self, cam=None):
         super().__init__()
@@ -90,6 +91,7 @@ class ControlsModel(QObject):
         self._AfMode = 0  # Default to 'Manual' (see mapping below)
         self._AfSpeed = 1  # Default to 'Fast' (see mapping below)
         self._AfMetering = 0  # Default to 'Global' (see mapping below)
+        self._LensPosition = 0.0  # Default value
 
         # AF range mapping:
         # 0: 'Normal'
@@ -529,6 +531,21 @@ class ControlsModel(QObject):
             logging.info(f"AfMetering set to index {value} ({name})")
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"AfMetering": value})
+
+    @property
+    def LensPosition(self) -> float:
+        """Get the lens position (float, typically 0.0 to 10.0)."""
+        return self._LensPosition
+
+    @LensPosition.setter
+    def LensPosition(self, value: float):
+        """Set the lens position, emit signal, update camera, and log value."""
+        if value != self._LensPosition:
+            self._LensPosition = value
+            self.LensPositionChanged.emit(value)
+            logging.info(f"LensPosition set to {value}")
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"LensPosition": value})
 
     def to_preview_config(self, picam2: Picamera2):
         """
