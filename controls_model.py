@@ -53,6 +53,7 @@ class ControlsModel(QObject):
     AfModeChanged = pyqtSignal(int)
     AfSpeedChanged = pyqtSignal(int)  # Signal for AF speed
     AfMeteringChanged = pyqtSignal(int)  # Signal for AF metering
+    AfCycleDone = pyqtSignal(bool)  # Signal for AF cycle completion (True=success, False=failure)
 
     def __init__(self, cam=None):
         super().__init__()
@@ -555,5 +556,14 @@ class ControlsModel(QObject):
         :return: A dictionary containing the configuration for video capture mode.
         """
         # ...existing code for to_video_config...
+
+    def afCycleDone(self, success: bool):
+        """
+        Called when an autofocus cycle completes.
+        Emits the AfCycleDone signal.
+        :param success: True if autofocus succeeded, False otherwise.
+        """
+        self.AfCycleDone.emit(success)
+        logging.info(f"AfCycleDone called with success={success}")
 
 
