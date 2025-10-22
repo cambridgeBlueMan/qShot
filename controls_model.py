@@ -544,8 +544,10 @@ class ControlsModel(QObject):
             self._LensPosition = value
             self.LensPositionChanged.emit(value)
             logging.info(f"LensPosition set to {value}")
-            if hasattr(self, 'cam') and self.cam is not None:
+            try:
                 self.cam.set_controls({"LensPosition": value})
+            except Exception as e:
+                logging.error(f"Failed to set LensPosition: {e}")
 
     def to_preview_config(self, picam2: Picamera2):
         """

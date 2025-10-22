@@ -2,10 +2,13 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadi
 from PyQt6.QtCore import Qt
 from base_control_widget import BaseControlWidget
 
+MINIMUM_DIOPTRES = 0
+MAXIMUM_DIOPTRES = 100
+
 class AutofocusWidget(BaseControlWidget):
     """
     A simple autofocus control widget with three radio buttons: Manual, Continuous, Auto,
-    a diopter adjustment slider, two option checkboxes, an AF range combo box, and a QDial.
+    a dioptres adjustment slider, two option checkboxes, an AF range combo box, and a QDial.
     """
     def init_ui(self):
         layout = QVBoxLayout(self)
@@ -34,17 +37,17 @@ class AutofocusWidget(BaseControlWidget):
         layout.addLayout(select_af_mode)
 
         # Row: Dioptes label and horizontal slider
-        diopter_row = QHBoxLayout()
-        diopter_label = QLabel("Dioptes", self)
-        diopter_row.addWidget(diopter_label)
-        self.diopter_slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.diopter_slider.setMinimum(0)
-        self.diopter_slider.setMaximum(100)
-        self.diopter_slider.setValue(0)
-        self.diopter_slider.valueChanged.connect(self.setDiopters)
-        diopter_row.addWidget(self.diopter_slider)
+        dioptres_row = QHBoxLayout()
+        dioptres_label = QLabel("Dioptes", self)
+        dioptres_row.addWidget(dioptres_label)
+        self.dioptres_slider = QSlider(Qt.Orientation.Horizontal, self)
+        self.dioptres_slider.setMinimum(MINIMUM_DIOPTRES)
+        self.dioptres_slider.setMaximum(MAXIMUM_DIOPTRES)
+        self.dioptres_slider.setValue(MINIMUM_DIOPTRES)
+        self.dioptres_slider.valueChanged.connect(self.setDioptres)
+        dioptres_row.addWidget(self.dioptres_slider)
 
-        layout.addLayout(diopter_row)
+        layout.addLayout(dioptres_row)
 
         # Row: Fast Autofocus and Use Windows for Af checkboxes
         options_row = QHBoxLayout()
@@ -71,14 +74,15 @@ class AutofocusWidget(BaseControlWidget):
         dial_row = QHBoxLayout()
         dial_label = QLabel("Dial", self)
         dial_row.addWidget(dial_label)
-        self.qdial = QDial(self)
-        self.qdial.setMinimum(0)
-        self.qdial.setMaximum(100)
-        self.qdial.setValue(0)
-        self.qdial.valueChanged.connect(self.setDiopters)
-        dial_row.addWidget(self.qdial)
+        self.dioptres_dial = QDial(self)
+        self.dioptres_dial.setMinimum(MINIMUM_DIOPTRES)
+        self.dioptres_dial.setMaximum(MAXIMUM_DIOPTRES)
+        self.dioptres_dial.setValue(MINIMUM_DIOPTRES)
+        self.dioptres_dial.valueChanged.connect(self.setDioptres)
+        dial_row.addWidget(self.dioptres_dial)
         layout.addLayout(dial_row)
 
+        self.controls_model.LensPositionChanged.connect(self.onLensPositionChanged)
         self.setLayout(layout)
 
     def setAfRange(self, index):
@@ -96,7 +100,7 @@ class AutofocusWidget(BaseControlWidget):
 
     def setAfMode(self, mode):
         # Example method to handle AF mode change
-        #print(f"AF Mode set to {mode}")
+        print(f"AF Mode set to {mode}")
         self.controls_model.AfMode = mode
 
     def setAfMetering(self, checked):
@@ -112,10 +116,20 @@ class AutofocusWidget(BaseControlWidget):
         # self.controls_model.DialValue = value
         pass  # Replace with actual logic as needed
 
-    def setDiopters(self, value):
+    def setDioptres(self, value):
         # Convert value from 0-100 to 0.0-10.0
         lens_position = value / 10.0
         # Pass to LensPosition control in controls_model (when implemented)
-        # self.controls_model.LensPosition = lens_position
+        self.controls_model.LensPosition = lens_position
         # For now, you can print or log the value
-        print(f"Diopters/LensPosition set to {lens_position}")
+        print(f"dioptres/LensPosition set to {lens_position}")
+
+    def onLensPositionChanged(self, value):
+        # Update the slider and dial if LensPosition changes elsewhere
+        slider_value = int(value * 10)
+        self.dioptres_slider.blockSignals(True)
+        self.dioptres_dial.blockSignals(True)
+        self.dioptres_slider.setValue(slider_value)
+        self.dioptres_dial.setValue(slider_value)
+        self.dioptres_slider.blockSignals(False)
+        self.dioptres_dial.blockSignals(False)
