@@ -56,8 +56,15 @@ class AutofocusControlWidget(BaseControlWidget):
         self.af_range_combo.addItems(["Normal", "Macro", "Full"])
         af_range_row.addWidget(self.af_range_combo)
         layout.addLayout(af_range_row)
+        self.af_range_combo.currentIndexChanged.connect(self.setAfRange)
 
         self.setLayout(layout)
+
+    def setAfRange(self, index):
+        # Example method to handle AF range change
+        #print(f"AF Range set to index: {index}")
+        # Here you would typically update the camera control model
+        self.controls_model.AfRange = index
 
     def trigger_autofocus(self):
         # Example autofocus logic

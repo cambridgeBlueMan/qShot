@@ -50,6 +50,7 @@ class ControlsModel(QObject):
     AeEnableChanged = pyqtSignal(bool)
     ExposureValueChanged = pyqtSignal(float)
     AfRangeChanged = pyqtSignal(int)  # Add this signal for AF range
+    AfModeChanged = pyqtSignal(int)
 
     def __init__(self, cam=None):
         super().__init__()
@@ -83,11 +84,17 @@ class ControlsModel(QObject):
         self._AeEnable = True
         self._ExposureValue = 0.0
         self._AfRange = 0  # Default to 'Normal' (see mapping below)
+        self._AfMode = 0  # Default to 'Manual' (see mapping below)
 
         # AF range mapping:
         # 0: 'Normal'
         # 1: 'Macro'
         # 2: 'Full'
+
+        # AF mode mapping:
+        # 0: 'Manual'
+        # 1: 'Continuous'
+        # 2: 'Auto'
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -458,6 +465,23 @@ class ControlsModel(QObject):
             logging.info(f"AfRange set to index {value} ({name})")
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"AfRange": value})
+
+    @property
+    def AfMode(self) -> int:
+        """Get the autofocus mode as an integer (0: Manual, 1: Continuous, 2: Auto)."""
+        return self._AfMode
+
+    @AfMode.setter
+    def AfMode(self, value: int):
+        """Set the autofocus mode, emit signal, update camera, and log value."""
+        if value != self._AfMode:
+            self._AfMode = value
+            self.AfModeChanged.emit(value)
+            af_mode_names = ["Manual", "Continuous", "Auto"]
+            name = af_mode_names[value] if 0 <= value < len(af_mode_names) else "Unknown"
+            logging.info(f"AfMode set to index {value} ({name})")
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"AfMode": value})
 
     def to_preview_config(self, picam2: Picamera2):
         """
