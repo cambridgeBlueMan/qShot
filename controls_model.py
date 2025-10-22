@@ -52,6 +52,7 @@ class ControlsModel(QObject):
     AfRangeChanged = pyqtSignal(int)  # Add this signal for AF range
     AfModeChanged = pyqtSignal(int)
     AfSpeedChanged = pyqtSignal(int)  # Signal for AF speed
+    AfMeteringChanged = pyqtSignal(int)  # Signal for AF metering
 
     def __init__(self, cam=None):
         super().__init__()
@@ -87,6 +88,7 @@ class ControlsModel(QObject):
         self._AfRange = 0  # Default to 'Normal' (see mapping below)
         self._AfMode = 0  # Default to 'Manual' (see mapping below)
         self._AfSpeed = 1  # Default to 'Fast' (see mapping below)
+        self._AfMetering = 0  # Default to 'Global' (see mapping below)
 
         # AF range mapping:
         # 0: 'Normal'
@@ -101,6 +103,10 @@ class ControlsModel(QObject):
         # AF speed mapping:
         # 0: 'Slow'
         # 1: 'Fast'
+
+        # AF metering mapping:
+        # 0: 'Global'
+        # 1: 'Windows'
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -505,6 +511,23 @@ class ControlsModel(QObject):
             logging.info(f"AfSpeed set to index {value} ({name})")
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"AfSpeed": value})
+
+    @property
+    def AfMetering(self) -> int:
+        """Get the autofocus metering mode as an integer (0: Global, 1: Windows)."""
+        return self._AfMetering
+
+    @AfMetering.setter
+    def AfMetering(self, value: int):
+        """Set the autofocus metering mode, emit signal, update camera, and log value."""
+        if value != self._AfMetering:
+            self._AfMetering = value
+            self.AfMeteringChanged.emit(value)
+            af_metering_names = ["Global", "Windows"]
+            name = af_metering_names[value] if 0 <= value < len(af_metering_names) else "Unknown"
+            logging.info(f"AfMetering set to index {value} ({name})")
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"AfMetering": value})
 
     def to_preview_config(self, picam2: Picamera2):
         """
