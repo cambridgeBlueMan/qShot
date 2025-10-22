@@ -51,6 +51,7 @@ class ControlsModel(QObject):
     ExposureValueChanged = pyqtSignal(float)
     AfRangeChanged = pyqtSignal(int)  # Add this signal for AF range
     AfModeChanged = pyqtSignal(int)
+    AfSpeedChanged = pyqtSignal(int)  # Signal for AF speed
 
     def __init__(self, cam=None):
         super().__init__()
@@ -85,6 +86,7 @@ class ControlsModel(QObject):
         self._ExposureValue = 0.0
         self._AfRange = 0  # Default to 'Normal' (see mapping below)
         self._AfMode = 0  # Default to 'Manual' (see mapping below)
+        self._AfSpeed = 1  # Default to 'Fast' (see mapping below)
 
         # AF range mapping:
         # 0: 'Normal'
@@ -95,6 +97,10 @@ class ControlsModel(QObject):
         # 0: 'Manual'
         # 1: 'Continuous'
         # 2: 'Auto'
+
+        # AF speed mapping:
+        # 0: 'Slow'
+        # 1: 'Fast'
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -482,6 +488,23 @@ class ControlsModel(QObject):
             logging.info(f"AfMode set to index {value} ({name})")
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"AfMode": value})
+
+    @property
+    def AfSpeed(self) -> int:
+        """Get the autofocus speed as an integer (0: Slow, 1: Fast)."""
+        return self._AfSpeed
+
+    @AfSpeed.setter
+    def AfSpeed(self, value: int):
+        """Set the autofocus speed, emit signal, update camera, and log value."""
+        if value != self._AfSpeed:
+            self._AfSpeed = value
+            self.AfSpeedChanged.emit(value)
+            af_speed_names = ["Slow", "Fast"]
+            name = af_speed_names[value] if 0 <= value < len(af_speed_names) else "Unknown"
+            logging.info(f"AfSpeed set to index {value} ({name})")
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"AfSpeed": value})
 
     def to_preview_config(self, picam2: Picamera2):
         """
