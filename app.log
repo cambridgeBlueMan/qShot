@@ -1,526 +1,73 @@
-2025-10-22 17:00:17,955 - INFO - Creating new QApplication instance.
-2025-10-22 17:00:18,011 - INFO - CSI argument provided via command line: 1
-2025-10-22 17:00:18,011 - INFO - About to create Picamera2 instance...
-2025-10-22 17:00:18,151 - INFO - Initialization successful.
-2025-10-22 17:00:18,151 - INFO - Camera now open.
-2025-10-22 17:00:18,153 - INFO - Camera successfully loaded with csi_arg=1
-2025-10-22 17:00:18,155 - INFO - ConfigModel instance created with video configuration.
-2025-10-22 17:00:18,155 - INFO - ControlsModel instance created with controls configuration.
-2025-10-22 17:00:18,158 - INFO - ZoomsetsModel instance created.
-2025-10-22 17:00:18,160 - INFO - MainWindow initialized.
-2025-10-22 17:00:18,162 - INFO - Camera configuration has been adjusted!
-2025-10-22 17:00:18,165 - INFO - Configuration successful!
-2025-10-22 17:00:18,175 - INFO - Camera configuration has been adjusted!
-2025-10-22 17:00:18,180 - INFO - Configuration successful!
-2025-10-22 17:00:18,192 - INFO - Camera configuration has been adjusted!
-2025-10-22 17:00:18,194 - INFO - Configuration successful!
-2025-10-22 17:00:18,359 - INFO - Camera started
-2025-10-22 17:00:18,359 - INFO - Camera started and QGlPicamera2 preview created.
-2025-10-22 17:00:18,370 - INFO - Toolbar added.
-2025-10-22 17:00:18,377 - INFO - Save action added to toolbar.
-2025-10-22 17:00:18,390 - INFO - Status bar initialized.
-2025-10-22 17:00:18,409 - INFO - Loading settings - labels_path from settings: ''
-2025-10-22 17:00:18,410 - INFO - labels_path type: <class 'str'>
-2025-10-22 17:00:18,410 - INFO - labels_path exists: False
-2025-10-22 17:00:18,410 - INFO - labels_path isfile: False
-2025-10-22 17:00:18,418 - INFO - Sensor mode dropdown populated with 3 modes.
-2025-10-22 17:00:18,419 - INFO - Zoomer: config_changed received main.size = (1280, 720)
-2025-10-22 17:00:18,509 - INFO - Camera stopped
-2025-10-22 17:00:18,510 - INFO - Camera configuration has been adjusted!
-2025-10-22 17:00:18,520 - INFO - Configuration successful!
-2025-10-22 17:00:18,604 - INFO - Camera started
-2025-10-22 17:00:18,606 - INFO - Zoomer: config_changed received main.size = (1280, 720)
-2025-10-22 17:00:18,690 - INFO - Camera stopped
-2025-10-22 17:00:18,702 - INFO - Configuration successful!
-2025-10-22 17:00:18,780 - INFO - Camera started
-2025-10-22 17:00:18,783 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
-2025-10-22 17:00:18,784 - INFO - Zoomer: config_changed received main.size = (320, 200)
-2025-10-22 17:00:18,871 - INFO - Camera stopped
-2025-10-22 17:00:18,885 - INFO - Configuration successful!
-2025-10-22 17:00:18,960 - INFO - Camera started
-2025-10-22 17:00:18,963 - INFO - Zoomer: config_changed received main.size = (960, 540)
-2025-10-22 17:00:19,064 - INFO - Camera stopped
-2025-10-22 17:00:19,100 - INFO - Configuration successful!
-2025-10-22 17:00:19,298 - INFO - Camera started
-2025-10-22 17:00:19,299 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
-2025-10-22 17:00:19,300 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
-2025-10-22 17:00:19,301 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
-2025-10-22 17:00:19,304 - INFO - Zoomer: config_changed received main.size = (320, 200)
-2025-10-22 17:00:19,394 - INFO - Camera stopped
-2025-10-22 17:00:19,411 - INFO - Configuration successful!
-2025-10-22 17:00:19,485 - INFO - Camera started
-2025-10-22 17:00:19,487 - INFO - Zoomer: config_changed received main.size = (960, 540)
-2025-10-22 17:00:19,580 - INFO - Camera stopped
-2025-10-22 17:00:19,592 - INFO - Configuration successful!
-2025-10-22 17:00:19,674 - INFO - Camera started
-2025-10-22 17:00:19,676 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
-2025-10-22 17:00:19,678 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
-2025-10-22 17:00:19,682 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
-2025-10-22 17:00:19,693 - INFO - Left, right, and bottom docks added.
-2025-10-22 17:00:19,696 - INFO - Controls menu added to menu bar.
-2025-10-22 17:00:19,697 - INFO - Components menu added to menu bar.
-2025-10-22 17:00:19,697 - INFO - Added 'classifier' to Components menu.
-2025-10-22 17:00:19,697 - INFO - Added 'detector' to Components menu.
-2025-10-22 17:00:19,697 - INFO - Added 'test' to Components menu.
-2025-10-22 17:00:19,697 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
-2025-10-22 17:00:19,698 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
-2025-10-22 17:00:19,698 - INFO - View menu with dock toggle actions added.
-2025-10-22 17:00:19,712 - INFO - Starting Qt event loop.
-2025-10-22 17:00:45,760 - INFO - LensPosition set to 0.4
-2025-10-22 17:00:45,983 - INFO - LensPosition set to 0.5
-2025-10-22 17:00:46,013 - INFO - LensPosition set to 0.8
-2025-10-22 17:00:46,015 - INFO - LensPosition set to 1.7
-2025-10-22 17:00:46,034 - INFO - LensPosition set to 2.4
-2025-10-22 17:00:46,047 - INFO - LensPosition set to 2.7
-2025-10-22 17:00:46,064 - INFO - LensPosition set to 3.0
-2025-10-22 17:00:46,079 - INFO - LensPosition set to 3.1
-2025-10-22 17:00:46,103 - INFO - LensPosition set to 3.2
-2025-10-22 17:00:46,110 - INFO - LensPosition set to 3.3
-2025-10-22 17:00:46,130 - INFO - LensPosition set to 3.4
-2025-10-22 17:00:46,161 - INFO - LensPosition set to 3.5
-2025-10-22 17:00:46,191 - INFO - LensPosition set to 3.6
-2025-10-22 17:00:46,239 - INFO - LensPosition set to 3.7
-2025-10-22 17:00:46,287 - INFO - LensPosition set to 3.8
-2025-10-22 17:00:46,303 - INFO - LensPosition set to 3.9
-2025-10-22 17:00:46,321 - INFO - LensPosition set to 4.0
-2025-10-22 17:00:46,336 - INFO - LensPosition set to 4.1
-2025-10-22 17:00:46,351 - INFO - LensPosition set to 4.2
-2025-10-22 17:00:46,401 - INFO - LensPosition set to 4.4
-2025-10-22 17:00:46,415 - INFO - LensPosition set to 4.5
-2025-10-22 17:00:46,431 - INFO - LensPosition set to 4.6
-2025-10-22 17:00:46,457 - INFO - LensPosition set to 4.7
-2025-10-22 17:00:46,493 - INFO - LensPosition set to 5.2
-2025-10-22 17:00:46,497 - INFO - LensPosition set to 5.3
-2025-10-22 17:00:46,542 - INFO - LensPosition set to 5.4
-2025-10-22 17:00:46,575 - INFO - LensPosition set to 5.5
-2025-10-22 17:00:46,594 - INFO - LensPosition set to 5.6
-2025-10-22 17:00:46,623 - INFO - LensPosition set to 5.7
-2025-10-22 17:00:46,718 - INFO - LensPosition set to 5.8
-2025-10-22 17:00:46,815 - INFO - LensPosition set to 5.9
-2025-10-22 17:00:46,878 - INFO - LensPosition set to 6.0
-2025-10-22 17:00:46,926 - INFO - LensPosition set to 6.1
-2025-10-22 17:00:46,974 - INFO - LensPosition set to 6.2
-2025-10-22 17:00:47,025 - INFO - LensPosition set to 6.3
-2025-10-22 17:00:47,055 - INFO - LensPosition set to 6.4
-2025-10-22 17:00:47,103 - INFO - LensPosition set to 6.5
-2025-10-22 17:00:47,998 - INFO - LensPosition set to 6.4
-2025-10-22 17:00:48,174 - INFO - LensPosition set to 6.3
-2025-10-22 17:00:48,302 - INFO - LensPosition set to 6.2
-2025-10-22 17:00:49,151 - INFO - LensPosition set to 6.3
-2025-10-22 17:00:49,247 - INFO - LensPosition set to 6.4
-2025-10-22 17:00:49,439 - INFO - LensPosition set to 6.5
-2025-10-22 17:00:49,518 - INFO - LensPosition set to 6.6
-2025-10-22 17:00:49,567 - INFO - LensPosition set to 6.7
-2025-10-22 17:00:49,663 - INFO - LensPosition set to 6.8
-2025-10-22 17:00:50,303 - INFO - LensPosition set to 6.9
-2025-10-22 17:00:50,383 - INFO - LensPosition set to 7.0
-2025-10-22 17:00:50,574 - INFO - LensPosition set to 7.1
-2025-10-22 17:00:50,719 - INFO - LensPosition set to 7.2
-2025-10-22 17:00:50,831 - INFO - LensPosition set to 7.3
-2025-10-22 17:00:51,631 - INFO - LensPosition set to 7.4
-2025-10-22 17:00:51,647 - INFO - LensPosition set to 7.5
-2025-10-22 17:00:51,671 - INFO - LensPosition set to 7.6
-2025-10-22 17:00:51,706 - INFO - LensPosition set to 7.7
-2025-10-22 17:00:51,711 - INFO - LensPosition set to 7.8
-2025-10-22 17:00:52,110 - INFO - LensPosition set to 7.9
-2025-10-22 17:00:52,286 - INFO - LensPosition set to 7.8
-2025-10-22 17:00:52,303 - INFO - LensPosition set to 7.7
-2025-10-22 17:00:52,335 - INFO - LensPosition set to 7.6
-2025-10-22 17:00:52,351 - INFO - LensPosition set to 7.5
-2025-10-22 17:00:52,368 - INFO - LensPosition set to 7.4
-2025-10-22 17:00:52,399 - INFO - LensPosition set to 7.3
-2025-10-22 17:00:52,415 - INFO - LensPosition set to 7.2
-2025-10-22 17:00:52,459 - INFO - LensPosition set to 7.1
-2025-10-22 17:00:52,482 - INFO - LensPosition set to 7.0
-2025-10-22 17:00:52,485 - INFO - LensPosition set to 6.9
-2025-10-22 17:00:52,516 - INFO - LensPosition set to 6.8
-2025-10-22 17:00:52,575 - INFO - LensPosition set to 6.7
-2025-10-22 17:00:52,671 - INFO - LensPosition set to 6.6
-2025-10-22 17:00:52,735 - INFO - LensPosition set to 6.5
-2025-10-22 17:00:52,910 - INFO - LensPosition set to 6.4
-2025-10-22 17:00:52,975 - INFO - LensPosition set to 6.3
-2025-10-22 17:00:53,118 - INFO - LensPosition set to 6.2
-2025-10-22 17:00:53,215 - INFO - LensPosition set to 6.1
-2025-10-22 17:00:53,279 - INFO - LensPosition set to 6.0
-2025-10-22 17:00:54,047 - INFO - LensPosition set to 6.1
-2025-10-22 17:00:55,167 - INFO - LensPosition set to 6.2
-2025-10-22 17:00:55,247 - INFO - LensPosition set to 6.3
-2025-10-22 17:00:55,295 - INFO - LensPosition set to 6.4
-2025-10-22 17:00:55,359 - INFO - LensPosition set to 6.5
-2025-10-22 17:00:55,471 - INFO - LensPosition set to 6.6
-2025-10-22 17:00:55,551 - INFO - LensPosition set to 6.7
-2025-10-22 17:00:55,616 - INFO - LensPosition set to 6.8
-2025-10-22 17:00:55,691 - INFO - LensPosition set to 6.9
-2025-10-22 17:00:55,919 - INFO - LensPosition set to 7.0
-2025-10-22 17:00:56,047 - INFO - LensPosition set to 7.1
-2025-10-22 17:00:56,783 - INFO - LensPosition set to 7.0
-2025-10-22 17:00:56,823 - INFO - LensPosition set to 7.1
-2025-10-22 17:00:56,847 - INFO - LensPosition set to 7.2
-2025-10-22 17:00:56,898 - INFO - LensPosition set to 7.4
-2025-10-22 17:00:56,928 - INFO - LensPosition set to 7.5
-2025-10-22 17:00:56,943 - INFO - LensPosition set to 7.6
-2025-10-22 17:00:56,986 - INFO - LensPosition set to 7.7
-2025-10-22 17:00:57,002 - INFO - LensPosition set to 7.8
-2025-10-22 17:00:57,025 - INFO - LensPosition set to 7.9
-2025-10-22 17:00:57,064 - INFO - LensPosition set to 8.0
-2025-10-22 17:00:57,103 - INFO - LensPosition set to 8.1
-2025-10-22 17:00:57,199 - INFO - LensPosition set to 8.2
-2025-10-22 17:00:57,249 - INFO - LensPosition set to 8.4
-2025-10-22 17:00:57,503 - INFO - LensPosition set to 8.5
-2025-10-22 17:00:57,535 - INFO - LensPosition set to 8.6
-2025-10-22 17:00:57,567 - INFO - LensPosition set to 8.7
-2025-10-22 17:00:57,679 - INFO - LensPosition set to 8.8
-2025-10-22 17:00:58,351 - INFO - LensPosition set to 8.9
-2025-10-22 17:00:58,383 - INFO - LensPosition set to 9.0
-2025-10-22 17:00:58,407 - INFO - LensPosition set to 9.1
-2025-10-22 17:00:58,432 - INFO - LensPosition set to 9.2
-2025-10-22 17:00:58,495 - INFO - LensPosition set to 9.3
-2025-10-22 17:00:58,640 - INFO - LensPosition set to 9.4
-2025-10-22 17:00:59,263 - INFO - LensPosition set to 9.3
-2025-10-22 17:00:59,327 - INFO - LensPosition set to 9.2
-2025-10-22 17:00:59,360 - INFO - LensPosition set to 9.1
-2025-10-22 17:00:59,398 - INFO - LensPosition set to 9.0
-2025-10-22 17:00:59,451 - INFO - LensPosition set to 8.9
-2025-10-22 17:00:59,488 - INFO - LensPosition set to 8.8
-2025-10-22 17:00:59,519 - INFO - LensPosition set to 8.7
-2025-10-22 17:00:59,567 - INFO - LensPosition set to 8.5
-2025-10-22 17:00:59,588 - INFO - LensPosition set to 8.4
-2025-10-22 17:00:59,615 - INFO - LensPosition set to 8.3
-2025-10-22 17:00:59,674 - INFO - LensPosition set to 8.1
-2025-10-22 17:00:59,705 - INFO - LensPosition set to 8.0
-2025-10-22 17:00:59,728 - INFO - LensPosition set to 7.9
-2025-10-22 17:00:59,744 - INFO - LensPosition set to 7.8
-2025-10-22 17:00:59,778 - INFO - LensPosition set to 7.7
-2025-10-22 17:00:59,808 - INFO - LensPosition set to 7.6
-2025-10-22 17:00:59,850 - INFO - LensPosition set to 7.5
-2025-10-22 17:00:59,887 - INFO - LensPosition set to 7.4
-2025-10-22 17:00:59,921 - INFO - LensPosition set to 7.3
-2025-10-22 17:00:59,951 - INFO - LensPosition set to 7.2
-2025-10-22 17:00:59,987 - INFO - LensPosition set to 7.1
-2025-10-22 17:01:00,031 - INFO - LensPosition set to 7.0
-2025-10-22 17:01:00,079 - INFO - LensPosition set to 6.9
-2025-10-22 17:01:00,212 - INFO - LensPosition set to 6.8
-2025-10-22 17:01:00,303 - INFO - LensPosition set to 6.7
-2025-10-22 17:01:00,352 - INFO - LensPosition set to 6.6
-2025-10-22 17:01:00,400 - INFO - LensPosition set to 6.5
-2025-10-22 17:01:00,528 - INFO - LensPosition set to 6.4
-2025-10-22 17:01:00,815 - INFO - LensPosition set to 6.3
-2025-10-22 17:01:03,591 - INFO - LensPosition set to 6.2
-2025-10-22 17:01:03,975 - INFO - LensPosition set to 6.1
-2025-10-22 17:01:04,199 - INFO - LensPosition set to 6.0
-2025-10-22 17:01:04,439 - INFO - LensPosition set to 5.9
-2025-10-22 17:01:04,663 - INFO - LensPosition set to 5.8
-2025-10-22 17:01:04,911 - INFO - LensPosition set to 5.7
-2025-10-22 17:01:05,191 - INFO - LensPosition set to 5.6
-2025-10-22 17:01:05,495 - INFO - LensPosition set to 5.5
-2025-10-22 17:01:05,783 - INFO - LensPosition set to 5.4
-2025-10-22 17:01:06,063 - INFO - LensPosition set to 5.3
-2025-10-22 17:01:06,319 - INFO - LensPosition set to 5.2
-2025-10-22 17:01:06,583 - INFO - LensPosition set to 5.1
-2025-10-22 17:01:06,880 - INFO - LensPosition set to 5.0
-2025-10-22 17:01:07,119 - INFO - LensPosition set to 4.9
-2025-10-22 17:01:07,440 - INFO - LensPosition set to 4.8
-2025-10-22 17:01:07,939 - INFO - LensPosition set to 4.7
-2025-10-22 17:01:07,970 - INFO - LensPosition set to 4.6
-2025-10-22 17:01:08,000 - INFO - LensPosition set to 4.5
-2025-10-22 17:01:08,032 - INFO - LensPosition set to 4.4
-2025-10-22 17:01:08,062 - INFO - LensPosition set to 4.3
-2025-10-22 17:01:08,092 - INFO - LensPosition set to 4.2
-2025-10-22 17:01:08,124 - INFO - LensPosition set to 4.1
-2025-10-22 17:01:08,160 - INFO - LensPosition set to 4.0
-2025-10-22 17:01:08,190 - INFO - LensPosition set to 3.9
-2025-10-22 17:01:08,238 - INFO - LensPosition set to 3.8
-2025-10-22 17:01:08,269 - INFO - LensPosition set to 3.7
-2025-10-22 17:01:08,299 - INFO - LensPosition set to 3.6
-2025-10-22 17:01:08,329 - INFO - LensPosition set to 3.5
-2025-10-22 17:01:08,362 - INFO - LensPosition set to 3.4
-2025-10-22 17:01:08,391 - INFO - LensPosition set to 3.3
-2025-10-22 17:01:08,457 - INFO - LensPosition set to 3.2
-2025-10-22 17:01:08,486 - INFO - LensPosition set to 3.1
-2025-10-22 17:01:08,529 - INFO - LensPosition set to 3.0
-2025-10-22 17:01:08,559 - INFO - LensPosition set to 2.9
-2025-10-22 17:01:08,596 - INFO - LensPosition set to 2.8
-2025-10-22 17:01:08,625 - INFO - LensPosition set to 2.7
-2025-10-22 17:01:08,699 - INFO - LensPosition set to 2.6
-2025-10-22 17:01:08,729 - INFO - LensPosition set to 2.5
-2025-10-22 17:01:08,769 - INFO - LensPosition set to 2.4
-2025-10-22 17:01:08,802 - INFO - LensPosition set to 2.3
-2025-10-22 17:01:09,848 - INFO - LensPosition set to 2.4
-2025-10-22 17:01:10,348 - INFO - LensPosition set to 2.5
-2025-10-22 17:01:10,378 - INFO - LensPosition set to 2.6
-2025-10-22 17:01:10,408 - INFO - LensPosition set to 2.7
-2025-10-22 17:01:10,438 - INFO - LensPosition set to 2.8
-2025-10-22 17:01:10,469 - INFO - LensPosition set to 2.9
-2025-10-22 17:01:10,499 - INFO - LensPosition set to 3.0
-2025-10-22 17:01:10,534 - INFO - LensPosition set to 3.1
-2025-10-22 17:01:10,564 - INFO - LensPosition set to 3.2
-2025-10-22 17:01:10,595 - INFO - LensPosition set to 3.3
-2025-10-22 17:01:10,633 - INFO - LensPosition set to 3.4
-2025-10-22 17:01:10,663 - INFO - LensPosition set to 3.5
-2025-10-22 17:01:10,693 - INFO - LensPosition set to 3.6
-2025-10-22 17:01:10,743 - INFO - LensPosition set to 3.7
-2025-10-22 17:01:10,773 - INFO - LensPosition set to 3.8
-2025-10-22 17:01:10,803 - INFO - LensPosition set to 3.9
-2025-10-22 17:01:10,858 - INFO - LensPosition set to 4.0
-2025-10-22 17:01:10,888 - INFO - LensPosition set to 4.1
-2025-10-22 17:01:10,931 - INFO - LensPosition set to 4.2
-2025-10-22 17:01:10,962 - INFO - LensPosition set to 4.3
-2025-10-22 17:01:10,992 - INFO - LensPosition set to 4.4
-2025-10-22 17:01:11,022 - INFO - LensPosition set to 4.5
-2025-10-22 17:01:11,082 - INFO - LensPosition set to 4.6
-2025-10-22 17:01:11,112 - INFO - LensPosition set to 4.7
-2025-10-22 17:01:11,171 - INFO - LensPosition set to 4.8
-2025-10-22 17:01:11,201 - INFO - LensPosition set to 4.9
-2025-10-22 17:01:11,231 - INFO - LensPosition set to 5.0
-2025-10-22 17:01:11,261 - INFO - LensPosition set to 5.1
-2025-10-22 17:01:11,295 - INFO - LensPosition set to 5.2
-2025-10-22 17:01:11,324 - INFO - LensPosition set to 5.3
-2025-10-22 17:01:11,354 - INFO - LensPosition set to 5.4
-2025-10-22 17:01:11,386 - INFO - LensPosition set to 5.5
-2025-10-22 17:01:11,417 - INFO - LensPosition set to 5.6
-2025-10-22 17:01:11,460 - INFO - LensPosition set to 5.7
-2025-10-22 17:01:11,490 - INFO - LensPosition set to 5.8
-2025-10-22 17:01:11,532 - INFO - LensPosition set to 5.9
-2025-10-22 17:01:11,563 - INFO - LensPosition set to 6.0
-2025-10-22 17:01:11,593 - INFO - LensPosition set to 6.1
-2025-10-22 17:01:11,628 - INFO - LensPosition set to 6.2
-2025-10-22 17:01:11,659 - INFO - LensPosition set to 6.3
-2025-10-22 17:01:11,699 - INFO - LensPosition set to 6.4
-2025-10-22 17:01:11,729 - INFO - LensPosition set to 6.5
-2025-10-22 17:01:11,785 - INFO - LensPosition set to 6.6
-2025-10-22 17:01:11,816 - INFO - LensPosition set to 6.7
-2025-10-22 17:01:11,880 - INFO - LensPosition set to 6.8
-2025-10-22 17:01:11,910 - INFO - LensPosition set to 6.9
-2025-10-22 17:01:11,949 - INFO - LensPosition set to 7.0
-2025-10-22 17:01:11,979 - INFO - LensPosition set to 7.1
-2025-10-22 17:01:12,009 - INFO - LensPosition set to 7.2
-2025-10-22 17:01:12,040 - INFO - LensPosition set to 7.3
-2025-10-22 17:01:12,070 - INFO - LensPosition set to 7.4
-2025-10-22 17:01:12,105 - INFO - LensPosition set to 7.5
-2025-10-22 17:01:12,136 - INFO - LensPosition set to 7.6
-2025-10-22 17:01:12,202 - INFO - LensPosition set to 7.7
-2025-10-22 17:01:12,232 - INFO - LensPosition set to 7.8
-2025-10-22 17:01:12,269 - INFO - LensPosition set to 7.9
-2025-10-22 17:01:12,298 - INFO - LensPosition set to 8.0
-2025-10-22 17:01:12,333 - INFO - LensPosition set to 8.1
-2025-10-22 17:01:12,363 - INFO - LensPosition set to 8.2
-2025-10-22 17:01:12,395 - INFO - LensPosition set to 8.3
-2025-10-22 17:01:12,425 - INFO - LensPosition set to 8.4
-2025-10-22 17:01:12,456 - INFO - LensPosition set to 8.5
-2025-10-22 17:01:12,491 - INFO - LensPosition set to 8.6
-2025-10-22 17:01:12,543 - INFO - LensPosition set to 8.7
-2025-10-22 17:01:12,573 - INFO - LensPosition set to 8.8
-2025-10-22 17:01:12,603 - INFO - LensPosition set to 8.9
-2025-10-22 17:01:12,636 - INFO - LensPosition set to 9.0
-2025-10-22 17:01:12,667 - INFO - LensPosition set to 9.1
-2025-10-22 17:01:12,698 - INFO - LensPosition set to 9.2
-2025-10-22 17:01:12,746 - INFO - LensPosition set to 9.3
-2025-10-22 17:01:12,781 - INFO - LensPosition set to 9.4
-2025-10-22 17:01:12,809 - INFO - LensPosition set to 9.5
-2025-10-22 17:01:12,839 - INFO - LensPosition set to 9.6
-2025-10-22 17:01:12,873 - INFO - LensPosition set to 9.7
-2025-10-22 17:01:12,905 - INFO - LensPosition set to 9.8
-2025-10-22 17:01:12,934 - INFO - LensPosition set to 9.9
-2025-10-22 17:01:12,965 - INFO - LensPosition set to 10.0
-2025-10-22 17:01:14,016 - INFO - LensPosition set to 9.9
-2025-10-22 17:01:14,240 - INFO - LensPosition set to 9.8
-2025-10-22 17:01:14,472 - INFO - LensPosition set to 9.7
-2025-10-22 17:01:14,680 - INFO - LensPosition set to 9.6
-2025-10-22 17:01:14,896 - INFO - LensPosition set to 9.5
-2025-10-22 17:01:15,096 - INFO - LensPosition set to 9.4
-2025-10-22 17:01:15,296 - INFO - LensPosition set to 9.3
-2025-10-22 17:01:15,504 - INFO - LensPosition set to 9.2
-2025-10-22 17:01:15,712 - INFO - LensPosition set to 9.1
-2025-10-22 17:01:15,920 - INFO - LensPosition set to 9.0
-2025-10-22 17:01:16,160 - INFO - LensPosition set to 8.9
-2025-10-22 17:01:16,408 - INFO - LensPosition set to 8.8
-2025-10-22 17:01:16,712 - INFO - LensPosition set to 8.7
-2025-10-22 17:01:17,648 - INFO - LensPosition set to 8.6
-2025-10-22 17:01:17,920 - INFO - LensPosition set to 8.5
-2025-10-22 17:01:18,208 - INFO - LensPosition set to 8.4
-2025-10-22 17:01:18,953 - INFO - LensPosition set to 8.3
-2025-10-22 17:01:19,344 - INFO - LensPosition set to 8.2
-2025-10-22 17:01:19,705 - INFO - LensPosition set to 8.1
-2025-10-22 17:01:20,105 - INFO - LensPosition set to 8.0
-2025-10-22 17:01:20,488 - INFO - LensPosition set to 7.9
-2025-10-22 17:01:21,393 - INFO - LensPosition set to 7.8
-2025-10-22 17:01:21,672 - INFO - LensPosition set to 7.7
-2025-10-22 17:01:21,880 - INFO - LensPosition set to 7.6
-2025-10-22 17:01:22,096 - INFO - LensPosition set to 7.5
-2025-10-22 17:01:22,312 - INFO - LensPosition set to 7.4
-2025-10-22 17:01:22,544 - INFO - LensPosition set to 7.3
-2025-10-22 17:01:22,809 - INFO - LensPosition set to 7.2
-2025-10-22 17:01:23,064 - INFO - LensPosition set to 7.1
-2025-10-22 17:01:23,329 - INFO - LensPosition set to 7.0
-2025-10-22 17:01:23,656 - INFO - LensPosition set to 6.9
-2025-10-22 17:01:24,001 - INFO - LensPosition set to 6.8
-2025-10-22 17:01:26,145 - INFO - LensPosition set to 6.7
-2025-10-22 17:01:26,633 - INFO - LensPosition set to 6.6
-2025-10-22 17:01:26,945 - INFO - LensPosition set to 6.5
-2025-10-22 17:01:27,177 - INFO - LensPosition set to 6.4
-2025-10-22 17:01:27,401 - INFO - LensPosition set to 6.3
-2025-10-22 17:01:27,617 - INFO - LensPosition set to 6.2
-2025-10-22 17:01:27,825 - INFO - LensPosition set to 6.1
-2025-10-22 17:01:28,057 - INFO - LensPosition set to 6.0
-2025-10-22 17:01:28,273 - INFO - LensPosition set to 5.9
-2025-10-22 17:01:28,505 - INFO - LensPosition set to 5.8
-2025-10-22 17:01:28,761 - INFO - LensPosition set to 5.7
-2025-10-22 17:01:28,993 - INFO - LensPosition set to 5.6
-2025-10-22 17:01:29,234 - INFO - LensPosition set to 5.5
-2025-10-22 17:01:29,497 - INFO - LensPosition set to 5.4
-2025-10-22 17:01:29,753 - INFO - LensPosition set to 5.3
-2025-10-22 17:01:30,009 - INFO - LensPosition set to 5.2
-2025-10-22 17:01:30,265 - INFO - LensPosition set to 5.1
-2025-10-22 17:01:30,529 - INFO - LensPosition set to 5.0
-2025-10-22 17:01:30,801 - INFO - LensPosition set to 4.9
-2025-10-22 17:01:31,097 - INFO - LensPosition set to 4.8
-2025-10-22 17:01:31,361 - INFO - LensPosition set to 4.7
-2025-10-22 17:01:31,577 - INFO - LensPosition set to 4.6
-2025-10-22 17:01:31,801 - INFO - LensPosition set to 4.5
-2025-10-22 17:01:35,426 - INFO - LensPosition set to 4.4
-2025-10-22 17:01:35,634 - INFO - LensPosition set to 4.3
-2025-10-22 17:01:35,834 - INFO - LensPosition set to 4.2
-2025-10-22 17:01:36,041 - INFO - LensPosition set to 4.1
-2025-10-22 17:01:36,233 - INFO - LensPosition set to 4.0
-2025-10-22 17:01:36,450 - INFO - LensPosition set to 3.9
-2025-10-22 17:01:36,689 - INFO - LensPosition set to 3.8
-2025-10-22 17:01:36,913 - INFO - LensPosition set to 3.7
-2025-10-22 17:01:37,130 - INFO - LensPosition set to 3.6
-2025-10-22 17:01:37,361 - INFO - LensPosition set to 3.5
-2025-10-22 17:01:37,595 - INFO - LensPosition set to 3.4
-2025-10-22 17:01:37,809 - INFO - LensPosition set to 3.3
-2025-10-22 17:01:38,033 - INFO - LensPosition set to 3.2
-2025-10-22 17:01:38,281 - INFO - LensPosition set to 3.1
-2025-10-22 17:01:38,530 - INFO - LensPosition set to 3.0
-2025-10-22 17:01:38,785 - INFO - LensPosition set to 2.9
-2025-10-22 17:01:39,026 - INFO - LensPosition set to 2.8
-2025-10-22 17:01:39,273 - INFO - LensPosition set to 2.7
-2025-10-22 17:01:39,545 - INFO - LensPosition set to 2.6
-2025-10-22 17:01:39,834 - INFO - LensPosition set to 2.5
-2025-10-22 17:01:40,334 - INFO - LensPosition set to 2.4
-2025-10-22 17:01:40,365 - INFO - LensPosition set to 2.3
-2025-10-22 17:01:40,395 - INFO - LensPosition set to 2.2
-2025-10-22 17:01:40,426 - INFO - LensPosition set to 2.1
-2025-10-22 17:01:40,456 - INFO - LensPosition set to 2.0
-2025-10-22 17:01:40,499 - INFO - LensPosition set to 1.9
-2025-10-22 17:01:40,529 - INFO - LensPosition set to 1.8
-2025-10-22 17:01:40,579 - INFO - LensPosition set to 1.7
-2025-10-22 17:01:40,609 - INFO - LensPosition set to 1.6
-2025-10-22 17:01:40,639 - INFO - LensPosition set to 1.5
-2025-10-22 17:01:40,677 - INFO - LensPosition set to 1.4
-2025-10-22 17:01:40,707 - INFO - LensPosition set to 1.3
-2025-10-22 17:01:40,756 - INFO - LensPosition set to 1.2
-2025-10-22 17:01:40,786 - INFO - LensPosition set to 1.1
-2025-10-22 17:01:40,821 - INFO - LensPosition set to 1.0
-2025-10-22 17:01:40,852 - INFO - LensPosition set to 0.9
-2025-10-22 17:01:40,883 - INFO - LensPosition set to 0.8
-2025-10-22 17:01:40,926 - INFO - LensPosition set to 0.7
-2025-10-22 17:01:41,386 - INFO - LensPosition set to 0.6
-2025-10-22 17:01:41,885 - INFO - LensPosition set to 0.5
-2025-10-22 17:01:41,916 - INFO - LensPosition set to 0.4
-2025-10-22 17:01:41,946 - INFO - LensPosition set to 0.3
-2025-10-22 17:01:41,977 - INFO - LensPosition set to 0.2
-2025-10-22 17:01:42,007 - INFO - LensPosition set to 0.1
-2025-10-22 17:01:42,037 - INFO - LensPosition set to 0.0
-2025-10-22 17:01:44,290 - INFO - LensPosition set to 0.1
-2025-10-22 17:01:44,789 - INFO - LensPosition set to 0.2
-2025-10-22 17:01:44,820 - INFO - LensPosition set to 0.3
-2025-10-22 17:01:44,852 - INFO - LensPosition set to 0.4
-2025-10-22 17:01:44,883 - INFO - LensPosition set to 0.5
-2025-10-22 17:01:44,914 - INFO - LensPosition set to 0.6
-2025-10-22 17:01:44,944 - INFO - LensPosition set to 0.7
-2025-10-22 17:01:44,974 - INFO - LensPosition set to 0.8
-2025-10-22 17:01:45,049 - INFO - LensPosition set to 0.9
-2025-10-22 17:01:45,076 - INFO - LensPosition set to 1.0
-2025-10-22 17:01:45,107 - INFO - LensPosition set to 1.1
-2025-10-22 17:01:45,160 - INFO - LensPosition set to 1.2
-2025-10-22 17:01:45,200 - INFO - LensPosition set to 1.3
-2025-10-22 17:01:45,268 - INFO - LensPosition set to 1.4
-2025-10-22 17:01:45,298 - INFO - LensPosition set to 1.5
-2025-10-22 17:01:45,329 - INFO - LensPosition set to 1.6
-2025-10-22 17:01:45,359 - INFO - LensPosition set to 1.7
-2025-10-22 17:01:45,389 - INFO - LensPosition set to 1.8
-2025-10-22 17:01:45,420 - INFO - LensPosition set to 1.9
-2025-10-22 17:01:45,450 - INFO - LensPosition set to 2.0
-2025-10-22 17:01:45,481 - INFO - LensPosition set to 2.1
-2025-10-22 17:01:45,515 - INFO - LensPosition set to 2.2
-2025-10-22 17:01:45,545 - INFO - LensPosition set to 2.3
-2025-10-22 17:01:45,576 - INFO - LensPosition set to 2.4
-2025-10-22 17:01:45,615 - INFO - LensPosition set to 2.5
-2025-10-22 17:01:45,648 - INFO - LensPosition set to 2.6
-2025-10-22 17:01:45,680 - INFO - LensPosition set to 2.7
-2025-10-22 17:01:45,721 - INFO - LensPosition set to 2.8
-2025-10-22 17:01:45,752 - INFO - LensPosition set to 2.9
-2025-10-22 17:01:45,782 - INFO - LensPosition set to 3.0
-2025-10-22 17:01:45,813 - INFO - LensPosition set to 3.1
-2025-10-22 17:01:45,844 - INFO - LensPosition set to 3.2
-2025-10-22 17:01:45,875 - INFO - LensPosition set to 3.3
-2025-10-22 17:01:45,905 - INFO - LensPosition set to 3.4
-2025-10-22 17:01:45,944 - INFO - LensPosition set to 3.5
-2025-10-22 17:01:45,974 - INFO - LensPosition set to 3.6
-2025-10-22 17:01:46,004 - INFO - LensPosition set to 3.7
-2025-10-22 17:01:46,038 - INFO - LensPosition set to 3.8
-2025-10-22 17:01:46,069 - INFO - LensPosition set to 3.9
-2025-10-22 17:01:46,099 - INFO - LensPosition set to 4.0
-2025-10-22 17:01:46,140 - INFO - LensPosition set to 4.1
-2025-10-22 17:01:46,170 - INFO - LensPosition set to 4.2
-2025-10-22 17:01:46,199 - INFO - LensPosition set to 4.3
-2025-10-22 17:01:46,263 - INFO - LensPosition set to 4.4
-2025-10-22 17:01:46,293 - INFO - LensPosition set to 4.5
-2025-10-22 17:01:46,335 - INFO - LensPosition set to 4.6
-2025-10-22 17:01:46,366 - INFO - LensPosition set to 4.7
-2025-10-22 17:01:46,398 - INFO - LensPosition set to 4.8
-2025-10-22 17:01:46,431 - INFO - LensPosition set to 4.9
-2025-10-22 17:01:46,463 - INFO - LensPosition set to 5.0
-2025-10-22 17:01:46,492 - INFO - LensPosition set to 5.1
-2025-10-22 17:01:46,539 - INFO - LensPosition set to 5.2
-2025-10-22 17:01:46,569 - INFO - LensPosition set to 5.3
-2025-10-22 17:01:46,599 - INFO - LensPosition set to 5.4
-2025-10-22 17:01:46,647 - INFO - LensPosition set to 5.5
-2025-10-22 17:01:46,677 - INFO - LensPosition set to 5.6
-2025-10-22 17:01:46,708 - INFO - LensPosition set to 5.7
-2025-10-22 17:01:46,738 - INFO - LensPosition set to 5.8
-2025-10-22 17:01:46,798 - INFO - LensPosition set to 5.9
-2025-10-22 17:01:46,828 - INFO - LensPosition set to 6.0
-2025-10-22 17:01:46,883 - INFO - LensPosition set to 6.1
-2025-10-22 17:01:46,914 - INFO - LensPosition set to 6.2
-2025-10-22 17:01:46,953 - INFO - LensPosition set to 6.3
-2025-10-22 17:01:46,983 - INFO - LensPosition set to 6.4
-2025-10-22 17:01:47,016 - INFO - LensPosition set to 6.5
-2025-10-22 17:01:47,046 - INFO - LensPosition set to 6.6
-2025-10-22 17:01:47,079 - INFO - LensPosition set to 6.7
-2025-10-22 17:01:47,130 - INFO - LensPosition set to 6.8
-2025-10-22 17:01:47,161 - INFO - LensPosition set to 6.9
-2025-10-22 17:01:47,191 - INFO - LensPosition set to 7.0
-2025-10-22 17:01:47,242 - INFO - LensPosition set to 7.1
-2025-10-22 17:01:47,272 - INFO - LensPosition set to 7.2
-2025-10-22 17:01:47,314 - INFO - LensPosition set to 7.3
-2025-10-22 17:01:47,345 - INFO - LensPosition set to 7.4
-2025-10-22 17:01:47,375 - INFO - LensPosition set to 7.5
-2025-10-22 17:01:47,405 - INFO - LensPosition set to 7.6
-2025-10-22 17:01:47,441 - INFO - LensPosition set to 7.7
-2025-10-22 17:01:47,496 - INFO - LensPosition set to 7.8
-2025-10-22 17:01:47,530 - INFO - LensPosition set to 7.9
-2025-10-22 17:01:47,576 - INFO - LensPosition set to 8.0
-2025-10-22 17:01:47,615 - INFO - LensPosition set to 8.1
-2025-10-22 17:01:47,654 - INFO - LensPosition set to 8.2
-2025-10-22 17:01:47,688 - INFO - LensPosition set to 8.3
-2025-10-22 17:01:47,715 - INFO - LensPosition set to 8.4
-2025-10-22 17:01:47,751 - INFO - LensPosition set to 8.5
-2025-10-22 17:01:47,781 - INFO - LensPosition set to 8.6
-2025-10-22 17:01:47,813 - INFO - LensPosition set to 8.7
-2025-10-22 17:01:47,841 - INFO - LensPosition set to 8.8
-2025-10-22 17:01:47,871 - INFO - LensPosition set to 8.9
-2025-10-22 17:01:47,903 - INFO - LensPosition set to 9.0
-2025-10-22 17:01:47,932 - INFO - LensPosition set to 9.1
-2025-10-22 17:01:47,964 - INFO - LensPosition set to 9.2
-2025-10-22 17:01:47,996 - INFO - LensPosition set to 9.3
-2025-10-22 17:01:48,024 - INFO - LensPosition set to 9.4
-2025-10-22 17:01:48,053 - INFO - LensPosition set to 9.5
-2025-10-22 17:01:48,085 - INFO - LensPosition set to 9.6
-2025-10-22 17:01:48,116 - INFO - LensPosition set to 9.7
-2025-10-22 17:01:48,147 - INFO - LensPosition set to 9.8
-2025-10-22 17:01:48,181 - INFO - LensPosition set to 9.9
-2025-10-22 17:01:48,278 - INFO - LensPosition set to 10.0
-2025-10-22 17:02:24,839 - INFO - Camera stopped
-2025-10-22 17:02:25,041 - INFO - Camera closed successfully.
+2025-10-23 15:20:35,670 - INFO - Creating new QApplication instance.
+2025-10-23 15:20:35,726 - INFO - CSI argument provided via command line: 1
+2025-10-23 15:20:35,726 - INFO - About to create Picamera2 instance...
+2025-10-23 15:20:35,860 - INFO - Initialization successful.
+2025-10-23 15:20:35,860 - INFO - Camera now open.
+2025-10-23 15:20:35,862 - INFO - Camera successfully loaded with csi_arg=1
+2025-10-23 15:20:35,862 - INFO - ConfigModel instance created with video configuration.
+2025-10-23 15:20:35,863 - INFO - ControlsModel instance created with controls configuration.
+2025-10-23 15:20:35,864 - INFO - ZoomsetsModel instance created.
+2025-10-23 15:20:35,868 - INFO - MainWindow initialized.
+2025-10-23 15:20:35,871 - INFO - Camera configuration has been adjusted!
+2025-10-23 15:20:35,872 - INFO - Configuration successful!
+2025-10-23 15:20:35,879 - INFO - Camera configuration has been adjusted!
+2025-10-23 15:20:35,881 - INFO - Configuration successful!
+2025-10-23 15:20:35,891 - INFO - Camera configuration has been adjusted!
+2025-10-23 15:20:35,892 - INFO - Configuration successful!
+2025-10-23 15:20:36,075 - INFO - Camera started
+2025-10-23 15:20:36,075 - INFO - Camera started and QGlPicamera2 preview created.
+2025-10-23 15:20:36,087 - INFO - Toolbar added.
+2025-10-23 15:20:36,092 - INFO - Save action added to toolbar.
+2025-10-23 15:20:36,104 - INFO - Status bar initialized.
+2025-10-23 15:20:36,122 - INFO - Loading settings - labels_path from settings: ''
+2025-10-23 15:20:36,122 - INFO - labels_path type: <class 'str'>
+2025-10-23 15:20:36,122 - INFO - labels_path exists: False
+2025-10-23 15:20:36,122 - INFO - labels_path isfile: False
+2025-10-23 15:20:36,129 - INFO - Sensor mode dropdown populated with 3 modes.
+2025-10-23 15:20:36,129 - INFO - Zoomer: config_changed received main.size = (1280, 720)
+2025-10-23 15:20:36,228 - INFO - Camera stopped
+2025-10-23 15:20:36,230 - INFO - Camera configuration has been adjusted!
+2025-10-23 15:20:36,238 - INFO - Configuration successful!
+2025-10-23 15:20:36,327 - INFO - Camera started
+2025-10-23 15:20:36,328 - INFO - Zoomer: config_changed received main.size = (1280, 720)
+2025-10-23 15:20:36,419 - INFO - Camera stopped
+2025-10-23 15:20:36,431 - INFO - Configuration successful!
+2025-10-23 15:20:36,510 - INFO - Camera started
+2025-10-23 15:20:36,510 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
+2025-10-23 15:20:36,516 - INFO - Zoomer: config_changed received main.size = (320, 200)
+2025-10-23 15:20:36,606 - INFO - Camera stopped
+2025-10-23 15:20:36,623 - INFO - Configuration successful!
+2025-10-23 15:20:36,697 - INFO - Camera started
+2025-10-23 15:20:36,698 - INFO - Zoomer: config_changed received main.size = (960, 540)
+2025-10-23 15:20:36,784 - INFO - Camera stopped
+2025-10-23 15:20:36,793 - INFO - Configuration successful!
+2025-10-23 15:20:36,876 - INFO - Camera started
+2025-10-23 15:20:36,876 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
+2025-10-23 15:20:36,878 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
+2025-10-23 15:20:36,879 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
+2025-10-23 15:20:36,881 - INFO - Zoomer: config_changed received main.size = (320, 200)
+2025-10-23 15:20:36,969 - INFO - Camera stopped
+2025-10-23 15:20:36,990 - INFO - Configuration successful!
+2025-10-23 15:20:37,063 - INFO - Camera started
+2025-10-23 15:20:37,066 - INFO - Zoomer: config_changed received main.size = (960, 540)
+2025-10-23 15:20:37,185 - INFO - Camera stopped
+2025-10-23 15:20:37,212 - INFO - Configuration successful!
+2025-10-23 15:20:37,364 - INFO - Camera started
+2025-10-23 15:20:37,364 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
+2025-10-23 15:20:37,369 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
+2025-10-23 15:20:37,382 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
+2025-10-23 15:20:37,410 - INFO - Left, right, and bottom docks added.
+2025-10-23 15:20:37,414 - INFO - Controls menu added to menu bar.
+2025-10-23 15:20:37,415 - INFO - Components menu added to menu bar.
+2025-10-23 15:20:37,416 - INFO - Added 'classifier' to Components menu.
+2025-10-23 15:20:37,416 - INFO - Added 'detector' to Components menu.
+2025-10-23 15:20:37,416 - INFO - Added 'test' to Components menu.
+2025-10-23 15:20:37,416 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
+2025-10-23 15:20:37,417 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
+2025-10-23 15:20:37,417 - INFO - View menu with dock toggle actions added.
+2025-10-23 15:20:37,431 - INFO - Starting Qt event loop.
+2025-10-23 15:20:48,734 - INFO - AfMode set to index 1 (Continuous)
+2025-10-23 15:21:45,042 - INFO - AfMode set to index 0 (Manual)
+2025-10-23 15:21:50,690 - INFO - AfMode set to index 1 (Continuous)
+2025-10-23 15:22:14,018 - INFO - Camera stopped
+2025-10-23 15:22:14,245 - INFO - Camera closed successfully.

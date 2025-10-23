@@ -92,11 +92,27 @@ class AutofocusWidget(BaseControlWidget):
         self.controls_model.AfRange = index
 
     def trigger_autofocus(self):
-        # Example autofocus logic
-        if self.cam and hasattr(self.cam, "autofocus"):
-            self.cam.autofocus()
+        self.cam.autofocus_cycle(signal_function=self.on_af_done)
+
+    def on_af_done(self, job):
+        success = self.cam.wait(job)
+        if success:
+            print("Autofocus successful")
         else:
-            print("Autofocus not available on this camera.")
+            print("Autofocus failed")
+
+    def on_camera_job_done(self, job):
+        # Only handle the job we started
+        if hasattr(self, "_af_job") and job == self._af_job:
+            try:
+                success = job.get_result()
+                if success:
+                    print("Autofocus successful")
+                else:
+                    print("Autofocus failed")
+            except TimeoutError:
+                print("Autofocus operation timed out")
+            self._af_job = None  # Clear job reference
 
     def setAfMode(self, mode):
         # Example method to handle AF mode change

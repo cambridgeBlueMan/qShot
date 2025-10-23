@@ -543,7 +543,7 @@ class ControlsModel(QObject):
         if value != self._LensPosition:
             self._LensPosition = value
             self.LensPositionChanged.emit(value)
-            logging.info(f"LensPosition set to {value}")
+            # logging.info(f"LensPosition set to {value}")
             try:
                 self.cam.set_controls({"LensPosition": value})
             except Exception as e:
