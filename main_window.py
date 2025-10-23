@@ -68,6 +68,7 @@ from controls_gui import ControlsGui
 from zoomer import Zoomer
 import importlib.util
 from autofocus_widget import AutofocusWidget
+from paths_widget import PathsWidget
 
 # Configure logging
 logging.basicConfig(
@@ -101,7 +102,14 @@ class MainWindow(QMainWindow):
     - Interacts with QGlPicamera2 for camera preview, and with all component widgets via dynamic loading.
     """
 
-    def __init__(self, cam=None, config_model=None, controls_model=None, zoomsets_model=None):
+    def __init__(
+        self,
+        cam=None,
+        config_model=None,
+        controls_model=None,
+        zoomsets_model=None,
+        path_model=None
+    ):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
 
@@ -109,6 +117,8 @@ class MainWindow(QMainWindow):
             cam: Camera object (Picamera2 instance). Must not be None.
             config_model: Configuration model object. Must not be None.
             controls_model: Controls model object. Optional.
+            zoomsets_model: Zoom sets model object. Optional.
+            path_model: Path model object for file/folder management. Optional.
         """
         if cam is None:
             raise ValueError("A valid camera instance must be provided to MainWindow.")
@@ -118,11 +128,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Camera Capture App")
         logging.info("MainWindow initialized.")
 
-        # Store arguments as instance attributes
+        # Store arguments as instance attributes (one per line for clarity)
         self.cam = cam
         self.config_model = config_model
         self.controls_model = controls_model
-        self.zoomsets_model = zoomsets_model  # Store the model
+        self.zoomsets_model = zoomsets_model
+        self.path_model = path_model
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
@@ -187,8 +198,7 @@ class MainWindow(QMainWindow):
         # Second column: ControlsGui
         bottom_col2 = ControlsGui(**self.get_component_args())
         # Third column: placeholder widget
-        bottom_col3 = QWidget(bottom_widget)
-        bottom_col3.setMinimumWidth(10)
+        bottom_col3 = PathsWidget(**self.get_component_args())
 
         bottom_layout.addWidget(bottom_col1, 1)
         bottom_layout.addWidget(bottom_col2, 1)
@@ -359,7 +369,8 @@ class MainWindow(QMainWindow):
             "preview": self.preview,
             "config_model": self.config_model,
             "controls_model": self.controls_model,
-            "zoomsets_model": self.zoomsets_model,  # Add this line
+            "zoomsets_model": self.zoomsets_model,
+            "path_model": self.path_model,  # <-- Add this line!
         }
         if name is not None:
             args["settings_group"] = name

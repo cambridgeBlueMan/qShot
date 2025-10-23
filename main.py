@@ -15,6 +15,7 @@ from dummy import Dummy
 from config_model import ConfigModel
 from controls_model import ControlsModel
 from zoomsets_model import ZoomsetsModel  # Adjust the import path as needed
+from path_model import PathModel  # Add this import
 
 # Configure logging
 logging.basicConfig(
@@ -88,12 +89,17 @@ if __name__ == "__main__":
         zoomsets_model = ZoomsetsModel()
         logging.info("ZoomsetsModel instance created.")
 
+        # Create the path model
+        path_model = PathModel()
+        logging.info("PathModel instance created.")
+
         # Pass config_model to MainWindow if needed, or set it as a global/shared object
         window = MainWindow(
             cam=camera,
             config_model=config_model,
             controls_model=controls_model,
-            zoomsets_model=zoomsets_model
+            zoomsets_model=zoomsets_model,
+            path_model=path_model  # Pass as argument
         )
 
         # Set window size to available screen geometry (excluding system bars)
