@@ -16,10 +16,20 @@ class PathsWidget(QWidget):
 
         # --- Paths group box ---
         paths_group = QGroupBox("Paths")
+        paths_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+            }
+        """)
         paths_grid = QGridLayout()
         # Still folder row
         paths_grid.addWidget(QLabel("Still folder:"), 0, 0)
         self.still_edit = QLineEdit(self.model.still_folder)
+        self.still_edit.setReadOnly(True)
+        self.still_edit.setFrame(False)
+        self.still_edit.setStyleSheet(
+            "QLineEdit { background: #f5f5f5; color: #222; border: none; padding: 2px 4px; }"
+        )
         paths_grid.addWidget(self.still_edit, 0, 1)
         btn = QPushButton("Browse")
         btn.clicked.connect(self._browse_still)
@@ -27,6 +37,11 @@ class PathsWidget(QWidget):
         # Video folder row
         paths_grid.addWidget(QLabel("Video folder:"), 1, 0)
         self.video_edit = QLineEdit(self.model.video_folder)
+        self.video_edit.setReadOnly(True)
+        self.video_edit.setFrame(False)
+        self.video_edit.setStyleSheet(
+            "QLineEdit { background: #f5f5f5; color: #222; border: none; padding: 2px 4px; }"
+        )
         paths_grid.addWidget(self.video_edit, 1, 1)
         btn2 = QPushButton("Browse")
         btn2.clicked.connect(self._browse_video)
@@ -36,6 +51,11 @@ class PathsWidget(QWidget):
 
         # --- File name group box ---
         filename_group = QGroupBox("File name")
+        filename_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+            }
+        """)
         filename_grid = QGridLayout()
         # Image root row
         filename_grid.addWidget(QLabel("Image root:"), 0, 0)
@@ -59,7 +79,7 @@ class PathsWidget(QWidget):
         filename_group.setLayout(filename_grid)
         layout.addWidget(filename_group)
 
-        # Add stretch to push extra space to the bottom
+        # Add stretch to keep group boxes compact on resize
         layout.addStretch(1)
 
         self.setLayout(layout)
