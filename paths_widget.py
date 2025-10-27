@@ -1,63 +1,61 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox, QFileDialog
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox, QFileDialog, QTableWidget, QTableWidgetItem, QAbstractItemView, QHeaderView, QTableWidgetSelectionRange, QGridLayout, QApplication, QMainWindow
 )
 from PyQt6.QtCore import Qt
+import sys
 
 class PathsWidget(QWidget):
     """
-    Simple UI to view/change PathModel settings.
-    Other code should use PathModel directly; this widget only edits it.
+    UI to view/change PathModel settings using a table (grid) layout.
     """
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.model = kwargs.get("path_model")
         layout = QVBoxLayout(self)
 
-        # Still folder
-        row = QHBoxLayout()
-        row.addWidget(QLabel("Still folder:"))
+        grid = QGridLayout()
+
+        # Still folder row
+        grid.addWidget(QLabel("Still folder:"), 0, 0)
         self.still_edit = QLineEdit(self.model.still_folder)
-        row.addWidget(self.still_edit)
+        grid.addWidget(self.still_edit, 0, 1)
         btn = QPushButton("Browse")
         btn.clicked.connect(self._browse_still)
-        row.addWidget(btn)
-        layout.addLayout(row)
+        grid.addWidget(btn, 0, 2)
 
-        # Video folder
-        row2 = QHBoxLayout()
-        row2.addWidget(QLabel("Video folder:"))
+        # Video folder row
+        grid.addWidget(QLabel("Video folder:"), 1, 0)
         self.video_edit = QLineEdit(self.model.video_folder)
-        row2.addWidget(self.video_edit)
+        grid.addWidget(self.video_edit, 1, 1)
         btn2 = QPushButton("Browse")
         btn2.clicked.connect(self._browse_video)
-        row2.addWidget(btn2)
-        layout.addLayout(row2)
+        grid.addWidget(btn2, 1, 2)
 
-        # Rootnames and strategy
-        rn_row = QHBoxLayout()
-        rn_row.addWidget(QLabel("Image root:"))
+        # Image root row
+        grid.addWidget(QLabel("Image root:"), 2, 0)
         self.img_root = QLineEdit(self.model.rootnames.get("img", "img_"))
-        rn_row.addWidget(self.img_root)
-        rn_row.addWidget(QLabel("Strategy:"))
+        grid.addWidget(self.img_root, 2, 1)
+
+        # Strategy row
+        grid.addWidget(QLabel("Strategy:"), 3, 0)
         self.strategy = QComboBox()
         self.strategy.addItems(["date", "sequence", "hash"])
         self.strategy.setCurrentText(self.model.strategy)
-        rn_row.addWidget(self.strategy)
-        layout.addLayout(rn_row)
+        grid.addWidget(self.strategy, 3, 1)
 
-        # Quick generate button + preview
-        gen_row = QHBoxLayout()
+        # Generate sample and Save row
         self.preview_label = QLabel(self.model.generate_filename("img"))
+        grid.addWidget(self.preview_label, 4, 0, 1, 2)
         gen_btn = QPushButton("Generate sample")
         gen_btn.clicked.connect(self._generate_sample)
+        grid.addWidget(gen_btn, 4, 2)
         save_btn = QPushButton("Save")
         save_btn.clicked.connect(self._save)
-        gen_row.addWidget(self.preview_label)
-        gen_row.addWidget(gen_btn)
-        gen_row.addWidget(save_btn)
-        layout.addLayout(gen_row)
+        grid.addWidget(save_btn, 5, 2)
 
+        layout.addLayout(grid)
         self.setLayout(layout)
+
         # update model->widget if changed externally
         self.model.pathsChanged.connect(self._update_from_model)
 
@@ -89,3 +87,16 @@ class PathsWidget(QWidget):
         self.img_root.setText(self.model.rootnames.get("img", "img_"))
         self.strategy.setCurrentText(self.model.strategy)
         self.preview_label.setText(self.model.generate_filename("img"))
+
+# Standalone test harness
+if __name__ == "__main__":
+    from path_model import PathModel  # Adjust import if needed
+    app = QApplication(sys.argv)
+    path_model = PathModel()
+    widget = PathsWidget(path_model=path_model)
+    window = QMainWindow()
+    window.setCentralWidget(widget)
+    window.setWindowTitle("Test PathsWidget")
+    window.resize(600, 250)
+    window.show()
+    sys.exit(app.exec())
