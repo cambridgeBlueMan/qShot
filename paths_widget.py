@@ -59,6 +59,9 @@ class PathsWidget(QWidget):
         filename_group.setLayout(filename_grid)
         layout.addWidget(filename_group)
 
+        # Add stretch to push extra space to the bottom
+        layout.addStretch(1)
+
         self.setLayout(layout)
 
         # update model->widget if changed externally
