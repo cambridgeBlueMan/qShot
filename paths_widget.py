@@ -1,59 +1,64 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox, QFileDialog, QTableWidget, QTableWidgetItem, QAbstractItemView, QHeaderView, QTableWidgetSelectionRange, QGridLayout, QApplication, QMainWindow
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox, QFileDialog,
+    QGridLayout, QApplication, QMainWindow, QGroupBox
 )
 from PyQt6.QtCore import Qt
 import sys
 
 class PathsWidget(QWidget):
     """
-    UI to view/change PathModel settings using a table (grid) layout.
+    UI to view/change PathModel settings using two group boxes: Paths and File name.
     """
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.model = kwargs.get("path_model")
         layout = QVBoxLayout(self)
 
-        grid = QGridLayout()
-
+        # --- Paths group box ---
+        paths_group = QGroupBox("Paths")
+        paths_grid = QGridLayout()
         # Still folder row
-        grid.addWidget(QLabel("Still folder:"), 0, 0)
+        paths_grid.addWidget(QLabel("Still folder:"), 0, 0)
         self.still_edit = QLineEdit(self.model.still_folder)
-        grid.addWidget(self.still_edit, 0, 1)
+        paths_grid.addWidget(self.still_edit, 0, 1)
         btn = QPushButton("Browse")
         btn.clicked.connect(self._browse_still)
-        grid.addWidget(btn, 0, 2)
-
+        paths_grid.addWidget(btn, 0, 2)
         # Video folder row
-        grid.addWidget(QLabel("Video folder:"), 1, 0)
+        paths_grid.addWidget(QLabel("Video folder:"), 1, 0)
         self.video_edit = QLineEdit(self.model.video_folder)
-        grid.addWidget(self.video_edit, 1, 1)
+        paths_grid.addWidget(self.video_edit, 1, 1)
         btn2 = QPushButton("Browse")
         btn2.clicked.connect(self._browse_video)
-        grid.addWidget(btn2, 1, 2)
+        paths_grid.addWidget(btn2, 1, 2)
+        paths_group.setLayout(paths_grid)
+        layout.addWidget(paths_group)
 
+        # --- File name group box ---
+        filename_group = QGroupBox("File name")
+        filename_grid = QGridLayout()
         # Image root row
-        grid.addWidget(QLabel("Image root:"), 2, 0)
+        filename_grid.addWidget(QLabel("Image root:"), 0, 0)
         self.img_root = QLineEdit(self.model.rootnames.get("img", "img_"))
-        grid.addWidget(self.img_root, 2, 1)
-
+        filename_grid.addWidget(self.img_root, 0, 1)
         # Strategy row
-        grid.addWidget(QLabel("Strategy:"), 3, 0)
+        filename_grid.addWidget(QLabel("Strategy:"), 1, 0)
         self.strategy = QComboBox()
         self.strategy.addItems(["date", "sequence", "hash"])
         self.strategy.setCurrentText(self.model.strategy)
-        grid.addWidget(self.strategy, 3, 1)
-
+        filename_grid.addWidget(self.strategy, 1, 1)
         # Generate sample and Save row
         self.preview_label = QLabel(self.model.generate_filename("img"))
-        grid.addWidget(self.preview_label, 4, 0, 1, 2)
+        filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
         gen_btn = QPushButton("Generate sample")
         gen_btn.clicked.connect(self._generate_sample)
-        grid.addWidget(gen_btn, 4, 2)
+        filename_grid.addWidget(gen_btn, 2, 2)
         save_btn = QPushButton("Save")
         save_btn.clicked.connect(self._save)
-        grid.addWidget(save_btn, 5, 2)
+        filename_grid.addWidget(save_btn, 3, 2)
+        filename_group.setLayout(filename_grid)
+        layout.addWidget(filename_group)
 
-        layout.addLayout(grid)
         self.setLayout(layout)
 
         # update model->widget if changed externally
