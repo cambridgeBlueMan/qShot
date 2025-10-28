@@ -1,23 +1,51 @@
 from PyQt6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSlider, QCheckBox, QComboBox, QDial
+    QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSlider, QCheckBox, QComboBox, QDial, QGroupBox
 )
 from PyQt6.QtCore import Qt
 from base_control_widget import BaseControlWidget
 
 MINIMUM_SLIDER_VALUE = 0
 MAXIMUM_SLIDER_VALUE = 100
+DIAL_SIZE = 60
 
 class AutofocusWidget(BaseControlWidget):
     """
-    A simple autofocus control widget with three radio buttons: Manual, Continuous, Auto,
-    a dioptres adjustment slider, two option checkboxes, an AF range combo box, and a QDial.
+    AutofocusWidget provides a user interface for controlling camera autofocus and manual focus.
+
+    Layout & Features
+    -----------------
+    - **Autofocus Mode group box** (bold title): 
+        - Three radio buttons: Manual, Continuous, Auto
+        - "Trigger" button for autofocus
+        - When not in Manual mode, the manual focus controls are disabled.
+    - **Manual Focus Control group box** (bold title):
+        - Row 1: "Dioptres" label and a horizontal slider for fine manual focus adjustment
+        - Row 2: QDial for manual focus, right-aligned, fixed size (DIAL_SIZE)
+        - Both controls are enabled only in Manual mode.
+    - **Other group box** (bold title):
+        - Row 1: "Fast Autofocus" and "Use Windows for Af" checkboxes
+        - Row 2: "Af Range" label and combo box (Normal, Macro, Full)
+    - A stretch at the end keeps the layout compact when resized.
+
+    Signal/Slot Logic
+    -----------------
+    - Changing the AF mode enables/disables the manual focus controls.
+    - Slider and dial are kept in sync and mapped to a float value (0-100) for the model.
+    - Model changes to LensPosition update the slider and dial.
+    - All controls are connected to the appropriate model properties.
+
+    Usage
+    -----
+    Instantiate with a controls_model and cam object. The widget will automatically enable/disable
+    manual focus controls based on the selected autofocus mode.
     """
+
     def init_ui(self):
         layout = QVBoxLayout(self)
-        label = QLabel("Autofocus Control", self)
-        layout.addWidget(label)
 
-        # Horizontal group of radio buttons and trigger button
+        # --- Autofocus Mode group box ---
+        af_mode_group = QGroupBox("Autofocus Mode")
+        af_mode_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         select_af_mode = QHBoxLayout()
         self.manual_radio = QRadioButton("Manual", self)
         self.continuous_radio = QRadioButton("Continuous", self)
@@ -36,11 +64,20 @@ class AutofocusWidget(BaseControlWidget):
         self.af_trigger.clicked.connect(self.trigger_autofocus)
         select_af_mode.addWidget(self.af_trigger)
 
-        layout.addLayout(select_af_mode)
+        af_mode_group.setLayout(select_af_mode)
+        layout.addWidget(af_mode_group)
 
-        # Row: Dioptes label and horizontal slider
+        # --- Manual Focus Control group box ---
+        self.manual_focus_group = QGroupBox("Manual Focus Control")
+        #: QGroupBox for manual focus controls.
+        #: This is an instance attribute so it can be enabled/disabled
+        #: (and have its style changed) in response to autofocus mode changes.
+        self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: bold; }")
+        manual_focus_layout = QVBoxLayout()
+
+        # Row 1: Dioptres label and horizontal slider
         dioptres_row = QHBoxLayout()
-        dioptres_label = QLabel("Dioptes", self)
+        dioptres_label = QLabel("Dioptres", self)
         dioptres_row.addWidget(dioptres_label)
         self.dioptres_slider = QSlider(Qt.Orientation.Horizontal, self)
         self.dioptres_slider.setMinimum(MINIMUM_SLIDER_VALUE)
@@ -48,8 +85,28 @@ class AutofocusWidget(BaseControlWidget):
         self.dioptres_slider.setValue(MINIMUM_SLIDER_VALUE)
         self.dioptres_slider.valueChanged.connect(self.setDioptres)
         dioptres_row.addWidget(self.dioptres_slider)
+        manual_focus_layout.addLayout(dioptres_row)
 
-        layout.addLayout(dioptres_row)
+        # Row 2: QDial only (right aligned), fixed size from DIAL_SIZE
+        dial_row = QHBoxLayout()
+        dial_row.addStretch(1)  # Add stretch to push dial to the right
+        self.dioptres_dial = QDial(self)
+        self.dioptres_dial.setMinimum(MINIMUM_SLIDER_VALUE)
+        self.dioptres_dial.setMaximum(MAXIMUM_SLIDER_VALUE)
+        self.dioptres_dial.setValue(MINIMUM_SLIDER_VALUE)
+        self.dioptres_dial.setFixedSize(DIAL_SIZE, DIAL_SIZE)
+        self.dioptres_dial.setWrapping(False)
+        self.dioptres_dial.valueChanged.connect(self.setDioptres)
+        dial_row.addWidget(self.dioptres_dial)
+        manual_focus_layout.addLayout(dial_row)
+
+        self.manual_focus_group.setLayout(manual_focus_layout)
+        layout.addWidget(self.manual_focus_group)
+
+        # --- Other controls group box ---
+        other_group = QGroupBox("Other")
+        other_group.setStyleSheet("QGroupBox { font-weight: bold; }")
+        other_layout = QVBoxLayout()
 
         # Row: Fast Autofocus and Use Windows for Af checkboxes
         options_row = QHBoxLayout()
@@ -60,7 +117,7 @@ class AutofocusWidget(BaseControlWidget):
         options_row.addWidget(self.use_windows_checkbox)
         self.use_windows_checkbox.toggled.connect(self.setAfMetering)
         self.fast_autofocus_checkbox.toggled.connect(self.setAfSpeed)
-        layout.addLayout(options_row)
+        other_layout.addLayout(options_row)
 
         # Row: Af Range label and combo box
         af_range_row = QHBoxLayout()
@@ -69,34 +126,28 @@ class AutofocusWidget(BaseControlWidget):
         self.af_range_combo = QComboBox(self)
         self.af_range_combo.addItems(["Normal", "Macro", "Full"])
         af_range_row.addWidget(self.af_range_combo)
-        layout.addLayout(af_range_row)
         self.af_range_combo.currentIndexChanged.connect(self.setAfRange)
+        other_layout.addLayout(af_range_row)
 
-        # New row: QDial with dimensions 100x100
-        dial_row = QHBoxLayout()
-        dial_label = QLabel("Dial", self)
-        dial_row.addWidget(dial_label)
-        self.dioptres_dial = QDial(self)
-        self.dioptres_dial.setMinimum(MINIMUM_SLIDER_VALUE)
-        self.dioptres_dial.setMaximum(MAXIMUM_SLIDER_VALUE)
-        self.dioptres_dial.setValue(MINIMUM_SLIDER_VALUE)
-        self.dioptres_dial.valueChanged.connect(self.setDioptres)
-        dial_row.addWidget(self.dioptres_dial)
-        layout.addLayout(dial_row)
+        other_group.setLayout(other_layout)
+        layout.addWidget(other_group)
+
+        # Add stretch at the end to keep group boxes compact on resize
+        layout.addStretch(1)
 
         self.controls_model.LensPositionChanged.connect(self.onLensPositionChanged)
         self.setLayout(layout)
 
     def setAfRange(self, index):
-        # Example method to handle AF range change
-        #print(f"AF Range set to index: {index}")
-        # Here you would typically update the camera control model
+        """Handle AF range combo box changes."""
         self.controls_model.AfRange = index
 
     def trigger_autofocus(self):
+        """Trigger an autofocus cycle on the camera."""
         self.cam.autofocus_cycle(signal_function=self.on_af_done)
 
     def on_af_done(self, job):
+        """Callback for autofocus completion."""
         success = self.cam.wait(job)
         if success:
             print("Autofocus successful")
@@ -104,7 +155,7 @@ class AutofocusWidget(BaseControlWidget):
             print("Autofocus failed")
 
     def on_camera_job_done(self, job):
-        # Only handle the job we started
+        """Handle completion of a camera job."""
         if hasattr(self, "_af_job") and job == self._af_job:
             try:
                 success = job.get_result()
@@ -117,34 +168,48 @@ class AutofocusWidget(BaseControlWidget):
             self._af_job = None  # Clear job reference
 
     def setAfMode(self, mode):
-        # Example method to handle AF mode change
+        """
+        Handle AF mode changes.
+        Disables manual focus controls unless in manual mode (mode == 0).
+        Also updates group box title style to be bold only when enabled.
+        """
         print(f"AF Mode set to {mode}")
         self.controls_model.AfMode = mode
+        manual_enabled = (mode == 0)
+        self.manual_focus_group.setEnabled(manual_enabled)
+        if manual_enabled:
+            self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: bold; }")
+        else:
+            self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: normal; }")
 
     def setAfMetering(self, checked):
-        # Set AfMetering to 1 if checked (Windows), 0 if unchecked (Global)
+        """Set AF metering mode based on checkbox."""
         self.controls_model.AfMetering = 1 if checked else 0
 
     def setAfSpeed(self, checked):
-        # Set AfSpeed to 1 if checked (Fast), 0 if unchecked (Slow)
+        """Set AF speed based on checkbox."""
         self.controls_model.AfSpeed = 1 if checked else 0
 
     def setDialValue(self, value):
-        # Example: connect to a controls_model property if needed
-        # self.controls_model.DialValue = value
+        """(Placeholder) Set dial value if needed."""
         pass  # Replace with actual logic as needed
 
     def setDioptres(self, value):
-        # Map slider value (MINIMUM_SLIDER_VALUE to MAXIMUM_SLIDER_VALUE) to float 0.0 - 100.0
+        """
+        Map slider/dial value (MINIMUM_SLIDER_VALUE to MAXIMUM_SLIDER_VALUE) to float 0.0 - 100.0,
+        and update the model.
+        """
         mapped = (
             (value - MINIMUM_SLIDER_VALUE)
             / (MAXIMUM_SLIDER_VALUE - MINIMUM_SLIDER_VALUE)
         ) * 100.0
         self.controls_model.LensPosition = mapped
-        # print(f"dioptres/LensPosition set to {mapped}")
 
     def onLensPositionChanged(self, value):
-        # Update the slider and dial if LensPosition changes elsewhere
+        """
+        Update the slider and dial if LensPosition changes elsewhere.
+        Expects value in 0-100 range.
+        """
         slider_value = int(
             (value / 100.0) * (MAXIMUM_SLIDER_VALUE - MINIMUM_SLIDER_VALUE) + MINIMUM_SLIDER_VALUE
         )
