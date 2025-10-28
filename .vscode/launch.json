@@ -6,7 +6,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
-            "args": ["1"],
+            "args": ["0"],
             "console": "integratedTerminal",
             "python": "${workspaceFolder}/.venv/bin/python"
         }

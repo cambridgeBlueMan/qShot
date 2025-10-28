@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
         bottom_layout.setSpacing(0)
 
         # First column: placeholder widget
-        bottom_col1 = AutofocusWidget(**self.get_component_args())
+        bottom_col1 = self.create_autofocus_widget()
         # Second column: ControlsGui
         bottom_col2 = ControlsGui(**self.get_component_args())
         # Third column: placeholder widget
@@ -358,6 +358,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
             return Dummy(text="Failed to load default widget")
+
+    def create_autofocus_widget(self):
+        """Return an AutofocusWidget if AF is supported, else a placeholder label."""
+        if 'AfMode' in self.cam.camera_controls:
+            return AutofocusWidget(**self.get_component_args())
+        else:
+            from PyQt6.QtWidgets import QLabel
+            return QLabel("Autofocus not available for this camera.", self)
 
     def get_component_args(self, name=None):
         """
