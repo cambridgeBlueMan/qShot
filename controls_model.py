@@ -18,6 +18,8 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from typing import Tuple, Optional
 import logging
 
+MINIMUM_FOCUS_DISTANCE = 5  # Minimum focus distance in centimeters (camera can focus as close as 5cm)
+
 class ControlsModel(QObject):
     resolutionChanged = pyqtSignal(tuple)
     formatChanged = pyqtSignal(str)
@@ -534,18 +536,23 @@ class ControlsModel(QObject):
 
     @property
     def LensPosition(self) -> float:
-        """Get the lens position (float, typically 0.0 to 10.0)."""
+        """Get the actual lens position (in dioptres or camera units)."""
         return self._LensPosition
 
     @LensPosition.setter
     def LensPosition(self, value: float):
-        """Set the lens position, emit signal, update camera, and log value."""
-        if value != self._LensPosition:
-            self._LensPosition = value
-            self.LensPositionChanged.emit(value)
-            # logging.info(f"LensPosition set to {value}")
+        """
+        Set the lens position, mapping input float 0-100 to 0-(100/MINIMUM_FOCUS_DISTANCE),
+        emit signal, update camera, and log value.
+        """
+        mapped_value = (value / 100.0) * (100.0 / MINIMUM_FOCUS_DISTANCE)
+        if mapped_value != self._LensPosition:
+            self._LensPosition = mapped_value
+            # Emit the value mapped back to 0-100 for the GUI
+            gui_value = value  # Already in 0-100 range
+            self.LensPositionChanged.emit(gui_value)
             try:
-                self.cam.set_controls({"LensPosition": value})
+                self.cam.set_controls({"LensPosition": mapped_value})
             except Exception as e:
                 logging.error(f"Failed to set LensPosition: {e}")
 

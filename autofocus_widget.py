@@ -2,8 +2,8 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadi
 from PyQt6.QtCore import Qt
 from base_control_widget import BaseControlWidget
 
-MINIMUM_DIOPTRES = 0
-MAXIMUM_DIOPTRES = 100
+MINIMUM_SLIDER_VALUE = 0
+MAXIMUM_SLIDER_VALUE = 100
 
 class AutofocusWidget(BaseControlWidget):
     """
@@ -32,7 +32,7 @@ class AutofocusWidget(BaseControlWidget):
 
         self.af_trigger = QPushButton("Trigger", self)
         self.af_trigger.clicked.connect(self.trigger_autofocus)
-        select_af_mode.addWidget(self.af_trigger)  # Place trigger to the right of auto
+        select_af_mode.addWidget(self.af_trigger)
 
         layout.addLayout(select_af_mode)
 
@@ -41,9 +41,9 @@ class AutofocusWidget(BaseControlWidget):
         dioptres_label = QLabel("Dioptes", self)
         dioptres_row.addWidget(dioptres_label)
         self.dioptres_slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.dioptres_slider.setMinimum(MINIMUM_DIOPTRES)
-        self.dioptres_slider.setMaximum(MAXIMUM_DIOPTRES)
-        self.dioptres_slider.setValue(MINIMUM_DIOPTRES)
+        self.dioptres_slider.setMinimum(MINIMUM_SLIDER_VALUE)
+        self.dioptres_slider.setMaximum(MAXIMUM_SLIDER_VALUE)
+        self.dioptres_slider.setValue(MINIMUM_SLIDER_VALUE)
         self.dioptres_slider.valueChanged.connect(self.setDioptres)
         dioptres_row.addWidget(self.dioptres_slider)
 
@@ -75,9 +75,9 @@ class AutofocusWidget(BaseControlWidget):
         dial_label = QLabel("Dial", self)
         dial_row.addWidget(dial_label)
         self.dioptres_dial = QDial(self)
-        self.dioptres_dial.setMinimum(MINIMUM_DIOPTRES)
-        self.dioptres_dial.setMaximum(MAXIMUM_DIOPTRES)
-        self.dioptres_dial.setValue(MINIMUM_DIOPTRES)
+        self.dioptres_dial.setMinimum(MINIMUM_SLIDER_VALUE)
+        self.dioptres_dial.setMaximum(MAXIMUM_SLIDER_VALUE)
+        self.dioptres_dial.setValue(MINIMUM_SLIDER_VALUE)
         self.dioptres_dial.valueChanged.connect(self.setDioptres)
         dial_row.addWidget(self.dioptres_dial)
         layout.addLayout(dial_row)
@@ -133,16 +133,19 @@ class AutofocusWidget(BaseControlWidget):
         pass  # Replace with actual logic as needed
 
     def setDioptres(self, value):
-        # Convert value from 0-100 to 0.0-10.0
-        lens_position = value / 10.0
-        # Pass to LensPosition control in controls_model (when implemented)
-        self.controls_model.LensPosition = lens_position
-        # For now, you can print or log the value
-        print(f"dioptres/LensPosition set to {lens_position}")
+        # Map slider value (MINIMUM_SLIDER_VALUE to MAXIMUM_SLIDER_VALUE) to float 0.0 - 100.0
+        mapped = (
+            (value - MINIMUM_SLIDER_VALUE)
+            / (MAXIMUM_SLIDER_VALUE - MINIMUM_SLIDER_VALUE)
+        ) * 100.0
+        self.controls_model.LensPosition = mapped
+        # print(f"dioptres/LensPosition set to {mapped}")
 
     def onLensPositionChanged(self, value):
         # Update the slider and dial if LensPosition changes elsewhere
-        slider_value = int(value * 10)
+        slider_value = int(
+            (value / 100.0) * (MAXIMUM_SLIDER_VALUE - MINIMUM_SLIDER_VALUE) + MINIMUM_SLIDER_VALUE
+        )
         self.dioptres_slider.blockSignals(True)
         self.dioptres_dial.blockSignals(True)
         self.dioptres_slider.setValue(slider_value)
