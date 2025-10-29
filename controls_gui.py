@@ -331,6 +331,30 @@ class ControlsGui(QWidget):
         contrast = self.slider_to_contrast(slider_value)
         self.controls_model.Contrast = contrast  # Only update the model!
 
+    def slider_to_contrast(self, slider_value):
+        """Map slider value (0-320) to contrast (0-32), with 1 at midpoint (160)."""
+        slider_min = 0
+        slider_max = 320
+        slider_mid = 160
+        if slider_value <= slider_mid:
+            # Map 0..160 to 0..1
+            return (slider_value / slider_mid) * 1.0
+        else:
+            # Map 160..320 to 1..32
+            return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (32.0 - 1.0)
+
+    def contrast_to_slider(self, contrast):
+        """Map contrast (0-32) to slider value (0-320), with 1 at midpoint (160)."""
+        slider_min = 0
+        slider_max = 320
+        slider_mid = 160
+        if contrast <= 1.0:
+            # Map 0..1 to 0..160
+            return int((contrast / 1.0) * slider_mid)
+        else:
+            # Map 1..32 to 160..320
+            return int(slider_mid + ((contrast - 1.0) / (32.0 - 1.0)) * (slider_max - slider_mid))
+
 if __name__ == "__main__":
     from picamera2 import Picamera2
     app = QApplication([])
