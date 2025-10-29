@@ -327,6 +327,10 @@ class ControlsGui(QWidget):
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Format": value})
 
+    def on_contrast_slider_changed(self, slider_value):
+        contrast = self.slider_to_contrast(slider_value)
+        self.controls_model.Contrast = contrast  # Only update the model!
+
 if __name__ == "__main__":
     from picamera2 import Picamera2
     app = QApplication([])

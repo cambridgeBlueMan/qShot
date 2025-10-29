@@ -159,6 +159,8 @@ class ControlsModel(QObject):
         if value != self._Contrast:
             self._Contrast = value
             self.ContrastChanged.emit(value)
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"Contrast": value})
 
     @property
     def AeConstraintMode(self) -> int:
