@@ -60,6 +60,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMess
 from PyQt6.QtGui import QAction
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+from contrast_slider_demo import ContrastSliderDemo
 from dummy import Dummy
 from picamera2 import Picamera2
 from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
@@ -196,7 +197,7 @@ class MainWindow(QMainWindow):
         # First column: placeholder widget
         bottom_col1 = self.create_autofocus_widget()
         # Second column: ControlsGui
-        bottom_col2 = ControlsGui(**self.get_component_args())
+        bottom_col2 = ContrastSliderDemo(**self.get_component_args())
         # Third column: placeholder widget
         bottom_col3 = PathsWidget(**self.get_component_args())
 
