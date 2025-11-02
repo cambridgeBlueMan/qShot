@@ -1,4 +1,10 @@
 from qt import QtWidgets, QtGui, QtCore, Qt
+
+# Compatibility for QAction location
+try:
+    QAction = QtGui.QAction  # PyQt6
+except AttributeError:
+    QAction = QtWidgets.QAction  # PyQt5
 """
 Main Window Module
 ------------------
@@ -224,7 +230,7 @@ class MainWindow(QtWidgets.QMainWindow):
             for fname in os.listdir(components_dir):
                 if fname.endswith("_widget.py") and not fname.startswith("__"):
                     name = fname[:-10]  # Remove '_widget.py'
-                    action = QtWidgets.QAction(name, self)
+                    action = QAction(name, self)
                     action.setData(name)
                     components_menu.addAction(action)
                     action.triggered.connect(self.load_component_widget)
@@ -233,9 +239,9 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             logging.warning(f"Components directory not found: {components_dir}")
 
-        self.action_tom = QtWidgets.QAction("tom", self, checkable=True)
-        self.action_dick = QtWidgets.QAction("dick", self, checkable=True)
-        self.action_harry = QtWidgets.QAction("harry", self, checkable=True)
+        self.action_tom = QAction("tom", self, checkable=True)
+        self.action_dick = QAction("dick", self, checkable=True)
+        self.action_harry = QAction("harry", self, checkable=True)
 
         controls_menu.addAction(self.action_tom)
         controls_menu.addAction(self.action_dick)
