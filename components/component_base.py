@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget
 
-class ComponentBase(QWidget):
+from qt import QtWidgets, QtGui, QtCore, Qt
+class ComponentBase(QtWidgets.QWidget):
     """
     Base class for all component widgets.
     Ensures a cleanup method is available for housekeeping.

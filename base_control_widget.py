@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from abc import ABC, abstractmethod
 
-class BaseControlWidget(QWidget):
+from qt import QtWidgets, QtGui, QtCore, Qt
+class BaseControlWidget(QtWidgets.QWidget):
     """
     Abstract base class for all control widgets in the bottom dock.
     Ensures consistent kwargs handling and provides a place for shared logic.

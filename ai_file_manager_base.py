@@ -1,11 +1,10 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 # ai_file_manager_base.py
 from abc import ABC, abstractmethod
-from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSlider, QVBoxLayout
-from PyQt6.QtCore import QSettings, Qt
 import os
 import logging
 
-class AIFileManager(QWidget):
+class AIFileManager(QtWidgets.QWidget):
     """
     Abstract base class for file manager widgets.
 
@@ -47,9 +46,9 @@ class AIFileManager(QWidget):
 
     def __init__(self, parent=None, settings_group=None):
         super().__init__(parent)
-        self.settings = QSettings("MyCompany", "CameraCaptureApp")
+        self.settings = QtCore.QSettings("MyCompany", "CameraCaptureApp")
         self.settings_group = settings_group  # e.g., "detector" or "classifier"
-        self.base_layout = QVBoxLayout()
+        self.base_layout = QtWidgets.QVBoxLayout()
         self.init_base_ui()
         self.load_settings()  # <-- Add this line!
         # Do NOT call self.setLayout(self.base_layout) here!
@@ -59,32 +58,32 @@ class AIFileManager(QWidget):
         self.class_labels_input.textChanged.connect(self._on_paths_changed)
 
     def init_base_ui(self): 
-        layout = QGridLayout()
+        layout = QtWidgets.QGridLayout()
 
         # Dataset Path
-        layout.addWidget(QLabel("Dataset Path"), 0, 0)
-        self.dataset_path_input = QLineEdit()
+        layout.addWidget(QtWidgets.QLabel("Dataset Path"), 0, 0)
+        self.dataset_path_input = QtWidgets.QLineEdit()
         layout.addWidget(self.dataset_path_input, 0, 1)
-        dataset_path_button = QPushButton("...")
+        dataset_path_button = QtWidgets.QPushButton("...")
         dataset_path_button.clicked.connect(self.select_dataset_path)
         layout.addWidget(dataset_path_button, 0, 2)
 
         # Class Labels
-        layout.addWidget(QLabel("Class Labels"), 1, 0)
-        self.class_labels_input = QLineEdit()
+        layout.addWidget(QtWidgets.QLabel("Class Labels"), 1, 0)
+        self.class_labels_input = QtWidgets.QLineEdit()
         layout.addWidget(self.class_labels_input, 1, 1)
-        class_labels_button = QPushButton("...")
+        class_labels_button = QtWidgets.QPushButton("...")
         class_labels_button.clicked.connect(self.select_class_labels_file)
         layout.addWidget(class_labels_button, 1, 2)
 
         # Init Button
-        self.init_button = QPushButton("Init")
+        self.init_button = QtWidgets.QPushButton("Init")
         self.init_button.clicked.connect(self.init_action)
         layout.addWidget(self.init_button, 2, 2)
 
         # Row: JPEG Quality
-        layout.addWidget(QLabel("jpeg quality"), 5, 0)
-        self.jpeg_quality_slider = QSlider(Qt.Orientation.Horizontal)
+        layout.addWidget(QtWidgets.QLabel("jpeg quality"), 5, 0)
+        self.jpeg_quality_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.jpeg_quality_slider.setValue(95)
         self.jpeg_quality_slider.setMinimum(0)
         self.jpeg_quality_slider.setMaximum(100)
@@ -95,14 +94,14 @@ class AIFileManager(QWidget):
 
     def select_dataset_path(self):
         """Open a dialog to select the dataset folder and save the setting."""
-        path = QFileDialog.getExistingDirectory(self, "Select Dataset Folder")
+        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Dataset Folder")
         if path:
             self.dataset_path_input.setText(path)
             self.save_settings()
 
     def select_class_labels_file(self):
         """Open a dialog to select the class labels file and save the setting."""
-        path, _ = QFileDialog.getOpenFileName(self, "Select Class Labels File", filter="Text Files (*.txt)")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select Class Labels File", filter="Text Files (*.txt)")
         if path:
             self.class_labels_input.setText(path)
             self.save_settings()
@@ -156,7 +155,7 @@ class AIFileManager(QWidget):
     def _on_paths_changed(self):
         """Called when dataset or labels path changes."""
         # Find any child widget that has the validate_and_update_buttons method
-        for child in self.findChildren(QWidget):
+        for child in self.findChildren(QtWidgets.QWidget):
             if hasattr(child, 'validate_and_update_buttons'):
                 child.validate_and_update_buttons()
 

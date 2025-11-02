@@ -1,21 +1,19 @@
-from PyQt6.QtWidgets import QLabel
-from PyQt6.QtGui import QPainter, QPen, QColor
-from PyQt6.QtCore import Qt, QRect, QPoint, pyqtSignal
 from generate_color import generate_color
 import random
 
-class BBoxLabel(QLabel):
+from qt import QtWidgets, QtGui, QtCore, Qt
+class BBoxLabel(QtWidgets.QLabel):
     """
-    QLabel subclass for drawing bounding boxes on an image.
+    QtWidgets.QLabel subclass for drawing bounding boxes on an image.
     Stores boxes in original image coordinates so they persist and scale on resize.
     """
-    box_completed = pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
+    box_completed = QtCore.pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
 
     def __init__(self, pixmap=None, parent=None):
         super().__init__(parent)
         if pixmap is not None:
             self.setPixmap(pixmap)
-        self.boxes = []  # List of QRect in original image coordinates
+        self.boxes = []  # List of QtCore.QRect in original image coordinates
         self.box_colors = []  # List of class indices for each box
         self.start = None  # In widget coords while drawing
         self.end = None    # In widget coords while drawing
@@ -42,7 +40,7 @@ class BBoxLabel(QLabel):
         label_rect = self.rect()
         scale_x = self._original_pixmap_size.width() / label_rect.width()
         scale_y = self._original_pixmap_size.height() / label_rect.height()
-        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+        return QtCore.QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
 
     def _to_widget_coords(self, point):
         """Convert original image coordinates to widget coordinates."""
@@ -51,7 +49,7 @@ class BBoxLabel(QLabel):
         label_rect = self.rect()
         scale_x = label_rect.width() / self._original_pixmap_size.width()
         scale_y = label_rect.height() / self._original_pixmap_size.height()
-        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+        return QtCore.QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
 
     def mousePressEvent(self, event):
         if self.annotation_enabled and event.button() == Qt.LeftButton:
@@ -71,7 +69,7 @@ class BBoxLabel(QLabel):
             # Store box in original image coordinates
             p1 = self._to_image_coords(self.start)
             p2 = self._to_image_coords(self.end)
-            rect = QRect(p1, p2).normalized()
+            rect = QtCore.QRect(p1, p2).normalized()
             self.boxes.append(rect)
             # Use default class index (e.g., 0) instead of random
             class_index = 0
@@ -89,28 +87,28 @@ class BBoxLabel(QLabel):
         if not self.pixmap() or not self._original_pixmap_size:
             return
 
-        painter = QPainter(self)
+        painter = QtGui.QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         for i, rect in enumerate(self.boxes):
             p1 = self._to_widget_coords(rect.topLeft())
             p2 = self._to_widget_coords(rect.bottomRight())
-            scaled_rect = QRect(p1, p2)
+            scaled_rect = QtCore.QRect(p1, p2)
             class_index = self.box_colors[i] if i < len(self.box_colors) else 0
             r, g, b, a = generate_color(class_index)
-            color = QColor(r, g, b, a)
-            painter.setPen(QPen(color, 2, Qt.SolidLine))
+            color = QtGui.QColor(r, g, b, a)
+            painter.setPen(QtGui.QPen(color, 2, Qt.SolidLine))
             painter.drawRect(scaled_rect)
 
         # Draw current box, scaled
         if self.drawing and self.start and self.end:
-            painter.setPen(QPen(Qt.green, 2, Qt.DashLine))
+            painter.setPen(QtGui.QPen(Qt.green, 2, Qt.DashLine))
             # Convert current start/end to image coords, then back to widget coords for scaling
             p1_img = self._to_image_coords(self.start)
             p2_img = self._to_image_coords(self.end)
             p1 = self._to_widget_coords(p1_img)
             p2 = self._to_widget_coords(p2_img)
-            rect = QRect(p1, p2).normalized()
+            rect = QtCore.QRect(p1, p2).normalized()
             painter.drawRect(rect)
 
     def get_bboxes(self):

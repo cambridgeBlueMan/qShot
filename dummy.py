@@ -1,50 +1,49 @@
-from PyQt6.QtGui import QColor, QPalette
-from PyQt6.QtWidgets import QLabel, QWidget, QApplication
 import random
 import sys
 
 
+from qt import QtWidgets, QtGui, QtCore, Qt
 def random_color():
     """
-    Generate a random QColor object.
+    Generate a random QtGui.QColor object.
 
     Returns:
-        QColor: A color with random RGB values.
+        QtGui.QColor: A color with random RGB values.
     """
     r = random.randint(0, 255)
     g = random.randint(0, 255)
     b = random.randint(0, 255)
-    return QColor(r, g, b)
+    return QtGui.QColor(r, g, b)
 
 
-class Color(QWidget):
+class Color(QtWidgets.QWidget):
     """
-    A QWidget that displays a solid background color.
+    A QtWidgets.QWidget that displays a solid background color.
     """
     def __init__(self, color):
         """
         Initialize the Color widget.
 
         Args:
-            color (QColor or str): The color to use for the background.
+            color (QtGui.QColor or str): The color to use for the background.
         """
         super().__init__()
         self.setAutoFillBackground(True)
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(color))
+        palette.setColor(QtGuiQPalette.ColorRole.Window, QtGui.QColor(color))
         self.setPalette(palette)
 
 
-class Dummy(QWidget):
+class Dummy(QtWidgets.QWidget):
     """
-    A placeholder QWidget with a colored background and a text label.
+    A placeholder QtWidgets.QWidget with a colored background and a text label.
     """
     def __init__(self, color=None, text="Dummy"):
         """
         Initialize the Dummy widget.
 
         Args:
-            color (QColor, str, or None): The background color. If None, a random color is used.
+            color (QtGui.QColor, str, or None): The background color. If None, a random color is used.
             text (str): The text to display on the label.
         """
         super().__init__()
@@ -52,11 +51,11 @@ class Dummy(QWidget):
         if color is None:
             color = random_color()
         else:
-            color = QColor(color)
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, color)
+            color = QtGui.QColor(color)
+        palette = QtGui.QPalette()
+        palette.setColor(QtGui.QPalette.ColorRole.Window, color)
         self.setPalette(palette)
-        self.label = QLabel(self)
+        self.label = QtWidgets.QLabel(self)
         self.label.setText(text)
 
 
@@ -64,7 +63,7 @@ if __name__ == "__main__":
     """
     Run a test window displaying a Dummy widget.
     """
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     dummy = Dummy(text="Hello Dummy!")
     dummy.resize(200, 100)
     dummy.show()

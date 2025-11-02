@@ -1,23 +1,36 @@
-from PyQt6 import QtCore as qtc
-from PyQt6 import QtGui as qtg
-from PyQt6 import QtWidgets as qtw
+from qt import QtCore as qtc, QtWidgets as qtw, QtGui, Qt
 
-class Viewport(qtw.QPushButton):
-    """A draggable pushbutton used to set zoom and view position within the camera sensor."""
+class Viewport(qtw.QWidget):
+    """
+    Example Viewport widget for use with Zoomer.
+    """
     posChanged = qtc.pyqtSignal(int, int)
     doubleClicked = qtc.pyqtSignal()
     scrolled = qtc.pyqtSignal(int)
 
-    global newPos
-
-    def __init__(self, win, bWidth=22, bHeight=22):
+    def __init__(self, win, bWidth=40, bHeight=40):
+        super().__init__(win)
+        self.setMinimumSize(40, 40)
         self.bWidth = bWidth
         self.bHeight = bHeight
-        super().__init__(win)
         self.setFixedSize(self.bWidth, self.bHeight)
-        self.containerWidth = win.frameGeometry().width()
-        self.containerHeight = win.frameGeometry().height()
+        self.setStyleSheet("")  # Remove previous background
+        self.move(0, 0)
+        self.containerWidth = win.size().width()
+        self.containerHeight = win.size().height()
+        # Add a visible label/icon
+        self.label = qtw.QLabel("■", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet("font-size: 24px; color: #d32f2f;")
+        self.label.setGeometry(0, 0, self.bWidth, self.bHeight)
         qtc.QMetaObject.connectSlotsByName(self)
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QtGui.QColor("#ffeb3b"))
+        painter.setPen(QtGui.QPen(QtGui.QColor("#d32f2f"), 3))
+        painter.drawRect(self.rect().adjusted(1, 1, -2, -2))
 
     def setContainerSize(self, x, y):
         self.containerWidth = x
@@ -37,32 +50,25 @@ class Viewport(qtw.QPushButton):
     def mousePressEvent(self, event):
         self.__mousePressPos = None
         self.__mouseMovePos = None
-        if event.button() == qtc.Qt.MouseButton.LeftButton:
-            self.__mousePressPos = event.globalPosition().toPoint()
-            self.__mouseMovePos = event.globalPosition().toPoint()
+        if event.button() == Qt.LeftButton:
+            pos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
+            self.__mousePressPos = pos
+            self.__mouseMovePos = pos
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        global newPos
-        if event.buttons() == qtc.Qt.MouseButton.LeftButton:
+        if event.buttons() == Qt.LeftButton:
             currPos = self.mapToGlobal(self.pos())
-            globalPos = event.globalPosition().toPoint()
+            globalPos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
             diff = globalPos - self.__mouseMovePos
             newPos = self.mapFromGlobal(currPos + diff)
-            self.scm = [int(self.cam.camera_properties['ScalerCropMaximum'][0] / 8),
-                        int(self.cam.camera_properties['ScalerCropMaximum'][1] / 8)]
-            if newPos.x() > (self.containerWidth - self.bWidth):
-                x = (self.containerWidth - self.bWidth)
-            elif newPos.x() < self.scm[0]:
-                x = self.scm[0]
+            if hasattr(self, "cam") and hasattr(self.cam, "camera_properties"):
+                self.scm = [int(self.cam.camera_properties['ScalerCropMaximum'][0] / 8),
+                            int(self.cam.camera_properties['ScalerCropMaximum'][1] / 8)]
             else:
-                x = newPos.x()
-            if newPos.y() > (self.containerHeight - self.bHeight):
-                y = (self.containerHeight - self.bHeight)
-            elif newPos.y() < self.scm[1]:
-                y = self.scm[1]
-            else:
-                y = newPos.y()
+                self.scm = [0, 0]
+            x = max(self.scm[0], min(newPos.x(), self.containerWidth - self.bWidth))
+            y = max(self.scm[1], min(newPos.y(), self.containerHeight - self.bHeight))
             x = int(x)
             y = int(y)
             self.sendPos((x, y))
@@ -77,8 +83,9 @@ class Viewport(qtw.QPushButton):
         self.posChanged.emit(pos[0], pos[1])
 
     def mouseReleaseEvent(self, event):
-        if self.__mousePressPos is not None:
-            moved = event.globalPosition().toPoint() - self.__mousePressPos
+        if hasattr(self, '__mousePressPos') and self.__mousePressPos is not None:
+            releasePos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
+            moved = releasePos - self.__mousePressPos
             if moved.manhattanLength() > 3:
                 event.ignore()
                 return
@@ -97,5 +104,10 @@ if __name__ == "__main__":
     w.resize(800, 600)
     button = Viewport(w)
     button.setCamera(DummyCam())
+    button.raise_()  # Ensure it's on top
+    # Update container size on parent resize
+    def on_resize(event):
+        button.setContainerSize(w.size().width(), w.size().height())
+    w.resizeEvent = on_resize
     w.show()
     app.exec()

@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QComboBox, QHBoxLayout, QWidget
 import logging
 from ai_file_manager_base import AIFileManager
 from res_combo import ResCombo
+from qt import QtWidgets, QtGui, QtCore, Qt
 # from config_model import config_model
 from app_signals import app_signals  # <-- Include app_signals
 import pprint
@@ -52,12 +52,12 @@ class Test(AIFileManager):
         
 
         # Create widgets first
-        self.label = QLabel("This is the Test widget.")
-        self.button = QPushButton("Click Me")
+        self.label = QtWidgets.QLabel("This is the Test widget.")
+        self.button = QtWidgets.QPushButton("Click Me")
         self.button.clicked.connect(self.on_button_clicked)
         self.res_combo = ResCombo(config_model=self.config_model)
-        self.camera_mode_combo = QComboBox()
-        self.framerate_combo = QComboBox()
+        self.camera_mode_combo = QtWidgets.QComboBox()
+        self.framerate_combo = QtWidgets.QComboBox()
         self.available_framerates = [5, 10, 15, 20, 25, 30, 40, 50, 60, 120]
 
         # Layout setup
@@ -65,14 +65,14 @@ class Test(AIFileManager):
         self.base_layout.addWidget(self.button)
         self.base_layout.addWidget(self.res_combo)
 
-        mode_layout = QHBoxLayout()
-        mode_label = QLabel("Camera Mode")
+        mode_layout = QtWidgets.QHBoxLayout()
+        mode_label = QtWidgets.QLabel("Camera Mode")
         mode_layout.addWidget(mode_label)
         mode_layout.addWidget(self.camera_mode_combo)
         self.base_layout.addLayout(mode_layout)
 
-        fr_layout = QHBoxLayout()
-        fr_label = QLabel("Frame Rate")
+        fr_layout = QtWidgets.QHBoxLayout()
+        fr_label = QtWidgets.QLabel("Frame Rate")
         fr_layout.addWidget(fr_label)
         fr_layout.addWidget(self.framerate_combo)
         self.base_layout.addLayout(fr_layout)
@@ -163,3 +163,12 @@ class Test(AIFileManager):
             self.cam.configure(cfg)
             if was_running:
                 self.cam.start()
+
+    def select_dataset_folder(self):
+        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Dataset Folder")
+        if path:
+            self.label.setText(f"Selected folder: {path}")
+            logging.info(f"Dataset folder selected: {path}")
+        else:
+            self.label.setText("No folder selected.")
+            logging.info("Dataset folder selection canceled.")

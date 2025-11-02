@@ -1,3 +1,4 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 #!/usr/bin/env python3
 """
 Setup script to configure the AI Capture application with default paths and settings.
@@ -6,8 +7,6 @@ Run this once before using the application.
 
 import os
 import sys
-from PyQt6.QtCore import QSettings
-from PyQt6.QtWidgets import QApplication
 
 def setup_application():
     """Configure the application with default settings."""
@@ -22,10 +21,10 @@ def setup_application():
     print(f"Labels path: {labels_path}")
     
     # Create QApplication (required for QSettings)
-    app = QApplication(sys.argv) if not QApplication.instance() else QApplication.instance()
+    app = QtWidgets.QApplication(sys.argv) if not QApplication.instance() else QApplication.instance()
     
     # Configure settings for the detector component
-    settings = QSettings("AICapture", "MainApp")
+    settings = QtCore.QSettings("AICapture", "MainApp")
     
     # Set detector settings
     settings.beginGroup("detector")

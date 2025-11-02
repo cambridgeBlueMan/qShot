@@ -1,7 +1,5 @@
 import sys
-from PyQt6 import QtWidgets as qtw
-from PyQt6 import QtGui as qtg
-from PyQt6 import QtCore as qtc
+from qt import QtWidgets as qtw, QtGui, QtCore, Qt
 
 class ResCombo(qtw.QComboBox):
 

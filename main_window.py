@@ -1,3 +1,4 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 """
 Main Window Module
 ------------------
@@ -9,7 +10,7 @@ application-wide state such as configuration and controls models.
 Classes and Responsibilities:
 ----------------------------
 
-- MainWindow: The main application window (inherits from QMainWindow).
+- MainWindow: The main application window (inherits from QtWidgets.QMainWindow).
     - Holds the central camera preview widget (QGlPicamera2).
     - Manages left, right, and bottom dock widgets for additional tools and components.
     - Dynamically loads component widgets (such as classifier, detector, test, etc.) into the right dock.
@@ -56,14 +57,9 @@ Summary Table
 import sys
 import logging
 import os
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QMessageBox, QDockWidget, QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
-from PyQt6.QtGui import QAction
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
 from contrast_slider_demo import ContrastSliderDemo
 from dummy import Dummy
 from picamera2 import Picamera2
-from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
 from components.classifier_widget import Classifier
 from controls_gui import ControlsGui
 from zoomer import Zoomer
@@ -81,7 +77,7 @@ logging.basicConfig(
 
 DEFAULT_WIDGET = "test"
 
-class MainWindow(QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     """
     Main application window that holds the central widget, toolbars, docks, and menus.
     Provides the main interface for the application, including camera preview, file management,
@@ -138,7 +134,7 @@ class MainWindow(QMainWindow):
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
-        self.central_stack = QStackedWidget()
+        self.central_stack = QtWidgets.QStackedWidget()
         self.setCentralWidget(self.central_stack)
 
         # Create QGlPicamera2 preview widget
@@ -161,7 +157,7 @@ class MainWindow(QMainWindow):
         logging.info("Toolbar added.")
 
         # Add a save action with an icon to the toolbar
-        save_action = toolbar.addAction(QIcon.fromTheme("document-save"), "Save")
+        save_action = toolbar.addAction(QtGui.QIcon.fromTheme("document-save"), "Save")
         save_action.setStatusTip("Save the current document")
         save_action.triggered.connect(self.save_file_dialog)  # Connect to save dialog
         logging.info("Save action added to toolbar.")
@@ -174,13 +170,13 @@ class MainWindow(QMainWindow):
         self.default_widget_name = DEFAULT_WIDGET
 
         # Add dock widgets
-        self.left_dock = QDockWidget("Left Dock", self)
+        self.left_dock = QtWidgets.QDockWidget("Left Dock", self)
         self.left_dock.setWidget(Zoomer(self, **self.get_component_args()))
         self.left_dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_dock)
         self.left_dock.hide()  # Hide left dock on launch
 
-        self.right_dock = QDockWidget("Component", self)
+        self.right_dock = QtWidgets.QDockWidget("Component", self)
         # Dynamically load the default widget
         default_widget = self.load_component_widget_by_name(self.default_widget_name)
         self.right_dock.setWidget(default_widget)
@@ -188,9 +184,9 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
         # Add a bottom dock with 3 equally sized columns, one is ControlsGui
-        self.bottom_dock = QDockWidget("Bottom Dock", self)
-        bottom_widget = QWidget(self.bottom_dock)
-        bottom_layout = QHBoxLayout(bottom_widget)
+        self.bottom_dock = QtWidgets.QDockWidget("Bottom Dock", self)
+        bottom_widget = QtWidgets.QWidget(self.bottom_dock)
+        bottom_layout = QtWidgets.QHBoxLayout(bottom_widget)
         bottom_layout.setContentsMargins(0, 0, 0, 0)
         bottom_layout.setSpacing(0)
 
@@ -228,7 +224,7 @@ class MainWindow(QMainWindow):
             for fname in os.listdir(components_dir):
                 if fname.endswith("_widget.py") and not fname.startswith("__"):
                     name = fname[:-10]  # Remove '_widget.py'
-                    action = QAction(name, self)
+                    action = QtWidgets.QAction(name, self)
                     action.setData(name)
                     components_menu.addAction(action)
                     action.triggered.connect(self.load_component_widget)
@@ -237,9 +233,9 @@ class MainWindow(QMainWindow):
         else:
             logging.warning(f"Components directory not found: {components_dir}")
 
-        self.action_tom = QAction("tom", self, checkable=True)
-        self.action_dick = QAction("dick", self, checkable=True)
-        self.action_harry = QAction("harry", self, checkable=True)
+        self.action_tom = QtWidgets.QAction("tom", self, checkable=True)
+        self.action_dick = QtWidgets.QAction("dick", self, checkable=True)
+        self.action_harry = QtWidgets.QAction("harry", self, checkable=True)
 
         controls_menu.addAction(self.action_tom)
         controls_menu.addAction(self.action_dick)
@@ -324,7 +320,7 @@ class MainWindow(QMainWindow):
             logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
         except Exception as e:
             logging.error(f"Failed to load or instantiate {class_name} from {module_name}: {e}")
-            QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
+            QtWidgets.QMessageBox.critical(self, "Error", f"Could not load component '{class_name}':\n{e}")
 
     def load_component_widget_by_name(self, name):
         """
@@ -365,8 +361,7 @@ class MainWindow(QMainWindow):
         if 'AfMode' in self.cam.camera_controls:
             return AutofocusWidget(**self.get_component_args())
         else:
-            from PyQt6.QtWidgets import QLabel
-            return QLabel("Autofocus not available for this camera.", self)
+            return QtWidgets.QLabel("Autofocus not available for this camera.", self)
 
     def get_component_args(self, name=None):
         """
@@ -385,15 +380,30 @@ class MainWindow(QMainWindow):
             args["settings_group"] = name
         return args
 
+"""
+Picamera2 Preview Widget Compatibility
+
+This block conditionally imports the appropriate Picamera2 Qt preview widget
+based on the available Qt binding. If PyQt6 is installed, it uses QGl6Picamera2
+(the Qt6 widget). If not, it falls back to QGlPicamera2 (the Qt5 widget).
+
+This ensures the application works seamlessly with either PyQt5 or PyQt6,
+matching the user's environment and the installed Picamera2 preview support.
+"""
+try:
+    from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
+except ImportError:
+    from picamera2.previews.qt import QGlPicamera2
+
 if __name__ == "__main__":
     """
-    Entry point for the application. Initializes QApplication, shows the main window,
-    and enters the Qt event loop.
+    Entry point for the application. Initializes QtWidgets.QApplication, shows the main window,
+    and enters the QtCore.Qt event loop.
     """
     from controls_model import ControlsModel
     from config_model import ConfigModel
 
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     # Dummy camera and models for testing
     class DummyCam:
         sensor_modes = ["mode1", "mode2"]
@@ -404,5 +414,5 @@ if __name__ == "__main__":
     controls_model = ControlsModel()
     window = MainWindow(cam=cam, config_model=config_model, controls_model=controls_model)
     window.show()
-    logging.info("MainWindow shown. Entering Qt event loop.")
+    logging.info("MainWindow shown. Entering QtCore.Qt event loop.")
     sys.exit(app.exec())

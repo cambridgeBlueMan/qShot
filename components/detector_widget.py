@@ -1,3 +1,4 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 """
 Detector Widget Module
 ----------------------
@@ -28,7 +29,7 @@ Classes and Responsibilities:
     - Instantiated and managed by the Detector widget.
     - Communicates with Detector to update annotation data.
 
-- BBoxLabel: A QLabel subclass for drawing and storing bounding boxes on images.
+- BBoxLabel: A QtWidgets.QLabel subclass for drawing and storing bounding boxes on images.
     - Handles mouse events to let the user draw bounding boxes.
     - Scales boxes correctly when the widget is resized.
     - Stores all boxes and their associated class indices.
@@ -79,17 +80,11 @@ Summary Table
 
 import logging
 import os
-from PyQt6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel, QCheckBox, QHeaderView,
-    QTableWidget, QTableWidgetItem, QDialog, QFrame, QWidget
-)
-from PyQt6.QtCore import Qt, pyqtSignal, QPoint, QRect
 from ai_file_manager_base import AIFileManager
 import importlib.util
 from datetime import datetime
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 from PIL import Image
-from PyQt6.QtGui import QPainter, QPen, QColor, QIcon
 import random
 
 logging.basicConfig(
@@ -110,9 +105,9 @@ def generate_color(class_index, alpha=180):
     b = random.randint(50, 255)
     return (r, g, b, alpha)
 
-class BBoxLabel(QLabel):
+class BBoxLabel(QtWidgets.QLabel):
     """
-    QLabel subclass for drawing bounding boxes on an image.
+    QtWidgets.QLabel subclass for drawing bounding boxes on an image.
     Stores boxes in original image coordinates so they persist and scale on resize.
 
     Responsibilities:
@@ -124,13 +119,13 @@ class BBoxLabel(QLabel):
     - Used by CameraManager to display and annotate captured images.
     - Connected to Detector to add new bounding box rows to the annotation table.
     """
-    box_completed = pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
+    box_completed = QtCore.pyqtSignal(int, int, int, int, int)  # x, y, w, h, class_index
 
     def __init__(self, pixmap=None, parent=None):
         super().__init__(parent)
         if pixmap is not None:
             self.setPixmap(pixmap)
-        self.boxes = []  # List of QRect in original image coordinates
+        self.boxes = []  # List of QtCore.QRect in original image coordinates
         self.box_colors = []  # List of class indices for each box
         self.start = None  # In widget coords while drawing
         self.end = None    # In widget coords while drawing
@@ -163,7 +158,7 @@ class BBoxLabel(QLabel):
         label_rect = self.rect()
         scale_x = self._original_pixmap_size.width() / label_rect.width()
         scale_y = self._original_pixmap_size.height() / label_rect.height()
-        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+        return QtCore.QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
 
     def _to_widget_coords(self, point):
         """Convert original image coordinates to widget coordinates."""
@@ -172,7 +167,7 @@ class BBoxLabel(QLabel):
         label_rect = self.rect()
         scale_x = label_rect.width() / self._original_pixmap_size.width()
         scale_y = label_rect.height() / self._original_pixmap_size.height()
-        return QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
+        return QtCore.QPoint(int(point.x() * scale_x), int(point.y() * scale_y))
 
     def mousePressEvent(self, event):
         if self.annotation_enabled and event.button() == Qt.MouseButton.LeftButton:
@@ -192,7 +187,7 @@ class BBoxLabel(QLabel):
             # Store box in original image coordinates
             p1 = self._to_image_coords(self.start)
             p2 = self._to_image_coords(self.end)
-            rect = QRect(p1, p2).normalized()
+            rect = QtCore.QRect(p1, p2).normalized()
             self.boxes.append(rect)
             class_index = 0
             self.box_colors.append(class_index)
@@ -208,28 +203,28 @@ class BBoxLabel(QLabel):
         if not self.pixmap() or not self._original_pixmap_size:
             return
 
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
         for i, rect in enumerate(self.boxes):
             p1 = self._to_widget_coords(rect.topLeft())
             p2 = self._to_widget_coords(rect.bottomRight())
-            scaled_rect = QRect(p1, p2)
+            scaled_rect = QtCore.QRect(p1, p2)
             class_index = self.box_colors[i] if i < len(self.box_colors) else 0
             r, g, b, a = generate_color(class_index)
-            color = QColor(r, g, b, a)
-            painter.setPen(QPen(color, 2, Qt.PenStyle.SolidLine))
+            color = QtGui.QColor(r, g, b, a)
+            painter.setPen(QtGui.QPen(color, 2, Qt.PenStyle.SolidLine))
             painter.drawRect(scaled_rect)
 
         # Draw current box, scaled
         if self.drawing and self.start and self.end:
-            painter.setPen(QPen(Qt.GlobalColor.green, 2, Qt.PenStyle.DashLine))
+            painter.setPen(QtGui.QPen(Qt.GlobalColor.green, 2, Qt.PenStyle.DashLine))
             # Convert current start/end to image coords, then back to widget coords for scaling
             p1_img = self._to_image_coords(self.start)
             p2_img = self._to_image_coords(self.end)
             p1 = self._to_widget_coords(p1_img)
             p2 = self._to_widget_coords(p2_img)
-            rect = QRect(p1, p2).normalized()
+            rect = QtCore.QRect(p1, p2).normalized()
             painter.drawRect(rect)
 
     def get_bboxes(self):
@@ -247,24 +242,24 @@ class BBoxLabel(QLabel):
             )
         super().resizeEvent(event)
         
-class SaveChangesDialog(QDialog):
+class SaveChangesDialog(QtWidgets.QDialog):
     """
     Dialog to confirm saving changes when leaving a frozen image.
     """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Save Changes?")
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("You have a frozen image. Save changes before leaving?"))
-        btn_yes = QPushButton("Yes")
-        btn_no = QPushButton("No")
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(QtWidgets.QLabel("You have a frozen image. Save changes before leaving?"))
+        btn_yes = QtWidgets.QPushButton("Yes")
+        btn_no = QtWidgets.QPushButton("No")
         btn_yes.clicked.connect(lambda: self.done(1))
         btn_no.clicked.connect(lambda: self.done(0))
         layout.addWidget(btn_yes)
         layout.addWidget(btn_no)
         self.setLayout(layout)
 
-class CameraManager(QWidget):
+class CameraManager(QtWidgets.QWidget):
     """
     Widget that provides camera controls and image capture functionality.
 
@@ -292,14 +287,14 @@ class CameraManager(QWidget):
 
         self.frozen = False  # Track freeze state
 
-        main_layout = QVBoxLayout()
+        main_layout = QtWidgets.QVBoxLayout()
         main_layout.setSpacing(4)  # Reduce vertical spacing between rows
 
         # Camera Mode row
-        camera_mode_layout = QHBoxLayout()
-        camera_mode_label = QLabel("Camera Mode")
+        camera_mode_layout = QtWidgets.QHBoxLayout()
+        camera_mode_label = QtWidgets.QLabel("Camera Mode")
         camera_mode_layout.addWidget(camera_mode_label)
-        combo = QComboBox()
+        combo = QtWidgets.QComboBox()
         self._add_sensor_mode_dropdown(camera_mode_layout, self.modes, combo=combo)
         main_layout.addLayout(camera_mode_layout)
 
@@ -325,7 +320,7 @@ class CameraManager(QWidget):
         try:
 
             pil_img = self.cam.wait(job)
-            from PyQt6.QtGui import QImage, QPixmap
+            # from PyQt6.QtGui import QImage, QPixmap
             logging.info(f"pil_img type: {type(pil_img)} size: {getattr(pil_img, 'size', None)} mode: {getattr(pil_img, 'mode', None)}")
             if pil_img is not None:
                 # Convert unsupported modes to RGB
@@ -342,11 +337,11 @@ class CameraManager(QWidget):
                 img_data = img_for_qt.tobytes()
                 width, height = img_for_qt.size
                 if img_for_qt.mode == "RGB":
-                    qimg = QImage(img_data, width, height, QImage.Format.Format_RGB888)
+                    qimg = QtGui.QImage(img_data, width, height, QtGui.QImage.Format.Format_RGB888)
                 elif img_for_qt.mode == "RGBA":
-                    qimg = QImage(img_data, width, height, QImage.Format.Format_RGBA8888)
+                    qimg = QtGui.QImage(img_data, width, height, QtGui.QImage.Format.Format_RGBA8888)
 
-                pixmap = QPixmap.fromImage(qimg)
+                pixmap = QtGui.QPixmap.fromImage(qimg)
                 logging.info(f"Created pixmap: {pixmap.size()}, isNull: {pixmap.isNull()}")
 
                 main_window = self.window()
@@ -416,10 +411,10 @@ class CameraManager(QWidget):
         Args:
             layout: The layout to add the dropdown to.
             modes: List of camera modes.
-            combo: Optional QComboBox to use.
+            combo: Optional QtWidgets.QComboBox to use.
         """
         if combo is None:
-            combo = QComboBox()
+            combo = QtWidgets.QComboBox()
         if modes:
             for idx, mode in enumerate(modes):
                 desc = f"{idx}: {mode.get('size', '')} {mode.get('format', '')}"
@@ -475,37 +470,37 @@ class Detector(AIFileManager):
         self.base_layout.addWidget(self.camera_manager)
 
         # --- Table Widget for bounding boxes ---
-        self.bbox_table = QTableWidget(0, 6)
+        self.bbox_table = QtWidgets.QTableWidget(0, 6)
         self.bbox_table.setHorizontalHeaderLabels(["Class", "X", "Y", "Width", "Height", "Delete"])
         self.bbox_table.verticalHeader().setVisible(False)
-        self.bbox_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.bbox_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.bbox_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.bbox_table.setEditTriggers(QtWidgets.QTableWidget.EditTrigger.NoEditTriggers)
+        self.bbox_table.setSelectionBehavior(QtWidgets.QTableWidget.SelectionBehavior.SelectRows)
+        self.bbox_table.setSelectionMode(QtWidgets.QTableWidget.SelectionMode.SingleSelection)
         self.bbox_table.setMinimumHeight(150)
         header = self.bbox_table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.base_layout.addWidget(self.bbox_table)
 
         # --- Checkboxes row ---
-        checkbox_layout = QHBoxLayout()
-        self.save_on_unfreeze_cb = QCheckBox("Save on Unfreeze")
+        checkbox_layout = QtWidgets.QHBoxLayout()
+        self.save_on_unfreeze_cb = QtWidgets.QCheckBox("Save on Unfreeze")
         self.save_on_unfreeze_cb.setChecked(True)  # Default to True
-        self.clear_on_unfreeze_cb = QCheckBox("Clear on Unfreeze")
+        self.clear_on_unfreeze_cb = QtWidgets.QCheckBox("Clear on Unfreeze")
         self.clear_on_unfreeze_cb.setChecked(True)  # Default to True
-        self.merge_sets_cb = QCheckBox("Merge Sets")
+        self.merge_sets_cb = QtWidgets.QCheckBox("Merge Sets")
         checkbox_layout.addWidget(self.save_on_unfreeze_cb)
         checkbox_layout.addWidget(self.clear_on_unfreeze_cb)
         checkbox_layout.addWidget(self.merge_sets_cb)
         self.base_layout.addLayout(checkbox_layout)
 
         # --- Freeze/Unfreeze and Save Buttons row ---
-        button_row = QHBoxLayout()
-        self.freeze_btn = QPushButton("Freeze")
+        button_row = QtWidgets.QHBoxLayout()
+        self.freeze_btn = QtWidgets.QPushButton("Freeze")
         self.freeze_btn.setToolTip("Freeze the current camera image or return to live preview")
         self.freeze_btn.clicked.connect(self.handle_freeze_clicked)
         button_row.addWidget(self.freeze_btn)
 
-        self.save_btn = QPushButton(QIcon("save.png"), "Save")
+        self.save_btn = QtWidgets.QPushButton(QtGui.QIcon("save.png"), "Save")
         self.save_btn.setToolTip("Save current bounding boxes or annotations")
         button_row.addWidget(self.save_btn)
 
@@ -549,7 +544,7 @@ class Detector(AIFileManager):
         class_labels = self.load_class_labels()
         row = self.bbox_table.rowCount()
         self.bbox_table.insertRow(row)
-        class_combo = QComboBox()
+        class_combo = QtWidgets.QComboBox()
         if class_labels:
             class_combo.addItems(class_labels)
         else:
@@ -557,11 +552,11 @@ class Detector(AIFileManager):
         if class_name and class_name in class_labels:
             class_combo.setCurrentText(class_name)
         self.bbox_table.setCellWidget(row, 0, class_combo)
-        self.bbox_table.setItem(row, 1, QTableWidgetItem(str(x)))
-        self.bbox_table.setItem(row, 2, QTableWidgetItem(str(y)))
-        self.bbox_table.setItem(row, 3, QTableWidgetItem(str(width)))
-        self.bbox_table.setItem(row, 4, QTableWidgetItem(str(height)))
-        delete_btn = QPushButton("Delete")
+        self.bbox_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(x)))
+        self.bbox_table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(y)))
+        self.bbox_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(width)))
+        self.bbox_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(height)))
+        delete_btn = QtWidgets.QPushButton("Delete")
         self.bbox_table.setCellWidget(row, 5, delete_btn)
 
         def on_class_changed(index):

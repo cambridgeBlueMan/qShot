@@ -1,65 +1,63 @@
+import logging
+import os
+from qt import QtWidgets, QtGui, QtCore, Qt
+
 """
-test_camera_controls_gui.py
---------------------------
-A PyQt6 test GUI for CameraControlsModel, allowing interactive setting of many controls.
+controls_gui.py
+---------------
+A PyQt test GUI for CameraControlsModel, allowing interactive setting of many controls.
 Each control is represented by a suitable widget (slider, spinbox, checkbox, etc.).
 Some controls are duplicated in the UI to test two-way binding and signal propagation.
 """
 
-from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QSpinBox,
-    QDoubleSpinBox, QCheckBox, QComboBox, QGroupBox
-)
-from PyQt6.QtCore import Qt
-
-class ControlsGui(QWidget):
+class ControlsGui(QtWidgets.QWidget):
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.setWindowTitle("CameraControlsModel Test GUI")
         self.cam = kwargs.get("cam")
         self.controls_model = kwargs.get("controls_model")
-        layout = QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         # Contrast (float, 0.0-32.0) - slider and spinbox
-        contrast_group = QGroupBox("Contrast")
-        contrast_layout = QHBoxLayout()
-        self.contrast_slider = QSlider(Qt.Orientation.Horizontal)
+        contrast_group = QtWidgets.QGroupBox("Contrast")
+        contrast_layout = QtWidgets.QHBoxLayout()
+        self.contrast_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.contrast_slider.setRange(0, 320)
         self.contrast_slider.setValue(int(self.controls_model.Contrast * 10))
-        self.contrast_spin = QDoubleSpinBox()
+        self.contrast_spin = QtWidgets.QDoubleSpinBox()
         self.contrast_spin.setRange(0.0, 32.0)
         self.contrast_spin.setSingleStep(0.1)
         self.contrast_spin.setValue(self.controls_model.Contrast)
-        contrast_layout.addWidget(QLabel("Slider:"))
+        contrast_layout.addWidget(QtWidgets.QLabel("Slider:"))
         contrast_layout.addWidget(self.contrast_slider)
-        contrast_layout.addWidget(QLabel("SpinBox:"))
+        contrast_layout.addWidget(QtWidgets.QLabel("SpinBox:"))
         contrast_layout.addWidget(self.contrast_spin)
         contrast_group.setLayout(contrast_layout)
         layout.addWidget(contrast_group)
 
         # Brightness (float, -1.0 to 1.0) - slider and spinbox
-        brightness_group = QGroupBox("Brightness")
-        brightness_layout = QHBoxLayout()
-        self.brightness_slider = QSlider(Qt.Orientation.Horizontal)
+        brightness_group = QtWidgets.QGroupBox("Brightness")
+        brightness_layout = QtWidgets.QHBoxLayout()
+        self.brightness_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.brightness_slider.setRange(-10, 10)
         self.brightness_slider.setValue(int(self.controls_model.Brightness * 10))
-        self.brightness_spin = QDoubleSpinBox()
+        self.brightness_spin = QtWidgets.QDoubleSpinBox()
         self.brightness_spin.setRange(-1.0, 1.0)
         self.brightness_spin.setSingleStep(0.1)
         self.brightness_spin.setValue(self.controls_model.Brightness)
-        brightness_layout.addWidget(QLabel("Slider:"))
+        brightness_layout.addWidget(QtWidgets.QLabel("Slider:"))
         brightness_layout.addWidget(self.brightness_slider)
-        brightness_layout.addWidget(QLabel("SpinBox:"))
+        brightness_layout.addWidget(QtWidgets.QLabel("SpinBox:"))
         brightness_layout.addWidget(self.brightness_spin)
         brightness_group.setLayout(brightness_layout)
         layout.addWidget(brightness_group)
 
         # AeEnable (bool) - checkbox and duplicate checkbox
-        ae_enable_group = QGroupBox("AeEnable")
-        ae_enable_layout = QHBoxLayout()
-        self.ae_enable_checkbox = QCheckBox("Enable AE")
+        ae_enable_group = QtWidgets.QGroupBox("AeEnable")
+        ae_enable_layout = QtWidgets.QHBoxLayout()
+        self.ae_enable_checkbox = QtWidgets.QCheckBox("Enable AE")
         self.ae_enable_checkbox.setChecked(self.controls_model.AeEnable)
-        self.ae_enable_checkbox_dup = QCheckBox("Enable AE (duplicate)")
+        self.ae_enable_checkbox_dup = QtWidgets.QCheckBox("Enable AE (duplicate)")
         self.ae_enable_checkbox_dup.setChecked(self.controls_model.AeEnable)
         ae_enable_layout.addWidget(self.ae_enable_checkbox)
         ae_enable_layout.addWidget(self.ae_enable_checkbox_dup)
@@ -67,34 +65,34 @@ class ControlsGui(QWidget):
         layout.addWidget(ae_enable_group)
 
         # HdrMode (int, 0-4) - combobox and spinbox
-        hdr_group = QGroupBox("HdrMode")
-        hdr_layout = QHBoxLayout()
-        self.hdr_combo = QComboBox()
+        hdr_group = QtWidgets.QGroupBox("HdrMode")
+        hdr_layout = QtWidgets.QHBoxLayout()
+        self.hdr_combo = QtWidgets.QComboBox()
         self.hdr_combo.addItems([str(i) for i in range(5)])
         self.hdr_combo.setCurrentIndex(self.controls_model.HdrMode)
-        self.hdr_spin = QSpinBox()
+        self.hdr_spin = QtWidgets.QSpinBox()
         self.hdr_spin.setRange(0, 4)
         self.hdr_spin.setValue(self.controls_model.HdrMode)
-        hdr_layout.addWidget(QLabel("ComboBox:"))
+        hdr_layout.addWidget(QtWidgets.QLabel("ComboBox:"))
         hdr_layout.addWidget(self.hdr_combo)
-        hdr_layout.addWidget(QLabel("SpinBox:"))
+        hdr_layout.addWidget(QtWidgets.QLabel("SpinBox:"))
         hdr_layout.addWidget(self.hdr_spin)
         hdr_group.setLayout(hdr_layout)
         layout.addWidget(hdr_group)
 
         # Sharpness (float, 0.0-16.0) - slider and spinbox
-        sharpness_group = QGroupBox("Sharpness")
-        sharpness_layout = QHBoxLayout()
-        self.sharpness_slider = QSlider(Qt.Orientation.Horizontal)
+        sharpness_group = QtWidgets.QGroupBox("Sharpness")
+        sharpness_layout = QtWidgets.QHBoxLayout()
+        self.sharpness_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.sharpness_slider.setRange(0, 160)
         self.sharpness_slider.setValue(int(self.controls_model.Sharpness * 10))
-        self.sharpness_spin = QDoubleSpinBox()
+        self.sharpness_spin = QtWidgets.QDoubleSpinBox()
         self.sharpness_spin.setRange(0.0, 16.0)
         self.sharpness_spin.setSingleStep(0.1)
         self.sharpness_spin.setValue(self.controls_model.Sharpness)
-        sharpness_layout.addWidget(QLabel("Slider:"))
+        sharpness_layout.addWidget(QtWidgets.QLabel("Slider:"))
         sharpness_layout.addWidget(self.sharpness_slider)
-        sharpness_layout.addWidget(QLabel("SpinBox:"))
+        sharpness_layout.addWidget(QtWidgets.QLabel("SpinBox:"))
         sharpness_layout.addWidget(self.sharpness_spin)
         sharpness_group.setLayout(sharpness_layout)
         layout.addWidget(sharpness_group)
@@ -178,152 +176,122 @@ class ControlsGui(QWidget):
 
     # --- Camera control slots ---
     def on_contrast_changed(self, value):
-        # print(f"[Camera] Contrast changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Contrast": value})
 
     def on_brightness_changed(self, value):
-        # print(f"[Camera] Brightness changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Brightness": value})
 
     def on_sharpness_changed(self, value):
-        # print(f"[Camera] Sharpness changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Sharpness": value})
 
     def on_ae_enable_changed(self, value):
-        # print(f"[Camera] AE Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeEnable": value})
 
     def on_hdr_mode_changed(self, value):
-        # print(f"[Camera] HDR Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"HdrMode": value})
 
     def on_ae_exposure_mode_changed(self, value):
-        # print(f"[Camera] AE Exposure Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeExposureMode": value})
 
     def on_ae_constraint_mode_changed(self, value):
-        # print(f"[Camera] AE Constraint Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeConstraintMode": value})
 
     def on_exposure_time_mode_changed(self, value):
-        # print(f"[Camera] Exposure Time Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureTimeMode": value})
 
     def on_ae_metering_mode_changed(self, value):
-        # print(f"[Camera] AE Metering Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeMeteringMode": value})
 
     def on_ae_flicker_period_changed(self, value):
-        # print(f"[Camera] AE Flicker Period changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeFlickerPeriod": value})
 
     def on_analogue_gain_mode_changed(self, value):
-        # print(f"[Camera] Analogue Gain Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AnalogueGainMode": value})
 
     def on_analogue_gain_changed(self, value):
-        # print(f"[Camera] Analogue Gain changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AnalogueGain": value})
 
     def on_stats_output_enable_changed(self, value):
-        # print(f"[Camera] Stats Output Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"StatsOutputEnable": value})
 
     def on_sync_frames_changed(self, value):
-        # print(f"[Camera] Sync Frames changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"SyncFrames": value})
 
     def on_exposure_time_changed(self, value):
-        # print(f"[Camera] Exposure Time changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureTime": value})
 
     def on_ae_flicker_mode_changed(self, value):
-        # print(f"[Camera] AE Flicker Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AeFlickerMode": value})
 
     def on_sync_mode_changed(self, value):
-        # print(f"[Camera] Sync Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"SyncMode": value})
 
     def on_awb_enable_changed(self, value):
-        # print(f"[Camera] AWB Enable changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AwbEnable": value})
 
     def on_colour_gains_changed(self, value):
-        # print(f"[Camera] Colour Gains changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ColourGains": value})
 
     def on_awb_mode_changed(self, value):
-        # print(f"[Camera] AWB Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"AwbMode": value})
 
     def on_scaler_crops_changed(self, value):
-        # print(f"[Camera] Scaler Crops changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ScalerCrops": value})
 
     def on_colour_temperature_changed(self, value):
-        # print(f"[Camera] Colour Temperature changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ColourTemperature": value})
 
     def on_saturation_changed(self, value):
-        # print(f"[Camera] Saturation changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Saturation": value})
 
     def on_cnn_enable_input_tensor_changed(self, value):
-        # print(f"[Camera] CNN Enable Input Tensor changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"CnnEnableInputTensor": value})
 
     def on_frame_duration_limits_changed(self, value):
-        # print(f"[Camera] Frame Duration Limits changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"FrameDurationLimits": value})
 
     def on_scaler_crop_changed(self, value):
-        # print(f"[Camera] Scaler Crop changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ScalerCrop": value})
 
     def on_noise_reduction_mode_changed(self, value):
-        # print(f"[Camera] Noise Reduction Mode changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"NoiseReductionMode": value})
 
     def on_exposure_value_changed(self, value):
-        # print(f"[Camera] Exposure Value changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"ExposureValue": value})
 
     def on_resolution_changed(self, value):
-        # print(f"[Camera] Resolution changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Resolution": value})
 
     def on_format_changed(self, value):
-        # print(f"[Camera] Format changed to {value}")
         if hasattr(self.cam, "set_controls"):
             self.cam.set_controls({"Format": value})
 
@@ -357,7 +325,7 @@ class ControlsGui(QWidget):
 
 if __name__ == "__main__":
     from picamera2 import Picamera2
-    app = QApplication([])
+    app = QtWidgets.QApplication([])
     cam = Picamera2()
     win = ControlsGui(cam)
     win.show()

@@ -1,4 +1,4 @@
-from PyQt6 import QtCore as qtc
+from qt import QtCore as qtc, QtWidgets, QtGui, Qt
 import math
 from typing import Any, Callable, Dict, Optional
 
@@ -13,7 +13,7 @@ class Player(qtc.QThread):
       and an END row in a table model over a configured duration.
     - Emits `state` signal each step with the interpolated numeric values (floats).
     - Emits `progress` (0.0..1.0), `finished` and `stopped` to indicate lifecycle.
-    - Designed to run in its own QThread; heavy work kept here, but all camera/control
+    - Designed to run in its own QtCore.QThread; heavy work kept here, but all camera/control
       writes should be performed on the main thread by connecting to `state`.
 
     Signals

@@ -1,7 +1,4 @@
-from PyQt6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSlider, QCheckBox, QComboBox, QDial, QGroupBox
-)
-from PyQt6.QtCore import Qt
+from qt import QtWidgets, QtGui, QtCore, Qt
 from base_control_widget import BaseControlWidget
 
 MINIMUM_SLIDER_VALUE = 0
@@ -41,15 +38,15 @@ class AutofocusWidget(BaseControlWidget):
     """
 
     def init_ui(self):
-        layout = QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
 
         # --- Autofocus Mode group box ---
-        af_mode_group = QGroupBox("Autofocus Mode")
-        af_mode_group.setStyleSheet("QGroupBox { font-weight: bold; }")
-        select_af_mode = QHBoxLayout()
-        self.manual_radio = QRadioButton("Manual", self)
-        self.continuous_radio = QRadioButton("Continuous", self)
-        self.auto_radio = QRadioButton("Auto", self)
+        af_mode_group = QtWidgets.QGroupBox("Autofocus Mode")
+        af_mode_group.setStyleSheet("QtWidgets.QGroupBox { font-weight: bold; }")
+        select_af_mode = QtWidgets.QHBoxLayout()
+        self.manual_radio = QtWidgets.QRadioButton("Manual", self)
+        self.continuous_radio = QtWidgets.QRadioButton("Continuous", self)
+        self.auto_radio = QtWidgets.QRadioButton("Auto", self)
         
         select_af_mode.addWidget(self.manual_radio)
         select_af_mode.addWidget(self.continuous_radio)
@@ -60,7 +57,7 @@ class AutofocusWidget(BaseControlWidget):
         self.continuous_radio.toggled.connect(lambda checked: checked and self.setAfMode(1))
         self.auto_radio.toggled.connect(lambda checked: checked and self.setAfMode(2))
 
-        self.af_trigger = QPushButton("Trigger", self)
+        self.af_trigger = QtWidgets.QPushButton("Trigger", self)
         self.af_trigger.clicked.connect(self.trigger_autofocus)
         select_af_mode.addWidget(self.af_trigger)
 
@@ -68,18 +65,15 @@ class AutofocusWidget(BaseControlWidget):
         layout.addWidget(af_mode_group)
 
         # --- Manual Focus Control group box ---
-        self.manual_focus_group = QGroupBox("Manual Focus Control")
-        #: QGroupBox for manual focus controls.
-        #: This is an instance attribute so it can be enabled/disabled
-        #: (and have its style changed) in response to autofocus mode changes.
-        self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: bold; }")
-        manual_focus_layout = QVBoxLayout()
+        self.manual_focus_group = QtWidgets.QGroupBox("Manual Focus Control")
+        self.manual_focus_group.setStyleSheet("QtWidgets.QGroupBox { font-weight: bold; }")
+        manual_focus_layout = QtWidgets.QVBoxLayout()
 
         # Row 1: Dioptres label and horizontal slider
-        dioptres_row = QHBoxLayout()
-        dioptres_label = QLabel("Dioptres", self)
+        dioptres_row = QtWidgets.QHBoxLayout()
+        dioptres_label = QtWidgets.QLabel("Dioptres", self)
         dioptres_row.addWidget(dioptres_label)
-        self.dioptres_slider = QSlider(Qt.Orientation.Horizontal, self)
+        self.dioptres_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal, self)
         self.dioptres_slider.setMinimum(MINIMUM_SLIDER_VALUE)
         self.dioptres_slider.setMaximum(MAXIMUM_SLIDER_VALUE)
         self.dioptres_slider.setValue(MINIMUM_SLIDER_VALUE)
@@ -88,9 +82,9 @@ class AutofocusWidget(BaseControlWidget):
         manual_focus_layout.addLayout(dioptres_row)
 
         # Row 2: QDial only (right aligned), fixed size from DIAL_SIZE
-        dial_row = QHBoxLayout()
+        dial_row = QtWidgets.QHBoxLayout()
         dial_row.addStretch(1)  # Add stretch to push dial to the right
-        self.dioptres_dial = QDial(self)
+        self.dioptres_dial = QtWidgets.QDial(self)
         self.dioptres_dial.setMinimum(MINIMUM_SLIDER_VALUE)
         self.dioptres_dial.setMaximum(MAXIMUM_SLIDER_VALUE)
         self.dioptres_dial.setValue(MINIMUM_SLIDER_VALUE)
@@ -104,15 +98,15 @@ class AutofocusWidget(BaseControlWidget):
         layout.addWidget(self.manual_focus_group)
 
         # --- Other controls group box ---
-        other_group = QGroupBox("Other")
-        other_group.setStyleSheet("QGroupBox { font-weight: bold; }")
-        other_layout = QVBoxLayout()
+        other_group = QtWidgets.QGroupBox("Other")
+        other_group.setStyleSheet("QtWidgets.QGroupBox { font-weight: bold; }")
+        other_layout = QtWidgets.QVBoxLayout()
 
         # Row: Fast Autofocus and Use Windows for Af checkboxes
-        options_row = QHBoxLayout()
-        self.fast_autofocus_checkbox = QCheckBox("Fast Autofocus", self)
+        options_row = QtWidgets.QHBoxLayout()
+        self.fast_autofocus_checkbox = QtWidgets.QCheckBox("Fast Autofocus", self)
         self.fast_autofocus_checkbox.setChecked(True)
-        self.use_windows_checkbox = QCheckBox("Use Windows for Af", self)
+        self.use_windows_checkbox = QtWidgets.QCheckBox("Use Windows for Af", self)
         options_row.addWidget(self.fast_autofocus_checkbox)
         options_row.addWidget(self.use_windows_checkbox)
         self.use_windows_checkbox.toggled.connect(self.setAfMetering)
@@ -120,10 +114,10 @@ class AutofocusWidget(BaseControlWidget):
         other_layout.addLayout(options_row)
 
         # Row: Af Range label and combo box
-        af_range_row = QHBoxLayout()
-        af_range_label = QLabel("Af Range", self)
+        af_range_row = QtWidgets.QHBoxLayout()
+        af_range_label = QtWidgets.QLabel("Af Range", self)
         af_range_row.addWidget(af_range_label)
-        self.af_range_combo = QComboBox(self)
+        self.af_range_combo = QtWidgets.QComboBox(self)
         self.af_range_combo.addItems(["Normal", "Macro", "Full"])
         af_range_row.addWidget(self.af_range_combo)
         self.af_range_combo.currentIndexChanged.connect(self.setAfRange)
@@ -178,9 +172,9 @@ class AutofocusWidget(BaseControlWidget):
         manual_enabled = (mode == 0)
         self.manual_focus_group.setEnabled(manual_enabled)
         if manual_enabled:
-            self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: bold; }")
+            self.manual_focus_group.setStyleSheet("QtWidgets.QGroupBox { font-weight: bold; }")
         else:
-            self.manual_focus_group.setStyleSheet("QGroupBox { font-weight: normal; }")
+            self.manual_focus_group.setStyleSheet("QtWidgets.QGroupBox { font-weight: normal; }")
 
     def setAfMetering(self, checked):
         """Set AF metering mode based on checkbox."""

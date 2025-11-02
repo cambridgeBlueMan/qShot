@@ -1,9 +1,10 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 """
 camera_controls_model.py
 -----------------------
 This module defines the CameraControlsModel class, which acts as the central data model for live camera controls in a PyQt6 GUI application using the Picamera2 library.
 
-CameraControlsModel encapsulates all camera controls (brightness, contrast, sharpness, etc.) and provides methods to generate Picamera2 configuration objects for preview, still, and video capture scenarios. It is a QObject, emitting signals when properties change, enabling robust two-way data binding with the GUI.
+CameraControlsModel encapsulates all camera controls (brightness, contrast, sharpness, etc.) and provides methods to generate Picamera2 configuration objects for preview, still, and video capture scenarios. It is a QtCore.QObject, emitting signals when properties change, enabling robust two-way data binding with the GUI.
 
 Typical usage:
     controls = ControlsModel()
@@ -14,49 +15,48 @@ Signals can be connected to GUI widgets to update the interface when the model c
 """
 
 from picamera2 import Picamera2
-from PyQt6.QtCore import QObject, pyqtSignal
 from typing import Tuple, Optional
 import logging
 
 MINIMUM_FOCUS_DISTANCE = 5  # Minimum focus distance in centimeters (camera can focus as close as 5cm)
 
-class ControlsModel(QObject):
-    resolutionChanged = pyqtSignal(tuple)
-    formatChanged = pyqtSignal(str)
-    AeExposureModeChanged = pyqtSignal(int)
-    ContrastChanged = pyqtSignal(float)
-    AeConstraintModeChanged = pyqtSignal(int)
-    ExposureTimeModeChanged = pyqtSignal(int)
-    HdrModeChanged = pyqtSignal(int)
-    AeMeteringModeChanged = pyqtSignal(int)
-    AeFlickerPeriodChanged = pyqtSignal(int)
-    AnalogueGainModeChanged = pyqtSignal(int)
-    AnalogueGainChanged = pyqtSignal(float)
-    StatsOutputEnableChanged = pyqtSignal(bool)
-    BrightnessChanged = pyqtSignal(float)
-    SyncFramesChanged = pyqtSignal(int)
-    ExposureTimeChanged = pyqtSignal(int)
-    AeFlickerModeChanged = pyqtSignal(int)
-    SyncModeChanged = pyqtSignal(int)
-    AwbEnableChanged = pyqtSignal(bool)
-    ColourGainsChanged = pyqtSignal(tuple)
-    AwbModeChanged = pyqtSignal(int)
-    ScalerCropsChanged = pyqtSignal(tuple)
-    ColourTemperatureChanged = pyqtSignal(int)
-    SaturationChanged = pyqtSignal(float)
-    CnnEnableInputTensorChanged = pyqtSignal(bool)
-    FrameDurationLimitsChanged = pyqtSignal(tuple)
-    ScalerCropChanged = pyqtSignal(tuple)
-    NoiseReductionModeChanged = pyqtSignal(int)
-    SharpnessChanged = pyqtSignal(float)
-    AeEnableChanged = pyqtSignal(bool)
-    ExposureValueChanged = pyqtSignal(float)
-    AfRangeChanged = pyqtSignal(int)  # Add this signal for AF range
-    AfModeChanged = pyqtSignal(int)
-    AfSpeedChanged = pyqtSignal(int)  # Signal for AF speed
-    AfMeteringChanged = pyqtSignal(int)  # Signal for AF metering
-    AfCycleDone = pyqtSignal(bool)  # Signal for AF cycle completion (True=success, False=failure)
-    LensPositionChanged = pyqtSignal(float)  # Signal for lens position changes
+class ControlsModel(QtCore.QObject):
+    resolutionChanged = QtCore.pyqtSignal(tuple)
+    formatChanged = QtCore.pyqtSignal(str)
+    AeExposureModeChanged = QtCore.pyqtSignal(int)
+    ContrastChanged = QtCore.pyqtSignal(float)
+    AeConstraintModeChanged = QtCore.pyqtSignal(int)
+    ExposureTimeModeChanged = QtCore.pyqtSignal(int)
+    HdrModeChanged = QtCore.pyqtSignal(int)
+    AeMeteringModeChanged = QtCore.pyqtSignal(int)
+    AeFlickerPeriodChanged = QtCore.pyqtSignal(int)
+    AnalogueGainModeChanged = QtCore.pyqtSignal(int)
+    AnalogueGainChanged = QtCore.pyqtSignal(float)
+    StatsOutputEnableChanged = QtCore.pyqtSignal(bool)
+    BrightnessChanged = QtCore.pyqtSignal(float)
+    SyncFramesChanged = QtCore.pyqtSignal(int)
+    ExposureTimeChanged = QtCore.pyqtSignal(int)
+    AeFlickerModeChanged = QtCore.pyqtSignal(int)
+    SyncModeChanged = QtCore.pyqtSignal(int)
+    AwbEnableChanged = QtCore.pyqtSignal(bool)
+    ColourGainsChanged = QtCore.pyqtSignal(tuple)
+    AwbModeChanged = QtCore.pyqtSignal(int)
+    ScalerCropsChanged = QtCore.pyqtSignal(tuple)
+    ColourTemperatureChanged = QtCore.pyqtSignal(int)
+    SaturationChanged = QtCore.pyqtSignal(float)
+    CnnEnableInputTensorChanged = QtCore.pyqtSignal(bool)
+    FrameDurationLimitsChanged = QtCore.pyqtSignal(tuple)
+    ScalerCropChanged = QtCore.pyqtSignal(tuple)
+    NoiseReductionModeChanged = QtCore.pyqtSignal(int)
+    SharpnessChanged = QtCore.pyqtSignal(float)
+    AeEnableChanged = QtCore.pyqtSignal(bool)
+    ExposureValueChanged = QtCore.pyqtSignal(float)
+    AfRangeChanged = QtCore.pyqtSignal(int)  # Add this signal for AF range
+    AfModeChanged = QtCore.pyqtSignal(int)
+    AfSpeedChanged = QtCore.pyqtSignal(int)  # Signal for AF speed
+    AfMeteringChanged = QtCore.pyqtSignal(int)  # Signal for AF metering
+    AfCycleDone = QtCore.pyqtSignal(bool)  # Signal for AF cycle completion (True=success, False=failure)
+    LensPositionChanged = QtCore.pyqtSignal(float)  # Signal for lens position changes
 
     def __init__(self, cam=None):
         super().__init__()

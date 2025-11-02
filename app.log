@@ -1,69 +1,100 @@
-2025-10-29 18:42:19,833 - INFO - Creating new QApplication instance.
-2025-10-29 18:42:19,887 - INFO - CSI argument provided via command line: 1
-2025-10-29 18:42:19,887 - INFO - About to create Picamera2 instance...
-2025-10-29 18:42:20,007 - INFO - Initialization successful.
-2025-10-29 18:42:20,007 - INFO - Camera now open.
-2025-10-29 18:42:20,008 - INFO - Camera successfully loaded with csi_arg=1
-2025-10-29 18:42:20,009 - INFO - ConfigModel instance created with video configuration.
-2025-10-29 18:42:20,009 - INFO - ControlsModel instance created with controls configuration.
-2025-10-29 18:42:20,010 - INFO - ZoomsetsModel instance created.
-2025-10-29 18:42:20,010 - INFO - PathModel instance created.
-2025-10-29 18:42:20,011 - INFO - MainWindow initialized.
-2025-10-29 18:42:20,013 - INFO - Camera configuration has been adjusted!
-2025-10-29 18:42:20,014 - INFO - Configuration successful!
-2025-10-29 18:42:20,018 - INFO - Camera configuration has been adjusted!
-2025-10-29 18:42:20,020 - INFO - Configuration successful!
-2025-10-29 18:42:20,029 - INFO - Camera configuration has been adjusted!
-2025-10-29 18:42:20,031 - INFO - Configuration successful!
-2025-10-29 18:42:20,198 - INFO - Camera started
-2025-10-29 18:42:20,198 - INFO - Camera started and QGlPicamera2 preview created.
-2025-10-29 18:42:20,220 - INFO - Toolbar added.
-2025-10-29 18:42:20,230 - INFO - Save action added to toolbar.
-2025-10-29 18:42:20,255 - INFO - Status bar initialized.
-2025-10-29 18:42:20,287 - INFO - Loading settings - labels_path from settings: ''
-2025-10-29 18:42:20,288 - INFO - labels_path type: <class 'str'>
-2025-10-29 18:42:20,288 - INFO - labels_path exists: False
-2025-10-29 18:42:20,288 - INFO - labels_path isfile: False
-2025-10-29 18:42:20,308 - INFO - Sensor mode dropdown populated with 3 modes.
-2025-10-29 18:42:20,308 - INFO - Zoomer: config_changed received main.size = (1280, 720)
-2025-10-29 18:42:20,345 - INFO - Camera stopped
-2025-10-29 18:42:20,348 - INFO - Camera configuration has been adjusted!
-2025-10-29 18:42:20,375 - INFO - Configuration successful!
-2025-10-29 18:42:20,549 - INFO - Camera started
-2025-10-29 18:42:20,549 - INFO - Zoomer: config_changed received main.size = (1280, 720)
-2025-10-29 18:42:20,645 - INFO - Camera stopped
-2025-10-29 18:42:20,657 - INFO - Configuration successful!
-2025-10-29 18:42:20,735 - INFO - Camera started
-2025-10-29 18:42:20,735 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
-2025-10-29 18:42:20,736 - INFO - Zoomer: config_changed received main.size = (320, 200)
-2025-10-29 18:42:20,825 - INFO - Camera stopped
-2025-10-29 18:42:20,836 - INFO - Configuration successful!
-2025-10-29 18:42:20,913 - INFO - Camera started
-2025-10-29 18:42:20,914 - INFO - Zoomer: config_changed received main.size = (960, 540)
-2025-10-29 18:42:20,997 - INFO - Camera stopped
-2025-10-29 18:42:21,008 - INFO - Configuration successful!
-2025-10-29 18:42:21,081 - INFO - Camera started
-2025-10-29 18:42:21,082 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
-2025-10-29 18:42:21,083 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
-2025-10-29 18:42:21,084 - INFO - Test widget camera mode changed: {'bit_depth': 10, 'crop_limits': (0, 0, 4608, 2592), 'exposure_limits': (26, 220416802, 20000), 'format': SRGGB10_CSI2P, 'fps': 14.35, 'size': (4608, 2592), 'unpacked': 'SRGGB10'}
-2025-10-29 18:42:21,084 - INFO - Zoomer: config_changed received main.size = (320, 200)
-2025-10-29 18:42:21,165 - INFO - Camera stopped
-2025-10-29 18:42:21,173 - INFO - Configuration successful!
-2025-10-29 18:42:21,240 - INFO - Camera started
-2025-10-29 18:42:21,241 - INFO - Zoomer: config_changed received main.size = (960, 540)
-2025-10-29 18:42:21,321 - INFO - Camera stopped
-2025-10-29 18:42:21,329 - INFO - Configuration successful!
-2025-10-29 18:42:21,396 - INFO - Camera started
-2025-10-29 18:42:21,397 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
-2025-10-29 18:42:21,397 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
-2025-10-29 18:42:21,400 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
-2025-10-29 18:42:21,422 - INFO - Left, right, and bottom docks added.
-2025-10-29 18:42:21,424 - INFO - Controls menu added to menu bar.
-2025-10-29 18:42:21,425 - INFO - Components menu added to menu bar.
-2025-10-29 18:42:21,426 - INFO - Added 'classifier' to Components menu.
-2025-10-29 18:42:21,427 - INFO - Added 'detector' to Components menu.
-2025-10-29 18:42:21,427 - INFO - Added 'test' to Components menu.
-2025-10-29 18:42:21,427 - INFO - Files in components: ['__pycache__', 'classifier_widget.py', 'detector_widget.py', 'bboxlabel.py', '# README: Global Mode Change Handling.md', 'component_base.py', 'test_widget.py']
-2025-10-29 18:42:21,427 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
-2025-10-29 18:42:21,428 - INFO - View menu with dock toggle actions added.
-2025-10-29 18:42:21,437 - INFO - Starting Qt event loop.
+2025-11-02 17:06:40,933 - INFO - No OpenGL_accelerate module loaded: No module named 'OpenGL_accelerate'
+2025-11-02 17:06:41,082 - INFO - Creating new QtWidgets.QApplication instance.
+2025-11-02 17:06:41,140 - INFO - CSI argument provided via command line: 0
+2025-11-02 17:06:41,140 - INFO - About to create Picamera2 instance...
+2025-11-02 17:06:41,172 - INFO - Initialization successful.
+2025-11-02 17:06:41,172 - INFO - Camera now open.
+2025-11-02 17:06:41,174 - INFO - Camera successfully loaded with csi_arg=0
+2025-11-02 17:06:41,174 - INFO - ConfigModel instance created with video configuration.
+2025-11-02 17:06:41,175 - INFO - ControlsModel instance created with controls configuration.
+2025-11-02 17:06:41,175 - INFO - ZoomsetsModel instance created.
+2025-11-02 17:06:41,176 - INFO - PathModel instance created.
+2025-11-02 17:06:41,177 - INFO - MainWindow initialized.
+2025-11-02 17:06:41,179 - INFO - Camera configuration has been adjusted!
+2025-11-02 17:06:41,180 - INFO - Configuration successful!
+2025-11-02 17:06:41,188 - INFO - Camera configuration has been adjusted!
+2025-11-02 17:06:41,190 - INFO - Configuration successful!
+2025-11-02 17:06:41,199 - INFO - Camera configuration has been adjusted!
+2025-11-02 17:06:41,200 - INFO - Configuration successful!
+2025-11-02 17:06:41,210 - INFO - Camera configuration has been adjusted!
+2025-11-02 17:06:41,211 - INFO - Configuration successful!
+2025-11-02 17:06:41,400 - INFO - Camera started
+2025-11-02 17:06:41,401 - INFO - Camera started and QGlPicamera2 preview created.
+2025-11-02 17:06:41,406 - INFO - Toolbar added.
+2025-11-02 17:06:41,410 - INFO - Save action added to toolbar.
+2025-11-02 17:06:41,451 - INFO - Status bar initialized.
+2025-11-02 17:06:41,465 - INFO - Loading settings - labels_path from settings: ''
+2025-11-02 17:06:41,465 - INFO - labels_path type: <class 'str'>
+2025-11-02 17:06:41,465 - INFO - labels_path exists: False
+2025-11-02 17:06:41,465 - INFO - labels_path isfile: False
+2025-11-02 17:06:41,470 - INFO - Sensor mode dropdown populated with 4 modes.
+2025-11-02 17:06:41,470 - INFO - Zoomer: config_changed received main.size = (1280, 720)
+2025-11-02 17:06:41,909 - INFO - Camera stopped
+2025-11-02 17:06:41,910 - INFO - Camera configuration has been adjusted!
+2025-11-02 17:06:41,918 - INFO - Configuration successful!
+2025-11-02 17:06:41,979 - INFO - Camera started
+2025-11-02 17:06:41,980 - INFO - Zoomer: config_changed received main.size = (1280, 720)
+2025-11-02 17:06:42,494 - INFO - Camera stopped
+2025-11-02 17:06:42,502 - INFO - Configuration successful!
+2025-11-02 17:06:42,568 - INFO - Camera started
+2025-11-02 17:06:42,568 - INFO - Test widget camera mode changed: {'bit_depth': 12, 'crop_limits': (0, 0, 4056, 3040), 'exposure_limits': (114, 694422939, 20000), 'format': SRGGB12_CSI2P, 'fps': 10.0, 'size': (4056, 3040), 'unpacked': 'SRGGB12'}
+2025-11-02 17:06:42,569 - INFO - Zoomer: config_changed received main.size = (320, 200)
+2025-11-02 17:06:43,094 - INFO - Camera stopped
+2025-11-02 17:06:43,102 - INFO - Configuration successful!
+2025-11-02 17:06:43,154 - INFO - Camera started
+2025-11-02 17:06:43,155 - INFO - Zoomer: config_changed received main.size = (960, 540)
+2025-11-02 17:06:43,672 - INFO - Camera stopped
+2025-11-02 17:06:43,681 - INFO - Configuration successful!
+2025-11-02 17:06:43,743 - INFO - Camera started
+2025-11-02 17:06:43,743 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
+2025-11-02 17:06:43,744 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
+2025-11-02 17:06:43,744 - INFO - Test widget camera mode changed: {'bit_depth': 12, 'crop_limits': (0, 0, 4056, 3040), 'exposure_limits': (114, 694422939, 20000), 'format': SRGGB12_CSI2P, 'fps': 10.0, 'size': (4056, 3040), 'unpacked': 'SRGGB12'}
+2025-11-02 17:06:43,745 - INFO - Zoomer: config_changed received main.size = (320, 200)
+2025-11-02 17:06:44,248 - INFO - Camera stopped
+2025-11-02 17:06:44,258 - INFO - Configuration successful!
+2025-11-02 17:06:44,321 - INFO - Camera started
+2025-11-02 17:06:44,321 - INFO - Zoomer: config_changed received main.size = (960, 540)
+2025-11-02 17:06:44,822 - INFO - Camera stopped
+2025-11-02 17:06:44,830 - INFO - Configuration successful!
+2025-11-02 17:06:44,890 - INFO - Camera started
+2025-11-02 17:06:44,891 - INFO - Test widget framerate changed: 5 fps (FrameDurationLimits set to (200000, 200000))
+2025-11-02 17:06:44,892 - INFO - Test widget framerate changed: 10 fps (FrameDurationLimits set to (100000, 100000))
+2025-11-02 17:06:44,895 - INFO - Instantiated and inserted widget: Test into right dock (previous content cleaned up)
+2025-11-02 17:06:44,905 - INFO - Left, right, and bottom docks added.
+2025-11-02 17:06:44,907 - INFO - Controls menu added to menu bar.
+2025-11-02 17:06:44,907 - INFO - Components menu added to menu bar.
+2025-11-02 17:06:44,907 - INFO - Added 'classifier' to Components menu.
+2025-11-02 17:06:44,907 - INFO - Added 'test' to Components menu.
+2025-11-02 17:06:44,908 - INFO - Added 'detector' to Components menu.
+2025-11-02 17:06:44,908 - INFO - Files in components: ['bboxlabel.py', '__pycache__', '# README: Global Mode Change Handling.md', 'classifier_widget.py', 'component_base.py', 'test_widget.py', 'detector_widget.py']
+2025-11-02 17:06:44,908 - INFO - Checkable actions (tom, dick, harry) added to Controls menu.
+2025-11-02 17:06:44,908 - INFO - View menu with dock toggle actions added.
+2025-11-02 17:06:44,922 - INFO - Starting QtCore.Qt event loop.
+2025-11-02 17:06:50,538 - INFO - Loading Detector component with settings_group=detector
+2025-11-02 17:06:50,539 - INFO - Loading settings - labels_path from settings: '/home/lea/Documents/labels.txt'
+2025-11-02 17:06:50,539 - INFO - labels_path type: <class 'str'>
+2025-11-02 17:06:50,539 - INFO - labels_path exists: True
+2025-11-02 17:06:50,539 - INFO - labels_path isfile: True
+2025-11-02 17:06:50,539 - INFO - Setting labels path: /home/lea/Documents/labels.txt
+2025-11-02 17:06:50,540 - INFO - Sensor mode dropdown populated with 4 modes.
+2025-11-02 17:06:50,540 - INFO - CameraManager widget initialized with camera and csi.
+2025-11-02 17:06:50,542 - INFO - Detector widget initialized.
+2025-11-02 17:06:50,552 - INFO - Instantiated and inserted widget: Detector into right dock (previous content cleaned up)
+2025-11-02 17:07:06,588 - INFO - Freeze button pressed.
+2025-11-02 17:07:06,589 - INFO - Async image capture started (capture_image).
+2025-11-02 17:07:06,593 - INFO - Image capture completed (async, PIL image).
+2025-11-02 17:07:06,593 - INFO - pil_img type: <class 'PIL.Image.Image'> size: (960, 540) mode: RGBX
+2025-11-02 17:07:06,593 - INFO - Converting RGBX to RGB for display.
+2025-11-02 17:07:06,599 - INFO - Created pixmap: PyQt5.QtCore.QSize(960, 540), isNull: False
+2025-11-02 17:07:06,605 - INFO - Displayed captured image in central widget.
+2025-11-02 17:07:10,268 - INFO - Loading class labels from: /home/lea/Documents/labels.txt
+2025-11-02 17:07:10,268 - INFO - Loaded labels: ['tom', 'dick', 'harry', 'andrew', 'twattock']
+2025-11-02 17:07:12,173 - INFO - Loading class labels from: /home/lea/Documents/labels.txt
+2025-11-02 17:07:12,173 - INFO - Loaded labels: ['tom', 'dick', 'harry', 'andrew', 'twattock']
+2025-11-02 17:07:14,684 - INFO - Loading class labels from: /home/lea/Documents/labels.txt
+2025-11-02 17:07:14,685 - INFO - Loaded labels: ['tom', 'dick', 'harry', 'andrew', 'twattock']
+2025-11-02 17:07:24,717 - INFO - Loading class labels from: /home/lea/Documents/labels.txt
+2025-11-02 17:07:24,717 - INFO - Loaded labels: ['tom', 'dick', 'harry', 'andrew', 'twattock']
+2025-11-02 17:07:42,279 - INFO - Restored live preview in central widget.
+2025-11-02 17:08:55,577 - INFO - Camera stopped
+2025-11-02 17:08:55,711 - INFO - Camera closed successfully.

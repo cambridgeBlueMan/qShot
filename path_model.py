@@ -1,19 +1,19 @@
 import os
 import hashlib
 from datetime import datetime
-from PyQt6.QtCore import QObject, pyqtSignal, QSettings
 
-class PathModel(QObject):
+from qt import QtWidgets, QtGui, QtCore, Qt
+class PathModel(QtCore.QObject):
     """
     Centralised path and filename model.
     Persisted with QSettings under group 'paths'.
     """
-    pathsChanged = pyqtSignal()
-    sequenceChanged = pyqtSignal(str, int)  # kind, new_sequence
+    pathsChanged = QtCore.pyqtSignal()
+    sequenceChanged = QtCore.pyqtSignal(str, int)  # kind, new_sequence
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.settings = QSettings("lea", "ai_capture")
+        self.settings = QtCore.QSettings("lea", "ai_capture")
         self._load_defaults()
 
     def _load_defaults(self):

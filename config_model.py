@@ -1,3 +1,4 @@
+from qt import QtWidgets, QtGui, QtCore, Qt
 """
 config_model.py
 ---------------
@@ -14,10 +15,9 @@ Typical usage:
     config_model.configChanged.connect(some_slot)
 """
 
-from PyQt6.QtCore import QObject, pyqtSignal
 
-class ConfigModel(QObject):
-    configChanged = pyqtSignal(dict)
+class ConfigModel(QtCore.QObject):
+    configChanged = QtCore.pyqtSignal(dict)
 
     def __init__(self, initial_config):
         super().__init__()
@@ -62,12 +62,12 @@ class ConfigModel(QObject):
 
 if __name__ == "__main__":
     # Simple test of ConfigModel with Picamera2
-    from PyQt6.QtWidgets import QApplication
+    from qt import QApplication
     import sys
     import pprint
     from picamera2 import Picamera2
 
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     picam2 = Picamera2()
 
     # Create initial config using Picamera2's preview configuration

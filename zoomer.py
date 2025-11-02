@@ -1,6 +1,4 @@
-from PyQt6 import QtWidgets as qtw
-from PyQt6 import QtCore as qtc
-from PyQt6 import QtGui as qtg
+from qt import QtWidgets, QtGui, QtCore, Qt
 from viewport import Viewport
 from app_signals import app_signals
 from config_model import ConfigModel
@@ -37,7 +35,7 @@ def apply_scaler_crop_from_player(controls_model, cam=None):
             logging.exception("apply_fn failed")
     return apply_fn
 
-class Zoomer(qtw.QWidget):
+class Zoomer(QtWidgets.QWidget):
     """
     Zoomer: Main UI/controller for managing camera zoom presets and playback.
 
@@ -72,8 +70,9 @@ class Zoomer(qtw.QWidget):
     """
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
+        self.setWindowTitle("Zoomer Example")
         self.zoomsets_model = kwargs.get("zoomsets_model")
-        layout = qtw.QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
 
         self.cam = kwargs.get("cam")
         self.preview = kwargs.get("preview")
@@ -81,12 +80,12 @@ class Zoomer(qtw.QWidget):
         self.controls_model = kwargs.get("controls_model")  # <-- Add this line
 
         # Checkbox to enable zoom
-        self.enable_zoom_checkbox = qtw.QCheckBox("Enable zoom")
+        self.enable_zoom_checkbox = QtWidgets.QCheckBox("Enable zoom")
         layout.addWidget(self.enable_zoom_checkbox)
 
         # QFrame for zoom area
-        self.zoom_frame = qtw.QFrame(self)
-        self.zoom_frame.setFrameShape(qtw.QFrame.Shape.Box)
+        self.zoom_frame = QtWidgets.QFrame(self)
+        self.zoom_frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
 
         frame_width, frame_height = self._calculate_frame_size()
         self.zoom_frame.setFixedSize(frame_width, frame_height)
@@ -103,21 +102,21 @@ class Zoomer(qtw.QWidget):
         #    layout.addWidget(self.preview)
 
         # Zoom sets view
-        self.zoomsets_view = qtw.QTableView(self)
+        self.zoomsets_view = QtWidgets.QTableView(self)
         self.zoomsets_view.setModel(self.zoomsets_model)
         # select entire rows on click, single selection only
-        self.zoomsets_view.setSelectionBehavior(qtw.QAbstractItemView.SelectionBehavior.SelectRows)
+        self.zoomsets_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         layout.addWidget(self.zoomsets_view)
 
         # Add buttons row: Add (save) and Delete
-        btn_row = qtw.QHBoxLayout()
+        btn_row = QtWidgets.QHBoxLayout()
 
-        self.add_button = qtw.QPushButton("Add", self)
+        self.add_button = QtWidgets.QPushButton("Add", self)
         self.add_button.setToolTip("Save the current viewport position and size as a new preset.")
         self.add_button.clicked.connect(self.save_current_viewport_as_preset)
         btn_row.addWidget(self.add_button)
 
-        self.delete_button = qtw.QPushButton("Delete", self)
+        self.delete_button = QtWidgets.QPushButton("Delete", self)
         self.delete_button.setToolTip("Delete the currently selected preset(s) from the presets table.")
         self.delete_button.clicked.connect(self.delete_selected_presets)
         btn_row.addWidget(self.delete_button)
@@ -125,28 +124,28 @@ class Zoomer(qtw.QWidget):
         layout.addLayout(btn_row)
         # Player controls row: start/end row selectors and Play/Stop
         if self.zoomsets_model is not None:
-            player_row = qtw.QHBoxLayout()
+            player_row = QtWidgets.QHBoxLayout()
 
-            self.start_label = qtw.QLabel("Start row:", self)
+            self.start_label = QtWidgets.QLabel("Start row:", self)
             player_row.addWidget(self.start_label)
-            self.start_spin = qtw.QSpinBox(self)
+            self.start_spin = QtWidgets.QSpinBox(self)
             self.start_spin.setMinimum(1)
             self.start_spin.setMaximum(max(1, self.zoomsets_model.rowCount()))
             player_row.addWidget(self.start_spin)
 
-            self.end_label = qtw.QLabel("End row:", self)
+            self.end_label = QtWidgets.QLabel("End row:", self)
             player_row.addWidget(self.end_label)
-            self.end_spin = qtw.QSpinBox(self)
+            self.end_spin = QtWidgets.QSpinBox(self)
             self.end_spin.setMinimum(1)
             self.end_spin.setMaximum(max(1, self.zoomsets_model.rowCount()))
             player_row.addWidget(self.end_spin)
 
-            self.play_button = qtw.QPushButton("Play", self)
+            self.play_button = QtWidgets.QPushButton("Play", self)
             self.play_button.setToolTip("Interpolate controls from Start row to End row using the duration value.")
             self.play_button.clicked.connect(self._on_play_clicked)
             player_row.addWidget(self.play_button)
 
-            self.stop_button = qtw.QPushButton("Stop", self)
+            self.stop_button = QtWidgets.QPushButton("Stop", self)
             self.stop_button.setToolTip("Stop the running player.")
             self.stop_button.clicked.connect(self._on_stop_clicked)
             self.stop_button.setEnabled(False)
@@ -410,3 +409,97 @@ class Zoomer(qtw.QWidget):
         self.end_spin.setMaximum(max_row)
         self.start_spin.setValue(s)
         self.end_spin.setValue(e)
+
+class ZoomsetsTableModel(QtCore.QAbstractTableModel):
+    HEADERS = ["X", "Y", "W", "H", "Duration", "Pause"]
+
+    def __init__(self, zoomsets=None, parent=None):
+        super().__init__(parent)
+        self._zoomsets = zoomsets or []
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        return len(self._zoomsets)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return len(self.HEADERS)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return str(self._zoomsets[index.row()][index.column()])
+        return None
+
+    def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            if orientation == QtCore.Qt.Orientation.Horizontal:
+                return self.HEADERS[section]
+            else:
+                return str(section + 1)
+        return None
+
+    def insertRows(self, row, count, zdata=None, parent=QtCore.QModelIndex()):
+        self.beginInsertRows(parent, row, row + count - 1)
+        if zdata:
+            self._zoomsets.insert(row, zdata)
+        else:
+            self._zoomsets.insert(row, [0, 0, 0, 0, 0.0, 0.0])
+        self.endInsertRows()
+        return True
+
+    def removeRows(self, row, count, parent=QtCore.QModelIndex()):
+        self.beginRemoveRows(parent, row, row + count - 1)
+        for _ in range(count):
+            del self._zoomsets[row]
+        self.endRemoveRows()
+        return True
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        return len(self._zoomsets)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return len(self.HEADERS)
+
+    def getZoomsets(self):
+        return self._zoomsets
+
+    def setZoomsets(self, zoomsets):
+        self.beginResetModel()
+        self._zoomsets = zoomsets
+        self.endResetModel()
+
+# Example usage in a simple window
+class ZoomsetsWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Zoomsets Example")
+        layout = QtWidgets.QVBoxLayout(self)
+
+        self.model = ZoomsetsListModel(["Zoom 1", "Zoom 2", "Zoom 3"])
+        self.list_view = QtWidgets.QListView()
+        self.list_view.setModel(self.model)
+        layout.addWidget(self.list_view)
+
+        # Add controls to add/remove zoomsets
+        add_btn = QtWidgets.QPushButton("Add Zoomset")
+        add_btn.clicked.connect(self.add_zoomset)
+        layout.addWidget(add_btn)
+
+        remove_btn = QtWidgets.QPushButton("Remove Selected")
+        remove_btn.clicked.connect(self.remove_selected)
+        layout.addWidget(remove_btn)
+
+    def add_zoomset(self):
+        self.model.addZoomset(f"Zoom {self.model.rowCount(None) + 1}")
+
+    def remove_selected(self):
+        index = self.list_view.currentIndex()
+        if index.isValid():
+            self.model.removeZoomset(index.row())
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    win = ZoomsetsWindow()
+    win.show()
+    sys.exit(app.exec())
