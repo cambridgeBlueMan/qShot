@@ -14,7 +14,7 @@ logging.basicConfig(
 )
 
 """
-test_widget.py
+example_widget.py
 
 This module defines the Test component for the application. The Test class inherits from AIFileManager
 and is intended as a minimal, self-contained example for experimentation, documentation, and understanding
@@ -30,7 +30,7 @@ This file is intended as a living example and playground for gradually building 
 component development best practices in this codebase.
 """
 
-class Test(AIFileManager):
+class Example(AIFileManager):
     """
     A simple test component that inherits from AIFileManager.
     Demonstrates adding custom UI elements to the base file manager interface.
@@ -172,3 +172,52 @@ class Test(AIFileManager):
         else:
             self.label.setText("No folder selected.")
             logging.info("Dataset folder selection canceled.")
+
+if __name__ == "__main__":
+    """
+    Standalone test runner for the Example widget.
+
+    This section allows you to launch the Example widget independently of the main application,
+    using minimal dummy classes for dependencies such as cam, config_model, and controls_model.
+    This is useful for rapid UI development, debugging, and manual testing of the widget in isolation.
+
+    To run:
+        python -m components.example_widget
+
+    The dummy classes below provide just enough structure to allow the widget to initialize and display
+    without requiring the full application context or hardware dependencies.
+    """
+    import sys
+    from qt import QtWidgets
+
+    # Minimal dummy classes for standalone testing
+    class DummySignal:
+        def connect(self, *args, **kwargs): pass
+
+    class DummyConfigModel:
+        configChanged = DummySignal()
+        def set_nested(self, *args, **kwargs): pass
+        def to_dict(self): return {"main": {}}
+
+    class DummyControlsModel:
+        FrameDurationLimits = (0, 0)
+
+    class DummyCam:
+        sensor_modes = [
+            {"size": (1920, 1080), "format": "RGB", "bit_depth": 8, "fps": 30},
+            {"size": (1280, 720), "format": "YUV", "bit_depth": 10, "fps": 60}
+        ]
+        camera_name = "DummyCam"
+        started = False
+        def stop(self): pass
+        def configure(self, cfg): pass
+        def start(self): pass
+
+    app = QtWidgets.QApplication(sys.argv)
+    widget = Example(
+        cam=DummyCam(),
+        config_model=DummyConfigModel(),
+        controls_model=DummyControlsModel()
+    )
+    widget.show()
+    sys.exit(app.exec())
