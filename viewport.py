@@ -1,8 +1,8 @@
 from qt import QtCore as qtc, QtWidgets as qtw, QtGui, Qt
 
-class Viewport(qtw.QWidget):
+class Viewport(qtw.QPushButton):
     """
-    Example Viewport widget for use with Zoomer.
+    Example Viewport button widget for use with Zoomer.
     """
     posChanged = qtc.pyqtSignal(int, int)
     doubleClicked = qtc.pyqtSignal()
@@ -14,23 +14,11 @@ class Viewport(qtw.QWidget):
         self.bWidth = bWidth
         self.bHeight = bHeight
         self.setFixedSize(self.bWidth, self.bHeight)
-        self.setStyleSheet("")  # Remove previous background
+        self.setText("")  # No text by default
         self.move(0, 0)
         self.containerWidth = win.size().width()
         self.containerHeight = win.size().height()
-        # Add a visible label/icon
-        self.label = qtw.QLabel("■", self)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setStyleSheet("font-size: 24px; color: #d32f2f;")
-        self.label.setGeometry(0, 0, self.bWidth, self.bHeight)
         qtc.QMetaObject.connectSlotsByName(self)
-
-    def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        painter.setBrush(QtGui.QColor("#ffeb3b"))
-        painter.setPen(QtGui.QPen(QtGui.QColor("#d32f2f"), 3))
-        painter.drawRect(self.rect().adjusted(1, 1, -2, -2))
 
     def setContainerSize(self, x, y):
         self.containerWidth = x
