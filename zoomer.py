@@ -1,6 +1,4 @@
-from PyQt6 import QtWidgets as qtw
-from PyQt6 import QtCore as qtc
-from PyQt6 import QtGui as qtg
+from qt import QtWidgets as qtw, QtCore as qtc, QtGui as qtg, Qt
 from viewport import Viewport
 from app_signals import app_signals
 from config_model import ConfigModel

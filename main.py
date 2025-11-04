@@ -6,16 +6,14 @@ import os
 os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
 os.environ.pop("QT_PLUGIN_PATH", None)
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette, QColor
-from PyQt6.QtWidgets import QApplication  # <-- Add this line
+from qt import QtWidgets, QtGui, QtCore, Qt
 from picamera2 import Picamera2
-from main_window import MainWindow  # Adjust the import path as needed
+from main_window import MainWindow
 from dummy import Dummy
 from config_model import ConfigModel
 from controls_model import ControlsModel
-from zoomsets_model import ZoomsetsModel  # Adjust the import path as needed
-from path_model import PathModel  # Add this import
+from zoomsets_model import ZoomsetsModel
+from path_model import PathModel
 
 # Configure logging
 logging.basicConfig(
@@ -26,43 +24,32 @@ logging.basicConfig(
 )
 
 def set_dark_palette(app):
-    """
-    Set a dark color palette for the given QApplication instance.
-
-    Args:
-        app: The QApplication instance to apply the palette to.
-    """
-    dark_palette = QPalette()
-    dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ColorRole.Base, QColor(35, 35, 35))
-    dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
-    dark_palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
-    dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+    dark_palette = QtGui.QPalette()
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(255, 255, 255))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor(35, 35, 35))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.AlternateBase, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.ToolTipBase, QtGui.QColor(255, 255, 255))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.ToolTipText, QtGui.QColor(255, 255, 255))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor(255, 255, 255))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(255, 255, 255))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.BrightText, QtGui.QColor(255, 0, 0))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Link, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QtGui.QPalette.ColorRole.HighlightedText, QtGui.QColor(0, 0, 0))
     app.setPalette(dark_palette)
     app.setStyle("Fusion")
 
 if __name__ == "__main__":
-    """
-    Entry point for the application.
-    Initializes QApplication, configures the dark palette, loads the camera,
-    creates and shows the main window, and starts the Qt event loop.
-    """
-    app = QApplication.instance()
+    app = QtWidgets.QApplication.instance()
     if not app:
         logging.info("Creating new QApplication instance.")
-        app = QApplication(sys.argv)
+        app = QtWidgets.QApplication(sys.argv)
     else:
         logging.info("Using existing QApplication instance.")
 
-    set_dark_palette(app)  # Set the dark palette for the application
+    set_dark_palette(app)
 
     try:
         # Get csi argument from command line if provided, else default to 0
@@ -93,26 +80,20 @@ if __name__ == "__main__":
         path_model = PathModel()
         logging.info("PathModel instance created.")
 
-        # Pass config_model to MainWindow if needed, or set it as a global/shared object
         window = MainWindow(
             cam=camera,
             config_model=config_model,
             controls_model=controls_model,
             zoomsets_model=zoomsets_model,
-            path_model=path_model  # Pass as argument
+            path_model=path_model
         )
-
-        # Set window size to available screen geometry (excluding system bars)
-        screen = app.primaryScreen()
-        available_geometry = screen.availableGeometry()
-        # window.setGeometry(available_geometry)
 
         # Optionally set a default size
         window.resize(1200, 800)
         window.show()
 
         logging.info("Starting Qt event loop.")
-        sys.exit(app.exec())  # Start the Qt event loop and keep the app running
+        sys.exit(app.exec())
     except ValueError as e:
         logging.error(f"ValueError: {e}")
         print(f"Error: {e}")
@@ -122,6 +103,12 @@ if __name__ == "__main__":
     except Exception as e:
         logging.exception("Exception occurred while loading the camera")
         print(f"Exception: {e}")
+
+    # Optionally, log available cameras
+    logging.info("Detecting available cameras...")
+    camera_info_list = Picamera2.global_camera_info()
+    for idx, info in enumerate(camera_info_list):
+        logging.info(f"Camera {idx}: {info}")
 
 """
 main.py — Application Entry Point
@@ -168,9 +155,4 @@ This file is the central launcher for your AI Capture application, handling all 
 configuration, and error management tasks before handing control to the main window and the
 Qt event loop.
 """
-
-logging.info("Detecting available cameras...")
-camera_info_list = Picamera2.global_camera_info()
-for idx, info in enumerate(camera_info_list):
-    logging.info(f"Camera {idx}: {info}")
 

@@ -1,4 +1,4 @@
-from PyQt6 import QtCore
+from qt import QtCore
 import csv
 
 DEFAULT_DURATION = 8.0
@@ -22,7 +22,6 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return None
         value = self._data[index.row()][index.column()]
-        # Display and edit roles: format duration and pause nicely for display
         if role in (QtCore.Qt.ItemDataRole.DisplayRole, QtCore.Qt.ItemDataRole.EditRole):
             col = index.column()
             if col == 4:  # duration
@@ -32,7 +31,6 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
                     return value
             if col == 5:  # pause
                 try:
-                    # pause may already be stored as formatted string
                     return f"{float(value):.2f}"
                 except Exception:
                     return value
@@ -54,16 +52,13 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
             return False
 
         col = index.column()
-        # Duration (col 4) -> store as float (seconds)
         if col == 4:
             try:
                 val = float(value)
             except Exception:
                 val = DEFAULT_DURATION
-            # clamp to reasonable range: 0.01s .. 3600s
             val = max(0.01, min(val, 3600.0))
             self._data[index.row()][col] = val
-        # Pause (col 5) -> store as float but keep two-decimal display
         elif col == 5:
             try:
                 val = float(value)
@@ -72,12 +67,10 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
             val = max(0.0, min(val, 600.0))
             self._data[index.row()][col] = val
         else:
-            # other columns: try to coerce to int where sensible, else store raw
             try:
                 if isinstance(self._data[index.row()][col], int):
                     self._data[index.row()][col] = int(value)
                 else:
-                    # keep original type if unknown
                     self._data[index.row()][col] = value
             except Exception:
                 self._data[index.row()][col] = value
@@ -90,9 +83,7 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
         self.beginInsertRows(parent, position, position + rows - 1)
         for i in range(rows):
             if zdata is not None:
-                # ensure correct length and types: expect [x,y,w,h,duration,pause]
                 row = list(zdata)
-                # normalize duration to float if present
                 if len(row) > 4:
                     try:
                         row[4] = float(row[4])
@@ -103,12 +94,10 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
                         row[5] = float(row[5])
                     except Exception:
                         row[5] = DEFAULT_PAUSE
-                # pad if necessary
                 while len(row) < len(self._headers):
                     row.append('')
                 self._data.insert(position, row)
             else:
-                # create a default row using defaults
                 default_row = ['', '', '', '', DEFAULT_DURATION, DEFAULT_PAUSE]
                 self._data.insert(position, default_row)
         self.endInsertRows()
@@ -125,10 +114,6 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
         return True
 
     def zoomData(self, row, startOnly=False):
-        """
-        Return tuple (x,y,w,h,duration,pause[, next_x,next_y,next_w,next_h])
-        Compatible with existing Player expectations.
-        """
         if not (0 <= row < len(self._data)):
             return ()
         this = self._data[row]
@@ -146,10 +131,8 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
             with open(self.filename, 'w', newline='', encoding='utf-8') as fh:
                 writer = csv.writer(fh)
                 writer.writerow(self._headers)
-                # write out normalized rows: duration and pause as floats
                 for row in self._data:
                     out = list(row)
-                    # ensure numeric serialization
                     if len(out) > 4:
                         try:
                             out[4] = float(out[4])
@@ -162,5 +145,4 @@ class ZoomsetsModel(QtCore.QAbstractTableModel):
                             out[5] = DEFAULT_PAUSE
                     writer.writerow(out)
         except Exception:
-            # swallow IO errors here or log externally
             pass
