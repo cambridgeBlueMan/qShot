@@ -1,5 +1,11 @@
 from qt import QtCore as qtc, QtWidgets as qtw, QtGui, Qt
 
+# Compatibility for mouse button enum
+try:
+    LeftButton = qtc.Qt.MouseButton.LeftButton
+except AttributeError:
+    LeftButton = Qt.LeftButton
+
 class Viewport(qtw.QPushButton):
     """
     Example Viewport button widget for use with Zoomer.
@@ -38,14 +44,14 @@ class Viewport(qtw.QPushButton):
     def mousePressEvent(self, event):
         self.__mousePressPos = None
         self.__mouseMovePos = None
-        if event.button() == Qt.LeftButton:
+        if event.button() == LeftButton:
             pos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
             self.__mousePressPos = pos
             self.__mouseMovePos = pos
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
+        if event.buttons() == LeftButton:
             currPos = self.mapToGlobal(self.pos())
             globalPos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
             diff = globalPos - self.__mouseMovePos
