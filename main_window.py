@@ -64,7 +64,7 @@ try:
 except AttributeError:
     QAction = QtWidgets.QAction  # PyQt5
 
-from contrast_slider_demo import ContrastSliderDemo
+from adjustments import AdjustmentsWidget
 from dummy import Dummy
 from picamera2 import Picamera2
 try:
@@ -204,8 +204,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # First column: placeholder widget
         bottom_col1 = self.create_autofocus_widget()
-        # Second column: ContrastSliderDemo
-        bottom_col2 = ContrastSliderDemo(**self.get_component_args())
+        # Second column: adjustments widget (uses AdjustmentsWidget which is imported)
+        bottom_col2 = AdjustmentsWidget(**self.get_component_args())
         # Third column: placeholder widget
         bottom_col3 = PathsWidget(**self.get_component_args())
 
