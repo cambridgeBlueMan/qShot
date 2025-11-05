@@ -1,20 +1,22 @@
-from qt import QtWidgets, QtGui, QtCore, Qt
+try:
+    from PyQt6 import QtWidgets, QtGui, QtCore
+    Qt = QtCore.Qt
+except ImportError:
+    from PyQt5 import QtWidgets, QtGui, QtCore
+    Qt = QtCore.Qt
+
 """
 contrast_slider_demo.py
 -----------------------
-A minimal PyQt6 demo showing a single slider mapped to a contrast value (0-32),
+A minimal PyQt5/PyQt6 demo showing a single slider mapped to a contrast value (0-32),
 with 1 at the midpoint. The mapping is piecewise linear, as in controls_gui.py.
 """
 
-
-from base_control_widget import BaseControlWidget
 
 class ContrastSliderDemo(QtWidgets.QWidget):
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         self.setWindowTitle("CameraControlsModel Test GUI")
-        self.cam = kwargs.get("cam")
-        self.controls_model = kwargs.get("controls_model")
         layout = QtWidgets.QVBoxLayout()
 
         self.label = QtWidgets.QLabel("Contrast: 1.00")
@@ -75,7 +77,8 @@ class ContrastSliderDemo(QtWidgets.QWidget):
         self.label.setText(f"Contrast: {contrast:.2f}")
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
     win = ContrastSliderDemo()
     win.show()
-    app.exec()
+    sys.exit(app.exec())
