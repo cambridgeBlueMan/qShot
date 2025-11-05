@@ -69,7 +69,14 @@ class ContrastSliderDemo(QtWidgets.QWidget):
 
     def on_slider_changed(self, slider_value):
         contrast = self.slider_to_contrast(slider_value)
-        print(f"Slider changed: slider_value={slider_value}, mapped contrast={contrast:.2f}")
+        self.label.setText(f"Contrast: {contrast:.2f}")
+        self.slider.setToolTip(f"Contrast: {contrast:.2f}")
+        # Optionally, show the tooltip under the mouse:
+        QtWidgets.QToolTip.showText(
+            self.slider.mapToGlobal(self.slider.rect().center()),
+            f"Contrast: {contrast:.2f}",
+            self.slider
+        )
         if self.controls_model:
             self.controls_model.Contrast = contrast  # Only update the model
 

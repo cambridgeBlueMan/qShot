@@ -1,3 +1,49 @@
+"""
+main.py — Application Entry Point
+
+This file is the main entry point for the AI Capture application.
+It initializes the Qt application, sets up logging, configures the application's appearance,
+loads the camera, and launches the main window.
+
+Key Features:
+-------------
+- Removes problematic Qt environment variables to avoid plugin issues.
+- Configures logging to write detailed logs to 'app.log'.
+- Sets a dark color palette for a modern, visually comfortable UI.
+- Handles command-line arguments for camera selection (CSI index).
+- Initializes the camera using Picamera2 and loads available sensor modes.
+- Instantiates and displays the main window (MainWindow), passing the camera and modes.
+- Handles errors gracefully with logging and user feedback.
+
+Usage:
+------
+Run this file directly to start the application:
+
+    python main.py [CSI_INDEX]
+
+    CSI_INDEX (optional): The index of the camera to use (default is 0).
+
+Customization:
+--------------
+- To change the default window size, modify 'window.resize(1200, 800)'.
+- To use a different camera backend or main window, adjust the relevant import and instantiation lines.
+- To change the color palette, edit the 'set_dark_palette' function.
+
+Error Handling:
+---------------
+- ValueError: If an invalid CSI index is provided.
+- ImportError: If required modules are missing.
+- Exception: Any other errors during initialization or camera loading.
+
+All errors are logged to 'app.log' and printed to the console.
+
+Summary:
+--------
+This file is the central launcher for your AI Capture application, handling all startup,
+configuration, and error management tasks before handing control to the main window and the
+Qt event loop.
+"""
+
 import sys
 import logging
 import os
@@ -50,7 +96,13 @@ if __name__ == "__main__":
         logging.info("Using existing QApplication instance.")
 
     set_dark_palette(app)
-
+    app.setStyleSheet("""
+    QToolTip {
+        color: black;
+        background-color: #ffffdd;
+        border: 1px solid black;
+    }
+""")
     try:
         # Get csi argument from command line if provided, else default to 0
         if len(sys.argv) > 1:
@@ -109,50 +161,4 @@ if __name__ == "__main__":
     camera_info_list = Picamera2.global_camera_info()
     for idx, info in enumerate(camera_info_list):
         logging.info(f"Camera {idx}: {info}")
-
-"""
-main.py — Application Entry Point
-
-This file is the main entry point for the AI Capture application.
-It initializes the Qt application, sets up logging, configures the application's appearance,
-loads the camera, and launches the main window.
-
-Key Features:
--------------
-- Removes problematic Qt environment variables to avoid plugin issues.
-- Configures logging to write detailed logs to 'app.log'.
-- Sets a dark color palette for a modern, visually comfortable UI.
-- Handles command-line arguments for camera selection (CSI index).
-- Initializes the camera using Picamera2 and loads available sensor modes.
-- Instantiates and displays the main window (MainWindow), passing the camera and modes.
-- Handles errors gracefully with logging and user feedback.
-
-Usage:
-------
-Run this file directly to start the application:
-
-    python main.py [CSI_INDEX]
-
-    CSI_INDEX (optional): The index of the camera to use (default is 0).
-
-Customization:
---------------
-- To change the default window size, modify 'window.resize(1200, 800)'.
-- To use a different camera backend or main window, adjust the relevant import and instantiation lines.
-- To change the color palette, edit the 'set_dark_palette' function.
-
-Error Handling:
----------------
-- ValueError: If an invalid CSI index is provided.
-- ImportError: If required modules are missing.
-- Exception: Any other errors during initialization or camera loading.
-
-All errors are logged to 'app.log' and printed to the console.
-
-Summary:
---------
-This file is the central launcher for your AI Capture application, handling all startup,
-configuration, and error management tasks before handing control to the main window and the
-Qt event loop.
-"""
 

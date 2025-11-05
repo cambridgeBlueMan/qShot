@@ -204,7 +204,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # First column: placeholder widget
         bottom_col1 = self.create_autofocus_widget()
-        # Second column: ControlsGui
+        # Second column: ContrastSliderDemo
         bottom_col2 = ContrastSliderDemo(**self.get_component_args())
         # Third column: placeholder widget
         bottom_col3 = PathsWidget(**self.get_component_args())
