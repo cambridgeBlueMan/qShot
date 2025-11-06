@@ -448,10 +448,12 @@ class ControlsModel(QtCore.QObject):
 
     @Sharpness.setter
     def Sharpness(self, value: float):
-        """Set the sharpness value, emitting the SharpnessChanged signal."""
+        """Set the sharpness value, emitting the SharpnessChanged signal and updating the camera."""
         if value != self._Sharpness:
             self._Sharpness = value
             self.SharpnessChanged.emit(value)
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"Sharpness": value})
 
     @property
     def AeEnable(self) -> bool:

@@ -36,8 +36,9 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         group_layout.addLayout(contrast_row)
 
         # --- Sharpness ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
         self.sharpness_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-        self.sharpness_slider.setRange(0, 320)
+        self.sharpness_slider.setRange(int(min_val * 10), int(max_val * 10))  # Use model values for range
         sharpness_row = QtWidgets.QHBoxLayout()
         sharpness_row.addWidget(QtWidgets.QLabel("Sharpness"))
         sharpness_row.addWidget(self.sharpness_slider)
@@ -111,7 +112,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
             return int(slider_mid + ((contrast - 1.0) / (32.0 - 1.0)) * (slider_max - slider_mid))
         
     def slider_to_contrast(self, slider_value):
-        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 16.0, 1.0))
         slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) /2)* 10)
         if slider_value <= slider_mid:
             return (slider_value / slider_mid) * 1.0
@@ -119,17 +120,20 @@ class AdjustmentsWidget(QtWidgets.QWidget):
             return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (32.0 - 1.0)
 
     def sharpness_to_slider(self, sharpness):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+        min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) / 2) * 10)
         if sharpness <= 1.0:
             return int((sharpness / 1.0) * slider_mid)
         else:
-            return int(slider_mid + ((sharpness - 1.0) / (32.0 - 1.0)) * (slider_max - slider_mid))
+            return int(slider_mid + ((sharpness - 1.0) / (16.0 - 1.0)) * (slider_max - slider_mid))
+
     def slider_to_sharpness(self, slider_value):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+        min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) / 2) * 10)
         if slider_value <= slider_mid:
             return (slider_value / slider_mid) * 1.0
         else:
-            return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (32.0 - 1.0)
+            return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (16.0 - 1.0)
 
     def brightness_to_slider(self, brightness):
         # Assuming brightness range is -1.0 to 1.0
@@ -196,7 +200,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
         self.contrast_slider.setValue(self.contrast_to_slider(default))
     def reset_sharpness(self):
-        default = self.defaults["sharpness"]
+        min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
         self.sharpness_slider.setValue(self.sharpness_to_slider(default))
     def reset_brightness(self):
         default = self.defaults["brightness"]
