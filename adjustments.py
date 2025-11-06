@@ -223,6 +223,18 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         # Connect model signal to update both widgets
         controls_model.ContrastChanged.connect(self.on_model_contrast_changed)
 
+        # --- Hookups: Sharpness Dials ---
+        self.sharpness_dial.valueChanged.connect(self.on_sharpness_dial_changed)
+        self.controls_model.SharpnessChanged.connect(self.on_model_sharpness_changed)
+
+        # --- Hookups: Brightness Dials ---
+        self.brightness_dial.valueChanged.connect(self.on_brightness_dial_changed)
+        self.controls_model.BrightnessChanged.connect(self.on_model_brightness_changed)
+
+        # --- Hookups: Saturation Dials ---
+        self.saturation_dial.valueChanged.connect(self.on_saturation_dial_changed)
+        self.controls_model.SaturationChanged.connect(self.on_model_saturation_changed)
+
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
 
@@ -303,6 +315,12 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         )
         self.controls_model.Sharpness = sharpness
 
+    def on_sharpness_dial_changed(self, value):
+        sharpness = self.slider_to_sharpness(value)
+        self.controls_model.Sharpness = sharpness
+        self.sharpness_dial.setToolTip(f"Sharpness: {sharpness:.2f}")
+
+
     def on_brightness_slider_changed(self, value):
         brightness = self.slider_to_brightness(value)
         self.brightness_slider.setToolTip(f"Brightness: {brightness:.2f}")
@@ -313,6 +331,11 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         )
         self.controls_model.Brightness = brightness
 
+    def on_brightness_dial_changed(self, value):
+        brightness = self.slider_to_brightness(value)
+        self.controls_model.Brightness = brightness
+        self.brightness_dial.setToolTip(f"Brightness: {brightness:.2f}")
+
     def on_saturation_slider_changed(self, value):
         saturation = self.slider_to_saturation(value)
         self.saturation_slider.setToolTip(f"Saturation: {saturation:.2f}")
@@ -322,6 +345,11 @@ class AdjustmentsWidget(QtWidgets.QWidget):
             self.saturation_slider
         )
         self.controls_model.Saturation = saturation
+
+    def on_saturation_dial_changed(self, value):
+        saturation = self.slider_to_saturation(value)
+        self.controls_model.Saturation = saturation
+        self.saturation_dial.setToolTip(f"Saturation: {saturation:.2f}")
 
     # --- Reset buttons ---
     def reset_contrast(self):
