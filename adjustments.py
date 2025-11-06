@@ -5,6 +5,8 @@ except ImportError:
     from PyQt5 import QtWidgets, QtCore
     Qt = QtCore.Qt
 
+DIAL_SIZE = 60  # Add this near the top of the file, after imports
+
 class AdjustmentsWidget(QtWidgets.QWidget):
     def __init__(self, controls_model, parent=None, **kwargs):
         super().__init__(parent)
@@ -88,6 +90,103 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         saturation_row.addWidget(self.saturation_reset_btn)
         group_layout.addLayout(saturation_row)
 
+        # --- Dials Row (Horizontal) ---
+        dials_row = QtWidgets.QHBoxLayout()
+        dials_row.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        # --- Contrast Dial ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
+        contrast_dial_col = QtWidgets.QVBoxLayout()
+        contrast_dial_col.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        contrast_dial_col.addWidget(QtWidgets.QLabel("Contrast"))
+        self.contrast_dial = QtWidgets.QDial()
+        self.contrast_dial.setRange(int(min_val * 10), int(max_val * 10))
+        self.contrast_dial.setValue(self.contrast_to_slider(default))
+        self.contrast_dial.setFixedSize(DIAL_SIZE, DIAL_SIZE)
+        contrast_dial_col.addWidget(self.contrast_dial)
+        self.contrast_dial_reset_btn = QtWidgets.QPushButton("Reset")
+        self.contrast_dial_reset_btn.setFixedWidth(60)
+        self.contrast_dial_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
+        self.contrast_dial_reset_btn.clicked.connect(self.reset_contrast)
+        contrast_dial_col.addWidget(self.contrast_dial_reset_btn)
+        contrast_dial_widget = QtWidgets.QWidget()
+        contrast_dial_widget.setLayout(contrast_dial_col)
+        dials_row.addWidget(contrast_dial_widget)
+
+        # --- Sharpness Dial ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
+        sharpness_dial_col = QtWidgets.QVBoxLayout()
+        sharpness_dial_col.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        sharpness_dial_col.addWidget(QtWidgets.QLabel("Sharpness"))
+        self.sharpness_dial = QtWidgets.QDial()
+        self.sharpness_dial.setRange(int(min_val * 10), int(max_val * 10))
+        self.sharpness_dial.setValue(self.sharpness_to_slider(default))
+        self.sharpness_dial.setFixedSize(DIAL_SIZE, DIAL_SIZE)
+        sharpness_dial_col.addWidget(self.sharpness_dial)
+        self.sharpness_dial_reset_btn = QtWidgets.QPushButton("Reset")
+        self.sharpness_dial_reset_btn.setFixedWidth(60)
+        self.sharpness_dial_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
+        self.sharpness_dial_reset_btn.clicked.connect(self.reset_sharpness)
+        sharpness_dial_col.addWidget(self.sharpness_dial_reset_btn)
+        sharpness_dial_widget = QtWidgets.QWidget()
+        sharpness_dial_widget.setLayout(sharpness_dial_col)
+        dials_row.addWidget(sharpness_dial_widget)
+
+        # --- Brightness Dial ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Brightness", (-1.0, 1.0, 0.0))
+        brightness_dial_col = QtWidgets.QVBoxLayout()
+        brightness_dial_col.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        brightness_dial_col.addWidget(QtWidgets.QLabel("Brightness"))
+        self.brightness_dial = QtWidgets.QDial()
+        self.brightness_dial.setRange(int(min_val * 100), int(max_val * 100))
+        self.brightness_dial.setValue(self.brightness_to_slider(default))
+        self.brightness_dial.setFixedSize(DIAL_SIZE, DIAL_SIZE)
+        brightness_dial_col.addWidget(self.brightness_dial)
+        self.brightness_dial_reset_btn = QtWidgets.QPushButton("Reset")
+        self.brightness_dial_reset_btn.setFixedWidth(60)
+        self.brightness_dial_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
+        self.brightness_dial_reset_btn.clicked.connect(self.reset_brightness)
+        brightness_dial_col.addWidget(self.brightness_dial_reset_btn)
+        brightness_dial_widget = QtWidgets.QWidget()
+        brightness_dial_widget.setLayout(brightness_dial_col)
+        dials_row.addWidget(brightness_dial_widget)
+
+        # --- Saturation Dial ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
+        saturation_dial_col = QtWidgets.QVBoxLayout()
+        saturation_dial_col.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        saturation_dial_col.addWidget(QtWidgets.QLabel("Saturation"))
+        self.saturation_dial = QtWidgets.QDial()
+        self.saturation_dial.setRange(int(min_val * 10), int(max_val * 10))
+        self.saturation_dial.setValue(self.saturation_to_slider(default))
+        self.saturation_dial.setFixedSize(DIAL_SIZE, DIAL_SIZE)
+        saturation_dial_col.addWidget(self.saturation_dial)
+        self.saturation_dial_reset_btn = QtWidgets.QPushButton("Reset")
+        self.saturation_dial_reset_btn.setFixedWidth(60)
+        self.saturation_dial_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
+        self.saturation_dial_reset_btn.clicked.connect(self.reset_saturation)
+        saturation_dial_col.addWidget(self.saturation_dial_reset_btn)
+        saturation_dial_widget = QtWidgets.QWidget()
+        saturation_dial_widget.setLayout(saturation_dial_col)
+        dials_row.addWidget(saturation_dial_widget)
+
+        # --- Add dials row to a container for show/hide ---
+        self.dials_container = QtWidgets.QWidget()
+        self.dials_container.setLayout(dials_row)
+        group_layout.addWidget(self.dials_container)
+        self.dials_container.hide()
+
+        # --- Sliders Container (Vertical) ---
+        self.sliders_container = QtWidgets.QWidget()
+        sliders_layout = QtWidgets.QVBoxLayout()
+        sliders_layout.setSpacing(12)
+        sliders_layout.setContentsMargins(0, 0, 0, 0)
+        sliders_layout.addLayout(contrast_row)
+        sliders_layout.addLayout(sharpness_row)
+        sliders_layout.addLayout(brightness_row)
+        sliders_layout.addLayout(saturation_row)
+        self.sliders_container.setLayout(sliders_layout)
+        group_layout.addWidget(self.sliders_container)
         group_layout.addStretch()
         group.setLayout(group_layout)
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -113,6 +212,9 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.saturation_slider.valueChanged.connect(self.on_saturation_slider_changed)
         controls_model.SaturationChanged.connect(self.on_model_saturation_changed)
         self.saturation_slider.setValue(self.saturation_to_slider(controls_model.Saturation))
+
+        # --- Update control mode on radio button toggle ---
+        self.slider_radio.toggled.connect(self.update_control_mode)
 
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
@@ -245,6 +347,14 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.saturation_slider.blockSignals(True)
         self.saturation_slider.setValue(self.saturation_to_slider(value))
         self.saturation_slider.blockSignals(False)
+
+    def update_control_mode(self):
+        if self.slider_radio.isChecked():
+            self.sliders_container.show()
+            self.dials_container.hide()
+        else:
+            self.sliders_container.hide()
+            self.dials_container.show()
 
 # Example usage:
 if __name__ == "__main__":
