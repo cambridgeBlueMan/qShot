@@ -64,8 +64,9 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         group_layout.addLayout(brightness_row)
 
         # --- Saturation ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
         self.saturation_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-        self.saturation_slider.setRange(0, 320)
+        self.saturation_slider.setRange(int(min_val * 10), int(max_val * 10))  # 0 to 320
         saturation_row = QtWidgets.QHBoxLayout()
         saturation_row.addWidget(QtWidgets.QLabel("Saturation"))
         saturation_row.addWidget(self.saturation_slider)
@@ -145,17 +146,20 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         return slider_value / 100.0
 
     def saturation_to_slider(self, saturation):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+        min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) / 2) * 10)
         if saturation <= 1.0:
             return int((saturation / 1.0) * slider_mid)
         else:
-            return int(slider_mid + ((saturation - 1.0) / (32.0 - 1.0)) * (slider_max - slider_mid))
+            return int(slider_mid + ((saturation - 1.0) / (max_val - 1.0)) * (slider_max - slider_mid))
+
     def slider_to_saturation(self, slider_value):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+        min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) / 2) * 10)
         if slider_value <= slider_mid:
             return (slider_value / slider_mid) * 1.0
         else:
-            return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (32.0 - 1.0)
+            return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (max_val - 1.0)
 
     # --- Slots for slider changes ---
     def on_contrast_slider_changed(self, value):
@@ -209,7 +213,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         min_val, max_val, default = self.controls_model._control_ranges.get("Brightness", (-1.0, 1.0, 0.0))
         self.brightness_slider.setValue(self.brightness_to_slider(default))
     def reset_saturation(self):
-        default = self.defaults["saturation"]
+        min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
         self.saturation_slider.setValue(self.saturation_to_slider(default))
 
     # --- Slots for model changes ---
