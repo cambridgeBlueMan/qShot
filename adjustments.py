@@ -216,6 +216,13 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         # --- Update control mode on radio button toggle ---
         self.slider_radio.toggled.connect(self.update_control_mode)
 
+        # Connect slider and dial to their slots
+        self.contrast_slider.valueChanged.connect(self.on_contrast_slider_changed)
+        self.contrast_dial.valueChanged.connect(self.on_contrast_dial_changed)
+
+        # Connect model signal to update both widgets
+        controls_model.ContrastChanged.connect(self.on_model_contrast_changed)
+
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
 
@@ -278,13 +285,13 @@ class AdjustmentsWidget(QtWidgets.QWidget):
     # --- Slots for slider changes ---
     def on_contrast_slider_changed(self, value):
         contrast = self.slider_to_contrast(value)
-        self.contrast_slider.setToolTip(f"Contrast: {contrast:.2f}")
-        QtWidgets.QToolTip.showText(
-            self.contrast_slider.mapToGlobal(self.contrast_slider.rect().center()),
-            f"Contrast: {contrast:.2f}",
-            self.contrast_slider
-        )
         self.controls_model.Contrast = contrast
+        self.contrast_slider.setToolTip(f"Contrast: {contrast:.2f}")
+
+    def on_contrast_dial_changed(self, value):
+        contrast = self.slider_to_contrast(value)
+        self.controls_model.Contrast = contrast
+        self.contrast_dial.setToolTip(f"Contrast: {contrast:.2f}")
 
     def on_sharpness_slider_changed(self, value):
         sharpness = self.slider_to_sharpness(value)
@@ -332,9 +339,13 @@ class AdjustmentsWidget(QtWidgets.QWidget):
 
     # --- Slots for model changes ---
     def on_model_contrast_changed(self, value):
+        slider_val = self.contrast_to_slider(value)
         self.contrast_slider.blockSignals(True)
-        self.contrast_slider.setValue(self.contrast_to_slider(value))
+        self.contrast_slider.setValue(slider_val)
         self.contrast_slider.blockSignals(False)
+        self.contrast_dial.blockSignals(True)
+        self.contrast_dial.setValue(slider_val)
+        self.contrast_dial.blockSignals(False)
     def on_model_sharpness_changed(self, value):
         self.sharpness_slider.blockSignals(True)
         self.sharpness_slider.setValue(self.sharpness_to_slider(value))
