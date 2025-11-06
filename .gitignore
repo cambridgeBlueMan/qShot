@@ -40,3 +40,4 @@ dist/
 
 # Ignore test video
 *.mp4
+.vscode/launch.json
