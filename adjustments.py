@@ -46,7 +46,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.contrast_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
         self.contrast_reset_btn.clicked.connect(self.reset_contrast)
         contrast_row.addWidget(self.contrast_reset_btn)
-        group_layout.addLayout(contrast_row)
+        #group_layout.addLayout(contrast_row)
 
         # --- Sharpness ---
         min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
@@ -60,7 +60,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.sharpness_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
         self.sharpness_reset_btn.clicked.connect(self.reset_sharpness)
         sharpness_row.addWidget(self.sharpness_reset_btn)
-        group_layout.addLayout(sharpness_row)
+        #group_layout.addLayout(sharpness_row)
 
         # --- Brightness ---
         min_val, max_val, default = self.controls_model._control_ranges.get("Brightness", (-1.0, 1.0, 0.0))
@@ -74,7 +74,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.brightness_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
         self.brightness_reset_btn.clicked.connect(self.reset_brightness)
         brightness_row.addWidget(self.brightness_reset_btn)
-        group_layout.addLayout(brightness_row)
+        #group_layout.addLayout(brightness_row)
 
         # --- Saturation ---
         min_val, max_val, default = self.controls_model._control_ranges.get("Saturation", (0.0, 32.0, 1.0))
@@ -88,7 +88,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.saturation_reset_btn.setStyleSheet("font-size: 9pt; padding: 1px 4px;")
         self.saturation_reset_btn.clicked.connect(self.reset_saturation)
         saturation_row.addWidget(self.saturation_reset_btn)
-        group_layout.addLayout(saturation_row)
+        #group_layout.addLayout(saturation_row)
 
         # --- Dials Row (Horizontal) ---
         dials_row = QtWidgets.QHBoxLayout()
@@ -187,6 +187,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         sliders_layout.addLayout(saturation_row)
         self.sliders_container.setLayout(sliders_layout)
         group_layout.addWidget(self.sliders_container)
+        group_layout.addWidget(self.dials_container)
         group_layout.addStretch()
         group.setLayout(group_layout)
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -235,6 +236,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.saturation_dial.valueChanged.connect(self.on_saturation_dial_changed)
         self.controls_model.SaturationChanged.connect(self.on_model_saturation_changed)
 
+        self.update_control_mode()
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
 
