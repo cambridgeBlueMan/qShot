@@ -101,7 +101,10 @@ class AdjustmentsWidget(QtWidgets.QWidget):
 
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) /2)* 10)
+        print(f"Contrast slider_min={slider_min}, slider_max={slider_max}, slider_mid={slider_mid}, min_val={min_val}, max_val={max_val}, default={default}")
         if contrast <= 1.0:
             return int((contrast / 1.0) * slider_mid)
         else:
