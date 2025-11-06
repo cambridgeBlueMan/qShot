@@ -110,7 +110,8 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         else:
             return int(slider_mid + ((contrast - 1.0) / (32.0 - 1.0)) * (slider_max - slider_mid))
     def slider_to_contrast(self, slider_value):
-        slider_min, slider_max, slider_mid = 0, 320, 160
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) /2)* 10)
         if slider_value <= slider_mid:
             return (slider_value / slider_mid) * 1.0
         else:
