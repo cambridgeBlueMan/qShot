@@ -22,8 +22,9 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         group_layout = QtWidgets.QVBoxLayout()
 
         # --- Contrast ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
         self.contrast_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-        self.contrast_slider.setRange(0, 320)
+        self.contrast_slider.setRange(int(min_val * 10), int(max_val * 10))  # Use model values for range
         contrast_row = QtWidgets.QHBoxLayout()
         contrast_row.addWidget(QtWidgets.QLabel("Contrast"))
         contrast_row.addWidget(self.contrast_slider)
