@@ -192,7 +192,8 @@ class AdjustmentsWidget(QtWidgets.QWidget):
 
     # --- Reset buttons ---
     def reset_contrast(self):
-        default = self.defaults["contrast"]
+        min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
+        slider_min, slider_max, slider_mid = int(min_val * 10), int(max_val * 10), int(((max_val - min_val) /2)* 10)
         self.contrast_slider.setValue(self.contrast_to_slider(default))
     def reset_sharpness(self):
         default = self.defaults["sharpness"]
