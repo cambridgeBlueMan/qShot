@@ -23,6 +23,15 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         group_layout.setSpacing(12)      # Increase spacing between rows (default is 6)
         group_layout.setContentsMargins(10, 16, 10, 16)  # Add more top/bottom margin
 
+        # --- Mode Selection (Slider/Dial) ---
+        mode_layout = QtWidgets.QHBoxLayout()
+        self.slider_radio = QtWidgets.QRadioButton("Sliders")
+        self.dial_radio = QtWidgets.QRadioButton("Dials")
+        self.slider_radio.setChecked(True)
+        mode_layout.addWidget(self.slider_radio)
+        mode_layout.addWidget(self.dial_radio)
+        group_layout.addLayout(mode_layout)
+
         # --- Contrast ---
         min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
         self.contrast_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
