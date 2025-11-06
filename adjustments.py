@@ -20,6 +20,8 @@ class AdjustmentsWidget(QtWidgets.QWidget):
 
         group = QtWidgets.QGroupBox("Adjustments")
         group_layout = QtWidgets.QVBoxLayout()
+        group_layout.setSpacing(12)      # Increase spacing between rows (default is 6)
+        group_layout.setContentsMargins(10, 16, 10, 16)  # Add more top/bottom margin
 
         # --- Contrast ---
         min_val, max_val, default = self.controls_model._control_ranges.get("Contrast", (0.0, 32.0, 1.0))
@@ -77,6 +79,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         saturation_row.addWidget(self.saturation_reset_btn)
         group_layout.addLayout(saturation_row)
 
+        group_layout.addStretch()
         group.setLayout(group_layout)
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.addWidget(group)
