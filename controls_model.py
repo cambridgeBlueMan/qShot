@@ -61,39 +61,48 @@ class ControlsModel(QtCore.QObject):
     def __init__(self, cam=None):
         super().__init__()
         self.cam = cam
-        self._AeExposureMode = 0
-        self._Contrast = 1.0
-        self._AeConstraintMode = 0
-        self._ExposureTimeMode = 0
-        self._HdrMode = 0
-        self._AeMeteringMode = 0
-        self._AeFlickerPeriod = None
-        self._AnalogueGainMode = 0
-        self._AnalogueGain = 1.0
-        self._StatsOutputEnable = False
-        self._Brightness = 0.0
-        self._SyncFrames = 100
-        self._ExposureTime = 20000
-        self._AeFlickerMode = 0
-        self._SyncMode = 0
-        self._AwbEnable = None
-        self._ColourGains = None
-        self._AwbMode = 0
-        self._ScalerCrops = None
-        self._ColourTemperature = None
-        self._Saturation = 1.0
-        self._CnnEnableInputTensor = False
-        self._FrameDurationLimits = (33333, 33333)
-        self._ScalerCrop = None
-        self._NoiseReductionMode = 0
-        self._Sharpness = 1.0
-        self._AeEnable = True
-        self._ExposureValue = 0.0
-        self._AfRange = 0  # Default to 'Normal' (see mapping below)
-        self._AfMode = 0  # Default to 'Manual' (see mapping below)
-        self._AfSpeed = 1  # Default to 'Fast' (see mapping below)
-        self._AfMetering = 0  # Default to 'Global' (see mapping below)
-        self._LensPosition = 0.0  # Default value
+
+        self._control_ranges = {}  # Store min, max, default for each control
+
+        if self.cam is not None and hasattr(self.cam, "camera_controls"):
+            for name, (min_val, max_val, default) in self.cam.camera_controls.items():
+                setattr(self, f"_{name}", default)
+                self._control_ranges[name] = (min_val, max_val, default)
+
+        # Initialize all controls to default values
+        # self._AeExposureMode = 0
+        # self._Contrast = 1.0
+        # self._AeConstraintMode = 0
+        # self._ExposureTimeMode = 0
+        # self._HdrMode = 0
+        # self._AeMeteringMode = 0
+        # self._AeFlickerPeriod = None
+        # self._AnalogueGainMode = 0
+        # self._AnalogueGain = 1.0
+        # self._StatsOutputEnable = False
+        # self._Brightness = 0.0
+        # self._SyncFrames = 100
+        # self._ExposureTime = 20000
+        # self._AeFlickerMode = 0
+        # self._SyncMode = 0
+        # self._AwbEnable = None
+        # self._ColourGains = None
+        # self._AwbMode = 0
+        # self._ScalerCrops = None
+        # self._ColourTemperature = None
+        # self._Saturation = 1.0
+        # self._CnnEnableInputTensor = False
+        # self._FrameDurationLimits = (33333, 33333)
+        # self._ScalerCrop = None
+        # self._NoiseReductionMode = 0
+        # self._Sharpness = 1.0
+        # self._AeEnable = True
+        # self._ExposureValue = 0.0
+        # self._AfRange = 0  # Default to 'Normal' (see mapping below)
+        # self._AfMode = 0  # Default to 'Manual' (see mapping below)
+        # self._AfSpeed = 1  # Default to 'Fast' (see mapping below)
+        # self._AfMetering = 0  # Default to 'Global' (see mapping below)
+        # self._LensPosition = 0.0  # Default value
 
         # AF range mapping:
         # 0: 'Normal'
