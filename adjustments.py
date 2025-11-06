@@ -50,8 +50,9 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         group_layout.addLayout(sharpness_row)
 
         # --- Brightness ---
+        min_val, max_val, default = self.controls_model._control_ranges.get("Brightness", (-1.0, 1.0, 0.0))
         self.brightness_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-        self.brightness_slider.setRange(0, 320)
+        self.brightness_slider.setRange(int(min_val * 100), int(max_val * 100))  # -100 to +100
         brightness_row = QtWidgets.QHBoxLayout()
         brightness_row.addWidget(QtWidgets.QLabel("Brightness"))
         brightness_row.addWidget(self.brightness_slider)
@@ -136,10 +137,12 @@ class AdjustmentsWidget(QtWidgets.QWidget):
             return 1.0 + ((slider_value - slider_mid) / (slider_max - slider_mid)) * (16.0 - 1.0)
 
     def brightness_to_slider(self, brightness):
-        # Assuming brightness range is -1.0 to 1.0
-        return int((brightness + 1.0) * 160)
+        # Linear mapping: float -1.0..1.0 -> int -100..100
+        return int(brightness * 100)
+
     def slider_to_brightness(self, slider_value):
-        return (slider_value / 160.0) - 1.0
+        # Linear mapping: int -100..100 -> float -1.0..1.0
+        return slider_value / 100.0
 
     def saturation_to_slider(self, saturation):
         slider_min, slider_max, slider_mid = 0, 320, 160
@@ -203,7 +206,7 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         min_val, max_val, default = self.controls_model._control_ranges.get("Sharpness", (0.0, 16.0, 1.0))
         self.sharpness_slider.setValue(self.sharpness_to_slider(default))
     def reset_brightness(self):
-        default = self.defaults["brightness"]
+        min_val, max_val, default = self.controls_model._control_ranges.get("Brightness", (-1.0, 1.0, 0.0))
         self.brightness_slider.setValue(self.brightness_to_slider(default))
     def reset_saturation(self):
         default = self.defaults["saturation"]

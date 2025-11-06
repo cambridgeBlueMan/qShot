@@ -6,7 +6,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
-            "args": ["0"],
+            "args": ["1"],
             "console": "integratedTerminal",
             "python": "/bin/python"
         }

@@ -274,10 +274,12 @@ class ControlsModel(QtCore.QObject):
 
     @Brightness.setter
     def Brightness(self, value: float):
-        """Set the brightness value, emitting the BrightnessChanged signal."""
+        """Set the brightness value, emitting the BrightnessChanged signal and updating the camera."""
         if value != self._Brightness:
             self._Brightness = value
             self.BrightnessChanged.emit(value)
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"Brightness": value})
 
     @property
     def SyncFrames(self) -> int:
@@ -382,10 +384,12 @@ class ControlsModel(QtCore.QObject):
 
     @Saturation.setter
     def Saturation(self, value: float):
-        """Set the saturation value, emitting the SaturationChanged signal."""
+        """Set the saturation value, emitting the SaturationChanged signal and updating the camera."""
         if value != self._Saturation:
             self._Saturation = value
             self.SaturationChanged.emit(value)
+            if hasattr(self, 'cam') and self.cam is not None:
+                self.cam.set_controls({"Saturation": value})
 
     @property
     def CnnEnableInputTensor(self) -> bool:
