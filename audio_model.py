@@ -251,3 +251,41 @@ class AudioModel(QObject):
         except Exception as e:
             print(f"PulseAudio (pactl) error: {e}")
         return devices
+
+    def get_pw_device_info(self, index):
+        """
+        Returns detailed info for a PipeWire device at the given index.
+        """
+        try:
+            result = subprocess.run(
+                ["pw-cli", "info", str(index)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,  # Prevent waiting for input
+                text=True,
+                timeout=5  # Increase timeout if needed
+            )
+            return result.stdout
+        except subprocess.TimeoutExpired:
+            print(f"PipeWire (pw-cli) timed out for index {index}")
+            return ""
+        except Exception as e:
+            print(f"PipeWire (pw-cli) error: {e}")
+            return ""
+
+    def get_alsa_hw_params(self, device_name):
+        """
+        Returns hardware parameters for an ALSA device.
+        """
+        try:
+            result = subprocess.run(
+                ["arecord", "--dump-hw-params", "-D", device_name],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=2
+            )
+            return result.stdout
+        except Exception as e:
+            print(f"ALSA hw params error: {e}")
+            return ""

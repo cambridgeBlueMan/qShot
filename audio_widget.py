@@ -35,9 +35,10 @@ import re
 import subprocess
 
 class AudioWidget(QtWidgets.QWidget):
-    def __init__(self, audio_model=None, parent=None, use_pipewire=False):
+    def __init__(self, audio_model=None, parent=None, use_pipewire=True):
         super().__init__(parent)
         self.audio_model = audio_model or AudioModel()
+        self.use_pipewire = use_pipewire
 
         group = QtWidgets.QGroupBox("Audio")
         layout = QtWidgets.QVBoxLayout()
@@ -91,6 +92,22 @@ class AudioWidget(QtWidgets.QWidget):
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.addWidget(group)
         self.setLayout(main_layout)
+
+        # --- Connect combo box selection to info methods ---
+        self.name_combo.currentIndexChanged.connect(self.on_device_selected)
+
+    def on_device_selected(self, idx):
+        # Get the index stored as user data
+        device_index = self.name_combo.itemData(idx)
+        if device_index is None:
+            return
+        if self.use_pipewire:
+            info = self.audio_model.get_pw_device_info(device_index)
+            print(f"PipeWire device info for index {device_index}:\n{info}")
+        else:
+            # For PulseAudio/ALSA, you may need to map index to device name
+            # Here we just print the index, but you could call get_alsa_hw_params if you store device names
+            print(f"PulseAudio/ALSA device index selected: {device_index}")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
