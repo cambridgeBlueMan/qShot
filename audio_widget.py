@@ -1,17 +1,16 @@
 """
-AudioWidget: Qt widget for audio device and format selection.
+AudioWidget: Qt widget for ALSA audio device and format selection.
 
-This widget provides a user interface for selecting audio input devices and audio format parameters.
+This widget provides a user interface for selecting ALSA hardware audio input devices and audio format parameters.
 It displays a group box labeled "Audio" containing the following controls, each on its own row:
-    - Name: Combo box populated with available audio input devices (using PipeWire or PulseAudio discovery).
-    - Bit Depth: Combo box for selecting bit depth (e.g., 8, 16, 24, 32).
-    - Bit Rate: Combo box for selecting bit rate (e.g., 64, 128, 192, 256, 320).
-    - Sample Rate: Combo box for selecting sample rate (e.g., 22050, 44100, 48000, 96000).
+    - Name: Combo box populated with available ALSA audio input devices.
+    - Bit Depth: Combo box for selecting supported bit depths (e.g., 8, 16, 24, 32) for the selected device.
+    - Bit Rate: Combo box for selecting bit rate (static options, not ALSA-specific).
+    - Sample Rate: Combo box for selecting supported sample rates for the selected device.
 
 Device discovery:
-    - The widget attempts to discover audio input devices using PipeWire (wpctl) first.
-    - If PipeWire discovery fails or finds no devices, it falls back to PulseAudio (pactl).
-    - If no devices are found, default options are provided.
+    - The widget lists ALSA hardware capture devices using AudioModel.get_alsa_devices().
+    - Bit depth and sample rate combos are populated based on the selected device's capabilities.
 
 Standalone usage:
     - The widget can be run as a standalone application for testing and demonstration.
@@ -31,14 +30,11 @@ Example:
 import sys
 from PyQt5 import QtWidgets
 from audio_model import AudioModel
-import re
-import subprocess
 
 class AudioWidget(QtWidgets.QWidget):
-    def __init__(self, audio_model=None, parent=None, use_pipewire=True):
+    def __init__(self, audio_model=None, parent=None):
         super().__init__(parent)
         self.audio_model = audio_model or AudioModel()
-        self.use_pipewire = use_pipewire
 
         group = QtWidgets.QGroupBox("Audio")
         layout = QtWidgets.QVBoxLayout()
@@ -47,16 +43,12 @@ class AudioWidget(QtWidgets.QWidget):
         name_row = QtWidgets.QHBoxLayout()
         self.name_label = QtWidgets.QLabel("Name")
         self.name_combo = QtWidgets.QComboBox()
-        if use_pipewire:
-            devices = self.audio_model.get_pw_sources()
-        else:
-            devices = self.audio_model.get_pa_sources()
+        devices = self.audio_model.get_alsa_devices()
         if devices:
-            for name, index in devices:
-                display = f"{name} (index {index})"
-                self.name_combo.addItem(display, index)
+            for display_name, device_str in devices:
+                self.name_combo.addItem(display_name, device_str)
         else:
-            self.name_combo.addItem("Default", 0)
+            self.name_combo.addItem("No devices found", "")
         name_row.addWidget(self.name_label)
         name_row.addWidget(self.name_combo)
         layout.addLayout(name_row)
@@ -65,12 +57,11 @@ class AudioWidget(QtWidgets.QWidget):
         bit_depth_row = QtWidgets.QHBoxLayout()
         self.bit_depth_label = QtWidgets.QLabel("Bit Depth")
         self.bit_depth_combo = QtWidgets.QComboBox()
-        self.bit_depth_combo.addItems(["8", "16", "24", "32"])
         bit_depth_row.addWidget(self.bit_depth_label)
         bit_depth_row.addWidget(self.bit_depth_combo)
         layout.addLayout(bit_depth_row)
 
-        # Bit Rate
+        # Bit Rate (static, not ALSA-specific)
         bit_rate_row = QtWidgets.QHBoxLayout()
         self.bit_rate_label = QtWidgets.QLabel("Bit Rate")
         self.bit_rate_combo = QtWidgets.QComboBox()
@@ -83,7 +74,6 @@ class AudioWidget(QtWidgets.QWidget):
         sample_rate_row = QtWidgets.QHBoxLayout()
         self.sample_rate_label = QtWidgets.QLabel("Sample Rate")
         self.sample_rate_combo = QtWidgets.QComboBox()
-        self.sample_rate_combo.addItems(["22050", "44100", "48000", "96000"])
         sample_rate_row.addWidget(self.sample_rate_label)
         sample_rate_row.addWidget(self.sample_rate_combo)
         layout.addLayout(sample_rate_row)
@@ -93,25 +83,41 @@ class AudioWidget(QtWidgets.QWidget):
         main_layout.addWidget(group)
         self.setLayout(main_layout)
 
-        # --- Connect combo box selection to info methods ---
+        # Connect combo box selection to info methods
         self.name_combo.currentIndexChanged.connect(self.on_device_selected)
+        self.bit_depth_combo.currentIndexChanged.connect(self.on_bit_depth_selected)
+        self.sample_rate_combo.currentIndexChanged.connect(self.on_sample_rate_selected)
+
+        # Populate bit depth and sample rate for initial selection
+        self.on_device_selected(self.name_combo.currentIndex())
 
     def on_device_selected(self, idx):
-        # Get the index stored as user data
-        device_index = self.name_combo.itemData(idx)
-        if device_index is None:
+        device_str = self.name_combo.itemData(idx)
+        self.bit_depth_combo.clear()
+        self.sample_rate_combo.clear()
+        if not device_str:
             return
-        if self.use_pipewire:
-            info = self.audio_model.get_pw_device_info(device_index)
-            print(f"PipeWire device info for index {device_index}:\n{info}")
-        else:
-            # For PulseAudio/ALSA, you may need to map index to device name
-            # Here we just print the index, but you could call get_alsa_hw_params if you store device names
-            print(f"PulseAudio/ALSA device index selected: {device_index}")
+        bit_depths, sample_rates = self.audio_model.get_alsa_hw_params(device_str)
+        self.bit_depth_combo.addItems([str(bd) for bd in bit_depths])
+        self.sample_rate_combo.addItems([str(sr) for sr in sample_rates])
+        # Optionally, set initial values in the model
+        if bit_depths:
+            self.audio_model.bit_depth = int(bit_depths[0])
+        if sample_rates:
+            self.audio_model.sample_rate = int(sample_rates[0])
+
+    def on_bit_depth_selected(self, idx):
+        value = self.bit_depth_combo.itemText(idx)
+        if value.isdigit():
+            self.audio_model.bit_depth = int(value)
+
+    def on_sample_rate_selected(self, idx):
+        value = self.sample_rate_combo.itemText(idx)
+        if value.isdigit():
+            self.audio_model.sample_rate = int(value)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    # Pass use_pipewire=False to test PulseAudio logic
-    widget = AudioWidget(use_pipewire=False)
+    widget = AudioWidget()
     widget.show()
     sys.exit(app.exec_())
