@@ -15,6 +15,8 @@ import logging
 
 logger = logging.getLogger("audio_model")
 
+DEFAULT_AUDIO_SYNC = "300"
+
 class AudioModel(QObject):
     """
     Qt-based model for audio device and format selection using ALSA.
@@ -27,8 +29,12 @@ class AudioModel(QObject):
     bitDepthChanged = pyqtSignal(int)
     bitRateChanged = pyqtSignal(int)
     sampleRateChanged = pyqtSignal(int)
+    audioActiveChanged = pyqtSignal(bool)
+    muxAfterRecordChanged = pyqtSignal(bool)
+    audioSyncChanged = pyqtSignal(str)
 
-    def __init__(self, name="", index=0, bit_depth=16, bit_rate=128, sample_rate=44100):
+    def __init__(self, name="", index=0, bit_depth=16, bit_rate=128, sample_rate=44100,
+                 audio_sync=DEFAULT_AUDIO_SYNC, audio_active=False, mux_after_record=False):
         """
         Initialize the AudioModel with default or provided values.
         """
@@ -38,6 +44,9 @@ class AudioModel(QObject):
         self._bit_depth = bit_depth
         self._bit_rate = bit_rate
         self._sample_rate = sample_rate
+        self._audio_sync = audio_sync
+        self._audio_active = audio_active
+        self._mux_after_record = mux_after_record
 
     @property
     def name(self):
@@ -100,6 +109,51 @@ class AudioModel(QObject):
             print(f"[AudioModel] sample_rate set to {value}")
             self._sample_rate = value
             self.sampleRateChanged.emit(value)
+
+    @property
+    def audio_active(self):
+        """Audio is active (checkbox)."""
+        return self._audio_active
+
+    @audio_active.setter
+    def audio_active(self, value):
+        """Set audio active state and emit signal if changed."""
+        if value != self._audio_active:
+            print(f"[AudioModel] audio_active set to {value}")
+            self._audio_active = value
+            self.audioActiveChanged.emit(value)
+
+    @property
+    def mux_after_record(self):
+        """Mux after record (checkbox)."""
+        return self._mux_after_record
+
+    @mux_after_record.setter
+    def mux_after_record(self, value):
+        """Set mux after record state and emit signal if changed."""
+        if value != self._mux_after_record:
+            print(f"[AudioModel] mux_after_record set to {value}")
+            self._mux_after_record = value
+            self.muxAfterRecordChanged.emit(value)
+
+    @property
+    def audio_sync(self):
+        """Audio sync value from line edit."""
+        return self._audio_sync
+
+    @audio_sync.setter
+    def audio_sync(self, value):
+        """Set audio sync value and emit signal if changed. Constrain to -1000..1000."""
+        try:
+            int_value = int(value)
+            if -1000 <= int_value <= 1000:
+                if value != self._audio_sync:
+                    self._audio_sync = str(int_value)
+                    self.audioSyncChanged.emit(self._audio_sync)
+            else:
+                print(f"[AudioModel] audio_sync value {value} out of range (-1000 to 1000)")
+        except ValueError:
+            print(f"[AudioModel] audio_sync value {value} is not an integer")
 
     def get_alsa_devices(self):
         """
