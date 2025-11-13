@@ -29,16 +29,20 @@ Example:
 """
 
 import sys
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIntValidator
+from qt import QtWidgets, QtGui, QtCore, Qt, QIntValidator
 from audio_model import AudioModel
+
+print("[audio_widget.py] imported")
 
 class AudioWidget(QtWidgets.QWidget):
     def __init__(self, audio_model=None, parent=None, **kwargs):
-        # Accept audio_model from either direct argument or kwargs
-        if audio_model is None:
-            audio_model = kwargs.get("audio_model")
+        print("[AudioWidget] __init__ called")
+        if QtWidgets.QApplication.instance() is None:
+            print("[AudioWidget] QApplication does NOT exist!")
+        else:
+            print("[AudioWidget] QApplication exists!")
         super().__init__(parent)
+        print("[AudioWidget] super().__init__ complete")
         self.audio_model = audio_model or AudioModel()
 
         group = QtWidgets.QGroupBox("Audio")

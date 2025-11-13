@@ -78,6 +78,7 @@ import importlib.util
 from autofocus_widget import AutofocusWidget
 from paths_widget import PathsWidget
 from audio_model import AudioModel
+from audio_widget import AudioWidget
 
 # Configure logging
 logging.basicConfig(
@@ -207,7 +208,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # First column: placeholder widget
         bottom_col1 = self.create_autofocus_widget()
-        # Second column: adjustments widget (uses AdjustmentsWidget which is imported)
+        # Second column: instantiate AdjustmentsWidget with kwargs
         bottom_col2 = AdjustmentsWidget(**self.get_component_args())
         # Third column: placeholder widget
         bottom_col3 = PathsWidget(**self.get_component_args())
@@ -273,6 +274,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Initialize AudioModel
         self.audio_model = AudioModel()
+
+        # Add an "Audio" menu with an action to show AudioWidget
+        audio_menu = menubar.addMenu("Audio")
+        show_audio_action = QAction("Show Audio Widget", self)
+        audio_menu.addAction(show_audio_action)
+        show_audio_action.triggered.connect(self.show_audio_widget)
+        logging.info("Audio menu and Show Audio Widget action added.")
 
     def report_menu_status(self):
         """
@@ -407,6 +415,18 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.showNormal()
 
+    def show_audio_widget(self):
+        """Instantiate AudioWidget and show it in a dialog window."""
+        print("[MainWindow] show_audio_widget called")
+        audio_widget = AudioWidget(**self.get_component_args())
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle("Audio Widget")
+        layout = QtWidgets.QVBoxLayout(dialog)
+        layout.addWidget(audio_widget)
+        dialog.setLayout(layout)
+        dialog.resize(400, 300)
+        dialog.exec()
+
 if __name__ == "__main__":
     """
     Entry point for the application. Initializes QApplication, shows the main window,
@@ -424,7 +444,13 @@ if __name__ == "__main__":
     cam = DummyCam()
     config_model = ConfigModel()
     controls_model = ControlsModel()
-    window = MainWindow(cam=cam, config_model=config_model, controls_model=controls_model)
+    audio_model = AudioModel()
+    window = MainWindow(
+        cam=cam,
+        config_model=config_model,
+        controls_model=controls_model,
+        audio_model=audio_model
+    )
     window.show()
     logging.info("MainWindow shown. Entering Qt event loop.")
     sys.exit(app.exec())
