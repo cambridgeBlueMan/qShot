@@ -334,7 +334,8 @@ class MainWindow(QtWidgets.QMainWindow):
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            class_name = name.capitalize()
+            # Use CamelCase for class name
+            class_name = ''.join(part.capitalize() for part in name.split('_'))
             widget_class = getattr(module, class_name)
             widget_instance = widget_class(**self.get_component_args(name))
             widget_instance.setWindowTitle(class_name)
@@ -364,7 +365,8 @@ class MainWindow(QtWidgets.QMainWindow):
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            class_name = name.capitalize()
+            # Use CamelCase for class name
+            class_name = ''.join(part.capitalize() for part in name.split('_'))
             widget_class = getattr(module, class_name)
             widget_instance = widget_class(**self.get_component_args(name))
             widget_instance.setWindowTitle(class_name)
