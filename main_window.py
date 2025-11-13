@@ -77,6 +77,7 @@ from zoomer import Zoomer
 import importlib.util
 from autofocus_widget import AutofocusWidget
 from paths_widget import PathsWidget
+from audio_model import AudioModel
 
 # Configure logging
 logging.basicConfig(
@@ -116,7 +117,8 @@ class MainWindow(QtWidgets.QMainWindow):
         config_model=None,
         controls_model=None,
         zoomsets_model=None,
-        path_model=None
+        path_model=None,
+        audio_model=None  # Add this argument
     ):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
@@ -142,6 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.controls_model = controls_model
         self.zoomsets_model = zoomsets_model
         self.path_model = path_model
+        self.audio_model = audio_model or AudioModel()  # <-- Add this line
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
@@ -268,6 +271,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.left_dock.visibilityChanged.connect(self.on_left_dock_visibility_changed)
 
+        # Initialize AudioModel
+        self.audio_model = AudioModel()
+
     def report_menu_status(self):
         """
         Report the current status of the checkable menu actions (tom, dick, harry)
@@ -388,7 +394,8 @@ class MainWindow(QtWidgets.QMainWindow):
             "config_model": self.config_model,
             "controls_model": self.controls_model,
             "zoomsets_model": self.zoomsets_model,
-            "path_model": self.path_model,  # <-- Add this line!
+            "path_model": self.path_model,
+            "audio_model": self.audio_model,  # <-- Add this line
         }
         if name is not None:
             args["settings_group"] = name

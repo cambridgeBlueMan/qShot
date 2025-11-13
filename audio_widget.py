@@ -34,7 +34,10 @@ from PyQt5.QtGui import QIntValidator
 from audio_model import AudioModel
 
 class AudioWidget(QtWidgets.QWidget):
-    def __init__(self, audio_model=None, parent=None):
+    def __init__(self, audio_model=None, parent=None, **kwargs):
+        # Accept audio_model from either direct argument or kwargs
+        if audio_model is None:
+            audio_model = kwargs.get("audio_model")
         super().__init__(parent)
         self.audio_model = audio_model or AudioModel()
 

@@ -60,6 +60,7 @@ from config_model import ConfigModel
 from controls_model import ControlsModel
 from zoomsets_model import ZoomsetsModel
 from path_model import PathModel
+from audio_model import AudioModel
 
 # Configure logging
 logging.basicConfig(
@@ -132,12 +133,17 @@ if __name__ == "__main__":
         path_model = PathModel()
         logging.info("PathModel instance created.")
 
+        # Create the audio model
+        audio_model = AudioModel()
+        logging.info("AudioModel instance created.")
+
         window = MainWindow(
             cam=camera,
             config_model=config_model,
             controls_model=controls_model,
             zoomsets_model=zoomsets_model,
-            path_model=path_model
+            path_model=path_model,
+            audio_model=audio_model
         )
 
         # Optionally set a default size
