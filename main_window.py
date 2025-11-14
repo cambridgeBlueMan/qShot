@@ -88,7 +88,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "example"
+DEFAULT_WIDGET = "simple_still"
 
 class MainWindow(QtWidgets.QMainWindow):
     """
