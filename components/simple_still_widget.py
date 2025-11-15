@@ -25,6 +25,33 @@ class SimpleStill(ComponentBase):
         self.common_controls_group.setVisible(False)
         group_layout = QtWidgets.QVBoxLayout()
 
+        # --- JPEG Quality Slider (first row) ---
+        jpeg_layout = QtWidgets.QHBoxLayout()
+        jpeg_label = QtWidgets.QLabel("JPEG Quality")
+        jpeg_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
+        jpeg_slider.setMinimum(self.controls_model._control_ranges["JpegQuality"][0])
+        jpeg_slider.setMaximum(self.controls_model._control_ranges["JpegQuality"][1])
+        jpeg_slider.setValue(self.controls_model.JpegQuality)
+        jpeg_slider.setTickInterval(1)
+        # No tick position set
+        jpeg_value_label = QtWidgets.QLabel(str(self.controls_model.JpegQuality))
+
+        jpeg_layout.addWidget(jpeg_label)
+        jpeg_layout.addWidget(jpeg_slider)
+        jpeg_layout.addWidget(jpeg_value_label)
+        group_layout.addLayout(jpeg_layout)
+
+        # Connect slider to model
+        def on_jpeg_slider_changed(value):
+            self.controls_model.JpegQuality = value
+            jpeg_value_label.setText(str(value))
+        jpeg_slider.valueChanged.connect(on_jpeg_slider_changed)
+
+        def on_jpeg_quality_changed(value):
+            jpeg_slider.setValue(value)
+            jpeg_value_label.setText(str(value))
+        self.controls_model.JpegQualityChanged.connect(on_jpeg_quality_changed)
+
         # Add AdjustmentsWidget to the group box
         self.adjustments_widget = AdjustmentsWidget(self.controls_model, mode="dials")
         group_layout.addWidget(self.adjustments_widget)
