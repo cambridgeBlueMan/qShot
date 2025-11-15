@@ -1,6 +1,7 @@
 from components.component_base import ComponentBase
 from qt import QtWidgets, Qt
 from adjustments import AdjustmentsWidget
+from res_combo import ResCombo  # Import ResCombo
 
 class SimpleStill(ComponentBase):
     def __init__(self, parent=None, **kwargs):
@@ -17,7 +18,6 @@ class SimpleStill(ComponentBase):
         button_row.addWidget(self.more_button)
         self.more_button.toggled.connect(self.toggle_common_controls)
 
-        # Add the button row to the main layout
         self.base_layout.addLayout(button_row)
 
         # Create the 'Common Controls' group box (invisible by default)
@@ -33,7 +33,6 @@ class SimpleStill(ComponentBase):
         jpeg_slider.setMaximum(self.controls_model._control_ranges["JpegQuality"][1])
         jpeg_slider.setValue(self.controls_model.JpegQuality)
         jpeg_slider.setTickInterval(1)
-        # No tick position set
         jpeg_value_label = QtWidgets.QLabel(str(self.controls_model.JpegQuality))
 
         jpeg_layout.addWidget(jpeg_label)
@@ -52,14 +51,37 @@ class SimpleStill(ComponentBase):
             jpeg_value_label.setText(str(value))
         self.controls_model.JpegQualityChanged.connect(on_jpeg_quality_changed)
 
+        # --- Automatic Exposure Control (AE) Checkbox row ---
+        ae_layout = QtWidgets.QHBoxLayout()
+        ae_checkbox = QtWidgets.QCheckBox("Automatic Exposure Control (AE)")
+        ae_checkbox.setChecked(self.controls_model.AeEnable)
+        ae_layout.addWidget(ae_checkbox)
+        group_layout.addLayout(ae_layout)
+
+        # Connect checkbox to model
+        def on_ae_checkbox_changed(state):
+            self.controls_model.AeEnable = bool(state)
+        ae_checkbox.stateChanged.connect(on_ae_checkbox_changed)
+
+        def on_ae_enable_changed(value):
+            ae_checkbox.setChecked(bool(value))
+        self.controls_model.AeEnableChanged.connect(on_ae_enable_changed)
+
+        # --- Select Resolution row ---
+        res_layout = QtWidgets.QHBoxLayout()
+        res_label = QtWidgets.QLabel("Select Resolution")
+        res_combo = ResCombo(config_model=self.config_model)
+        res_layout.addWidget(res_label)
+        res_layout.addWidget(res_combo)
+        group_layout.addLayout(res_layout)
+
         # Add AdjustmentsWidget to the group box
         self.adjustments_widget = AdjustmentsWidget(self.controls_model, mode="dials")
         group_layout.addWidget(self.adjustments_widget)
 
         self.common_controls_group.setLayout(group_layout)
         self.base_layout.addWidget(self.common_controls_group)
-
-        self.base_layout.addStretch()  # Add stretch to force buttons/group box to the top
+        self.base_layout.addStretch()
 
         self.preview.done_signal.connect(self.capture_done)
 

@@ -474,6 +474,7 @@ class ControlsModel(QtCore.QObject):
         if value != self._AeEnable:
             self._AeEnable = value
             self.AeEnableChanged.emit(value)
+            logging.info(f"AeEnable set to {value}")
 
     @property
     def ExposureValue(self) -> float:
