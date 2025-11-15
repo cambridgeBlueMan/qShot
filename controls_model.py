@@ -57,6 +57,7 @@ class ControlsModel(QtCore.QObject):
     AfMeteringChanged = QtCore.pyqtSignal(int)  # Signal for AF metering
     AfCycleDone = QtCore.pyqtSignal(bool)  # Signal for AF cycle completion (True=success, False=failure)
     LensPositionChanged = QtCore.pyqtSignal(float)  # Signal for lens position changes
+    JpegQualityChanged = QtCore.pyqtSignal(int)  # 1-100
 
     def __init__(self, cam=None):
         super().__init__()
@@ -121,6 +122,9 @@ class ControlsModel(QtCore.QObject):
         # AF metering mapping:
         # 0: 'Global'
         # 1: 'Windows'
+
+        self._control_ranges["JpegQuality"] = (1, 100, 90)  # min, max, default
+        self._JpegQuality = self._control_ranges["JpegQuality"][2]
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -572,6 +576,16 @@ class ControlsModel(QtCore.QObject):
                 self.cam.set_controls({"LensPosition": mapped_value})
             except Exception as e:
                 logging.error(f"Failed to set LensPosition: {e}")
+
+    @property
+    def JpegQuality(self) -> int:
+        return self._JpegQuality
+
+    @JpegQuality.setter
+    def JpegQuality(self, value: int):
+        if value != self._JpegQuality:
+            self._JpegQuality = value
+            self.JpegQualityChanged.emit(value)
 
     def to_preview_config(self, picam2: Picamera2):
         """

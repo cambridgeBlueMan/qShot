@@ -1,14 +1,9 @@
-try:
-    from PyQt6 import QtWidgets, QtCore
-    Qt = QtCore.Qt
-except ImportError:
-    from PyQt5 import QtWidgets, QtCore
-    Qt = QtCore.Qt
+from qt import QtWidgets, QtCore, Qt
 
 DIAL_SIZE = 60  # Add this near the top of the file, after imports
 
 class AdjustmentsWidget(QtWidgets.QWidget):
-    def __init__(self, controls_model, parent=None, **kwargs):
+    def __init__(self, controls_model, parent=None, mode="sliders", **kwargs):
         super().__init__(parent)
         self.controls_model = controls_model
 
@@ -29,7 +24,11 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         mode_layout = QtWidgets.QHBoxLayout()
         self.slider_radio = QtWidgets.QRadioButton("Sliders")
         self.dial_radio = QtWidgets.QRadioButton("Dials")
-        self.slider_radio.setChecked(True)
+        # Set initial mode based on argument
+        if mode == "dials":
+            self.dial_radio.setChecked(True)
+        else:
+            self.slider_radio.setChecked(True)
         mode_layout.addWidget(self.slider_radio)
         mode_layout.addWidget(self.dial_radio)
         group_layout.addLayout(mode_layout)
@@ -236,7 +235,8 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.saturation_dial.valueChanged.connect(self.on_saturation_dial_changed)
         self.controls_model.SaturationChanged.connect(self.on_model_saturation_changed)
 
-        self.update_control_mode()
+        self.update_control_mode()  # Ensure correct initial mode
+
     # --- Mapping functions (adjust as needed for your value ranges) ---
     def contrast_to_slider(self, contrast):
 
