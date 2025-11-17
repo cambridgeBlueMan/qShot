@@ -41,15 +41,8 @@ class SimpleStill(ComponentBase):
         group_layout.addLayout(jpeg_layout)
 
         # Connect slider to model
-        def on_jpeg_slider_changed(value):
-            self.controls_model.JpegQuality = value
-            jpeg_value_label.setText(str(value))
-        jpeg_slider.valueChanged.connect(on_jpeg_slider_changed)
-
-        def on_jpeg_quality_changed(value):
-            jpeg_slider.setValue(value)
-            jpeg_value_label.setText(str(value))
-        self.controls_model.JpegQualityChanged.connect(on_jpeg_quality_changed)
+        jpeg_slider.valueChanged.connect(self.on_jpeg_slider_changed)
+        self.controls_model.JpegQualityChanged.connect(self.on_jpeg_quality_changed)
 
         # --- Automatic Exposure Control (AE) Checkbox row ---
         ae_layout = QtWidgets.QHBoxLayout()
@@ -59,13 +52,8 @@ class SimpleStill(ComponentBase):
         group_layout.addLayout(ae_layout)
 
         # Connect checkbox to model
-        def on_ae_checkbox_changed(state):
-            self.controls_model.AeEnable = bool(state)
-        ae_checkbox.stateChanged.connect(on_ae_checkbox_changed)
-
-        def on_ae_enable_changed(value):
-            ae_checkbox.setChecked(bool(value))
-        self.controls_model.AeEnableChanged.connect(on_ae_enable_changed)
+        ae_checkbox.stateChanged.connect(self.on_ae_checkbox_changed)
+        self.controls_model.AeEnableChanged.connect(self.on_ae_enable_changed)
 
         # --- Select Resolution row ---
         res_layout = QtWidgets.QHBoxLayout()
@@ -75,7 +63,11 @@ class SimpleStill(ComponentBase):
         res_layout.addWidget(res_combo)
         group_layout.addLayout(res_layout)
 
-
+        # Examine available sensor_modes and choose the highest resolution.
+        # For still photos, framerate is not important, so we select the mode
+        # with the largest size tuple (highest resolution) and update the config_model
+        # accordingly. This ensures the camera is configured for maximum image quality.
+        highest_mode_dict = None
         if hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
             highest_mode_dict = self.cam.sensor_modes[-1]
             if self.config_model:
@@ -86,6 +78,9 @@ class SimpleStill(ComponentBase):
                 # Diagnostic to confirm values are set
                 print("ConfigModel sensor.output_size:", self.config_model._config.get('sensor', {}).get('output_size'))
                 print("ConfigModel sensor.bit_depth:", self.config_model._config.get('sensor', {}).get('bit_depth'))
+            # Pass highest_mode_dict to ResCombo's generate_combo_items method
+            res_combo.generateComboItems(highest_mode_dict)
+            res_combo.set_largest_resolution()
 
         # Add AdjustmentsWidget to the group box
         self.adjustments_widget = AdjustmentsWidget(self.controls_model, mode="dials")
@@ -117,3 +112,21 @@ class SimpleStill(ComponentBase):
             print("More... button toggled OFF")
             self.common_controls_group.setVisible(False)
             self.more_button.setText("more...")
+
+    # --- Signal Handlers as Class Methods ---
+    def on_jpeg_slider_changed(self, value):
+        self.controls_model.JpegQuality = value
+        # Find the label in the layout and update it
+        # If you want to keep a reference, store jpeg_value_label as self.jpeg_value_label
+        # For now, let's assume you keep a reference:
+        self.jpeg_value_label.setText(str(value))
+
+    def on_jpeg_quality_changed(self, value):
+        self.jpeg_slider.setValue(value)
+        self.jpeg_value_label.setText(str(value))
+
+    def on_ae_checkbox_changed(self, state):
+        self.controls_model.AeEnable = bool(state)
+
+    def on_ae_enable_changed(self, value):
+        self.ae_checkbox.setChecked(bool(value))

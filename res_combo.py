@@ -50,6 +50,16 @@ class ResCombo(qtw.QComboBox):
             self.config_model.set_nested('main', 'size', size)
             print(f"Set config['main']['size'] to {size}")
 
+    def set_largest_resolution(self):
+        """Set the combo box to the largest available resolution."""
+        if not self.resolutions:
+            return
+        largest = max(self.resolutions, key=lambda x: x[1][0] * x[1][1])
+        ix = self.findData(largest[1])
+        if ix != -1:
+            self.setCurrentIndex(ix)
+            print(f"Defaulting to largest resolution: {largest[0]}, {largest[1]}")
+
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)
     w = qtw.QWidget()
