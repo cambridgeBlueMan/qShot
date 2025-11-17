@@ -75,6 +75,18 @@ class SimpleStill(ComponentBase):
         res_layout.addWidget(res_combo)
         group_layout.addLayout(res_layout)
 
+
+        if hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
+            highest_mode_dict = self.cam.sensor_modes[-1]
+            if self.config_model:
+                if 'size' in highest_mode_dict:
+                    self.config_model.set_nested('sensor', 'output_size', highest_mode_dict['size'])
+                if 'bit_depth' in highest_mode_dict:
+                    self.config_model.set_nested('sensor', 'bit_depth', highest_mode_dict['bit_depth'])
+                # Diagnostic to confirm values are set
+                print("ConfigModel sensor.output_size:", self.config_model._config.get('sensor', {}).get('output_size'))
+                print("ConfigModel sensor.bit_depth:", self.config_model._config.get('sensor', {}).get('bit_depth'))
+
         # Add AdjustmentsWidget to the group box
         self.adjustments_widget = AdjustmentsWidget(self.controls_model, mode="dials")
         group_layout.addWidget(self.adjustments_widget)
