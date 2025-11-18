@@ -28,39 +28,39 @@ class SimpleStill(ComponentBase):
         # --- JPEG Quality Slider (first row) ---
         jpeg_layout = QtWidgets.QHBoxLayout()
         jpeg_label = QtWidgets.QLabel("JPEG Quality")
-        jpeg_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-        jpeg_slider.setMinimum(self.controls_model._control_ranges["JpegQuality"][0])
-        jpeg_slider.setMaximum(self.controls_model._control_ranges["JpegQuality"][1])
-        jpeg_slider.setValue(self.controls_model.JpegQuality)
-        jpeg_slider.setTickInterval(1)
-        jpeg_value_label = QtWidgets.QLabel(str(self.controls_model.JpegQuality))
+        self.jpeg_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
+        self.jpeg_slider.setMinimum(self.controls_model._control_ranges["JpegQuality"][0])
+        self.jpeg_slider.setMaximum(self.controls_model._control_ranges["JpegQuality"][1])
+        self.jpeg_slider.setValue(self.controls_model.JpegQuality)
+        self.jpeg_slider.setTickInterval(1)
+        self.jpeg_value_label = QtWidgets.QLabel(str(self.controls_model.JpegQuality))
 
         jpeg_layout.addWidget(jpeg_label)
-        jpeg_layout.addWidget(jpeg_slider)
-        jpeg_layout.addWidget(jpeg_value_label)
+        jpeg_layout.addWidget(self.jpeg_slider)
+        jpeg_layout.addWidget(self.jpeg_value_label)
         group_layout.addLayout(jpeg_layout)
 
         # Connect slider to model
-        jpeg_slider.valueChanged.connect(self.on_jpeg_slider_changed)
+        self.jpeg_slider.valueChanged.connect(self.on_jpeg_slider_changed)
         self.controls_model.JpegQualityChanged.connect(self.on_jpeg_quality_changed)
 
         # --- Automatic Exposure Control (AE) Checkbox row ---
         ae_layout = QtWidgets.QHBoxLayout()
-        ae_checkbox = QtWidgets.QCheckBox("Automatic Exposure Control (AE)")
-        ae_checkbox.setChecked(self.controls_model.AeEnable)
-        ae_layout.addWidget(ae_checkbox)
+        self.ae_checkbox = QtWidgets.QCheckBox("Automatic Exposure Control (AE)")
+        self.ae_checkbox.setChecked(self.controls_model.AeEnable)
+        ae_layout.addWidget(self.ae_checkbox)
         group_layout.addLayout(ae_layout)
 
         # Connect checkbox to model
-        ae_checkbox.stateChanged.connect(self.on_ae_checkbox_changed)
+        self.ae_checkbox.stateChanged.connect(self.on_ae_checkbox_changed)
         self.controls_model.AeEnableChanged.connect(self.on_ae_enable_changed)
 
         # --- Select Resolution row ---
         res_layout = QtWidgets.QHBoxLayout()
         res_label = QtWidgets.QLabel("Select Resolution")
-        res_combo = ResCombo(config_model=self.config_model)
+        self.res_combo = ResCombo(config_model=self.config_model)
         res_layout.addWidget(res_label)
-        res_layout.addWidget(res_combo)
+        res_layout.addWidget(self.res_combo)
         group_layout.addLayout(res_layout)
 
         # Examine available sensor_modes and choose the highest resolution.
@@ -79,8 +79,11 @@ class SimpleStill(ComponentBase):
                 print("ConfigModel sensor.output_size:", self.config_model._config.get('sensor', {}).get('output_size'))
                 print("ConfigModel sensor.bit_depth:", self.config_model._config.get('sensor', {}).get('bit_depth'))
             # Pass highest_mode_dict to ResCombo's generate_combo_items method
-            res_combo.generateComboItems(highest_mode_dict)
-            res_combo.set_largest_resolution()
+            self.res_combo.generateComboItems(highest_mode_dict)
+            self.res_combo.set_largest_resolution()
+
+        # Connect resolution combo index change to handler
+        self.res_combo.currentIndexChanged.connect(self.set_size_in_config)
 
         # Add AdjustmentsWidget to the group box
         self.adjustments_widget = AdjustmentsWidget(self.controls_model, mode="dials")
@@ -116,9 +119,6 @@ class SimpleStill(ComponentBase):
     # --- Signal Handlers as Class Methods ---
     def on_jpeg_slider_changed(self, value):
         self.controls_model.JpegQuality = value
-        # Find the label in the layout and update it
-        # If you want to keep a reference, store jpeg_value_label as self.jpeg_value_label
-        # For now, let's assume you keep a reference:
         self.jpeg_value_label.setText(str(value))
 
     def on_jpeg_quality_changed(self, value):
@@ -130,3 +130,27 @@ class SimpleStill(ComponentBase):
 
     def on_ae_enable_changed(self, value):
         self.ae_checkbox.setChecked(bool(value))
+
+    # def on_res_combo_index_changed(self, index):
+    #     size = self.res_combo.itemData(index)
+    #     if size and self.config_model:
+    #         self.config_model.set_nested('sensor', 'output_size', size)
+    #         print(f"Resolution changed to: {size}")
+    
+    def set_size_in_config(self, index):
+        """
+        Slot to set the 'main', 'size' value in the config dictionary when the combo selection changes.
+        Also stops and restarts the camera to apply the new configuration.
+        """
+        size = self.res_combo.itemData(index)
+        if size and self.config_model and self.cam:
+            self.config_model.set_nested('main', 'size', size)
+            print(f"Set config['main']['size'] to {size}")
+            # Stop, reconfigure, and restart camera
+            was_running = getattr(self.cam, 'started', False)
+            if was_running:
+                self.cam.stop()
+            config_dict = self.config_model.to_dict()
+            self.cam.configure(config_dict)
+            if was_running:
+                self.cam.start()

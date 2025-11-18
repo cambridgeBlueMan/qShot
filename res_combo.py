@@ -23,7 +23,7 @@ class ResCombo(qtw.QComboBox):
         ]
         self.generateComboItems(mode=None)
         self.currentIndexChanged.connect(self.set_size_in_config)
-        self.show()
+        # self.show()
 
     def generateComboItems(self, mode):
         self.clear()

@@ -94,6 +94,8 @@ class Example(AIFileManager):
             self.camera_mode_combo.setCurrentIndex(self.camera_mode_combo.count() - 1)
             self._on_mode_changed(self.camera_mode_combo.currentIndex())
 
+        self.res_combo.currentIndexChanged.connect(self.on_res_combo_changed)
+
     def on_button_clicked(self):
         self.label.setText("Button clicked!")
         logging.info("Test widget button was clicked.")
@@ -152,6 +154,8 @@ class Example(AIFileManager):
             self.framerate_combo.setCurrentIndex(self.framerate_combo.count() - 1)
 
     def on_config_changed(self, cfg):
+        print("Config dict before camera configure:", cfg)
+        print("main.size:", cfg.get("main", {}).get("size"))
         cam_name = getattr(self.cam, 'camera_name', str(self.cam)) if self.cam is not None else "Unknown Camera"
         print(f"Config changed for {cam_name}:")
         pp = pprint.PrettyPrinter(indent=2)
@@ -172,6 +176,10 @@ class Example(AIFileManager):
         else:
             self.label.setText("No folder selected.")
             logging.info("Dataset folder selection canceled.")
+
+    def on_res_combo_changed(self, size):
+        if size and self.config_model:
+            self.config_model.set_nested('main', 'size', size)
 
 if __name__ == "__main__":
     """
