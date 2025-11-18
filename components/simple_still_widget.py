@@ -95,6 +95,40 @@ class SimpleStill(ComponentBase):
 
         self.preview.done_signal.connect(self.capture_done)
 
+        # --- File name group box ---
+        filename_group = QtWidgets.QGroupBox("File name")
+        filename_group.setStyleSheet("""
+            QtWidgets.QGroupBox {
+                font-weight: bold;
+            }
+        """)
+        filename_grid = QtWidgets.QGridLayout()
+
+        # Image root row
+        filename_grid.addWidget(QtWidgets.QLabel("Image root:"), 0, 0)
+        self.img_root = QtWidgets.QLineEdit(self.path_model.rootnames.get("img", "img_"))
+        filename_grid.addWidget(self.img_root, 0, 1)
+
+        # Strategy row
+        filename_grid.addWidget(QtWidgets.QLabel("Strategy:"), 1, 0)
+        self.strategy = QtWidgets.QComboBox()
+        self.strategy.addItems(["date", "sequence", "hash"])
+        self.strategy.setCurrentText(self.path_model.strategy)
+        filename_grid.addWidget(self.strategy, 1, 1)
+
+        # Generate sample and Save row
+        self.preview_label = QtWidgets.QLabel(self.path_model.generate_filename("img"))
+        filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
+        gen_btn = QtWidgets.QPushButton("Generate sample")
+        gen_btn.clicked.connect(self._generate_sample)
+        filename_grid.addWidget(gen_btn, 2, 2)
+        save_btn = QtWidgets.QPushButton("Save")
+        save_btn.clicked.connect(self._save_filename_settings)
+        filename_grid.addWidget(save_btn, 3, 2)
+
+        filename_group.setLayout(filename_grid)
+        group_layout.addWidget(filename_group)
+
     def capture_done(self, job):
         print("Image capture completed:", job)  
         self.capture_button.setEnabled(True)
@@ -103,7 +137,8 @@ class SimpleStill(ComponentBase):
         print("Capture button pressed: capturing still image...")
         if self.cam and self.preview:
             print("Starting image capture...")
-            self.cam.capture_file("still.jpg", signal_function=self.preview.signal_done)    
+            file_path = self.path_model.full_path()  # or similar method
+            self.cam.capture_file(file_path, signal_function=self.preview.signal_done)
             self.capture_button.setEnabled(False)
 
     def toggle_common_controls(self, checked):
@@ -120,6 +155,10 @@ class SimpleStill(ComponentBase):
     def on_jpeg_slider_changed(self, value):
         self.controls_model.JpegQuality = value
         self.jpeg_value_label.setText(str(value))
+        # Set Picamera2 quality option if available
+        if hasattr(self.cam, "options") and isinstance(self.cam.options, dict):
+            self.cam.options["quality"] = value
+            print(f"Set cam.options['quality'] to {value}")
 
     def on_jpeg_quality_changed(self, value):
         self.jpeg_slider.setValue(value)
@@ -154,3 +193,30 @@ class SimpleStill(ComponentBase):
             self.cam.configure(config_dict)
             if was_running:
                 self.cam.start()
+
+    def _generate_sample(self):
+        """Generate a sample file name based on current settings."""
+        # Extract current values from widgets
+        img_root = self.img_root.text().strip() or "img_"
+        strategy = self.strategy.currentText()
+
+        # Update path model and generate file name
+        self.path_model.set_rootname("img", img_root)
+        self.path_model.set_strategy(strategy)
+        sample_filename = self.path_model.generate_filename("img")
+
+        # Update preview label
+        self.preview_label.setText(sample_filename)
+        print(f"Generated sample file name: {sample_filename}")
+
+    def _save_filename_settings(self):
+        """Save the current file name settings to the path model."""
+        img_root = self.img_root.text().strip() or "img_"
+        strategy = self.strategy.currentText()
+
+        # Update path model
+        self.path_model.set_rootname("img", img_root)
+        self.path_model.set_strategy(strategy)
+
+        # Optionally, show a message or update the UI to indicate success
+        print(f"Saved file name settings: root='{img_root}', strategy='{strategy}'")

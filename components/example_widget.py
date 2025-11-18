@@ -129,9 +129,9 @@ class Example(AIFileManager):
             frame_duration = int(1e6 / framerate)
             self.controls_model.FrameDurationLimits = (frame_duration, frame_duration)
             logging.info(f"Test widget framerate changed: {framerate} fps (FrameDurationLimits set to ({frame_duration}, {frame_duration}))")
-            pp = pprint.PrettyPrinter(indent=2)
-            if self.config_model:
-                pp.pprint(self.config_model.to_dict().get('main'))
+            # pp = pprint.PrettyPrinter(indent=2)
+            # if self.config_model:
+            #     pp.pprint(self.config_model.to_dict().get('main'))
 
     def on_global_mode_changed(self, mode):
         self.res_combo.generateComboItems(mode)
@@ -154,12 +154,12 @@ class Example(AIFileManager):
             self.framerate_combo.setCurrentIndex(self.framerate_combo.count() - 1)
 
     def on_config_changed(self, cfg):
-        print("Config dict before camera configure:", cfg)
-        print("main.size:", cfg.get("main", {}).get("size"))
+        # print("Config dict before camera configure:", cfg)
+        # print("main.size:", cfg.get("main", {}).get("size"))
         cam_name = getattr(self.cam, 'camera_name', str(self.cam)) if self.cam is not None else "Unknown Camera"
-        print(f"Config changed for {cam_name}:")
-        pp = pprint.PrettyPrinter(indent=2)
-        pp.pprint(cfg.get('main'))
+        # print(f"Config changed for {cam_name}:")
+        # pp = pprint.PrettyPrinter(indent=2)
+        # pp.pprint(cfg.get('main'))
         if self.cam is not None:
             was_running = self.cam.started
             if was_running:
@@ -177,9 +177,14 @@ class Example(AIFileManager):
             self.label.setText("No folder selected.")
             logging.info("Dataset folder selection canceled.")
 
-    def on_res_combo_changed(self, size):
-        if size and self.config_model:
-            self.config_model.set_nested('main', 'size', size)
+    def on_res_combo_changed(self, index):
+        # Get the (width, height) tuple from the second element of the user data
+        size_tuple = self.res_combo.itemData(index)
+        # print("Selected resolution tuple:", size_tuple)
+        if isinstance(size_tuple, tuple) and len(size_tuple) == 2 and all(isinstance(x, int) for x in size_tuple):
+            self.config_model.set_nested('main', 'size', size_tuple)
+        else:
+            print("Invalid size tuple:", size_tuple)
 
 if __name__ == "__main__":
     """

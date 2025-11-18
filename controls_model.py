@@ -123,7 +123,7 @@ class ControlsModel(QtCore.QObject):
         # 0: 'Global'
         # 1: 'Windows'
 
-        self._control_ranges["JpegQuality"] = (1, 100, 90)  # min, max, default
+        self._control_ranges["JpegQuality"] = (1, 95, 90)  # min, max, default
         self._JpegQuality = self._control_ranges["JpegQuality"][2]
 
     @property
