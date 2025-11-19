@@ -114,20 +114,26 @@ class SimpleStill(ComponentBase):
         self.strategy = QtWidgets.QComboBox()
         self.strategy.addItems(["date", "sequence", "hash"])
         self.strategy.setCurrentText(self.path_model.strategy)
+        self.strategy.currentIndexChanged.connect(self._update_strategy_in_model)
         filename_grid.addWidget(self.strategy, 1, 1)
 
         # Generate sample and Save row
         self.preview_label = QtWidgets.QLabel(self.path_model.generate_filename("img"))
         filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
-        gen_btn = QtWidgets.QPushButton("Generate sample")
-        gen_btn.clicked.connect(self._generate_sample)
-        filename_grid.addWidget(gen_btn, 2, 2)
-        save_btn = QtWidgets.QPushButton("Save")
-        save_btn.clicked.connect(self._save_filename_settings)
-        filename_grid.addWidget(save_btn, 3, 2)
+        # gen_btn = QtWidgets.QPushButton("Generate sample")
+        # gen_btn.clicked.connect(self._generate_sample)
+        # filename_grid.addWidget(gen_btn, 2, 2)
+        # save_btn = QtWidgets.QPushButton("Save")
+        # save_btn.clicked.connect(self._save_filename_settings)
+        # filename_grid.addWidget(save_btn, 3, 2)
 
         filename_group.setLayout(filename_grid)
         group_layout.addWidget(filename_group)
+
+        self.img_root.editingFinished.connect(self._update_img_root_in_model)
+        #self.strategy.currentIndexChanged.connect(self._update_strategy_in_model)
+        # update path_model->widget if changed externally
+        self.path_model.pathsChanged.connect(self._update_from_model)
 
     def capture_done(self, job):
         print("Image capture completed:", job)  
@@ -209,10 +215,10 @@ class SimpleStill(ComponentBase):
         self.preview_label.setText(sample_filename)
         print(f"Generated sample file name: {sample_filename}")
 
-    def _save_filename_settings(self):
-        """Save the current file name settings to the path model."""
-        img_root = self.img_root.text().strip() or "img_"
-        strategy = self.strategy.currentText()
+    # def _save_filename_settings(self):
+    #     """Save the current file name settings to the path model."""
+    #     img_root = self.img_root.text().strip() or "img_"
+    #     strategy = self.strategy.currentText()
 
         # Update path model
         self.path_model.set_rootname("img", img_root)
@@ -220,3 +226,30 @@ class SimpleStill(ComponentBase):
 
         # Optionally, show a message or update the UI to indicate success
         print(f"Saved file name settings: root='{img_root}', strategy='{strategy}'")
+
+    def _update_from_model(self):
+
+        if self.img_root.text() != self.path_model.rootnames.get("img", "img_"):
+            self.img_root.blockSignals(True)
+            self.img_root.setText(self.path_model.rootnames.get("img", "img_"))
+            self.img_root.blockSignals(False)
+
+        if self.strategy.currentText() != self.path_model.strategy:
+            self.strategy.blockSignals(True)
+            self.strategy.setCurrentText(self.path_model.strategy)
+            self.strategy.blockSignals(False)
+
+    def _update_img_root_in_model(self):
+        img_root = self.img_root.text().strip() or "img_"
+        if img_root != self.path_model.rootnames.get("img", "img_"):
+            self.path_model.set_rootname("img", img_root)
+            print(f"Updated path_model rootname to: {img_root}")
+        self.preview_label.setText(self.path_model.generate_filename("img"))
+
+
+    def _update_strategy_in_model(self, index):
+        strategy_text = self.strategy.itemText(index)
+        if strategy_text != self.path_model.strategy:
+            self.path_model.set_strategy(strategy_text)
+            # self.preview_label.setText(self.path_model.generate_filename("img"))
+        self.preview_label.setText(self.path_model.generate_filename("img"))

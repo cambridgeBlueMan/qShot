@@ -7,7 +7,7 @@ class PathsWidget(QtWidgets.QWidget):
     """
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
-        self.model = kwargs.get("path_model")
+        self.path_model = kwargs.get("path_model")
         layout = QtWidgets.QVBoxLayout(self)
 
         # --- Paths group box ---
@@ -20,7 +20,7 @@ class PathsWidget(QtWidgets.QWidget):
         paths_grid = QtWidgets.QGridLayout()
         # Still folder row
         paths_grid.addWidget(QtWidgets.QLabel("Still folder:"), 0, 0)
-        self.still_edit = QtWidgets.QLineEdit(self.model.still_folder)
+        self.still_edit = QtWidgets.QLineEdit(self.path_model.still_folder)
         self.still_edit.setReadOnly(True)
         self.still_edit.setFrame(False)
         self.still_edit.setStyleSheet(
@@ -32,7 +32,7 @@ class PathsWidget(QtWidgets.QWidget):
         paths_grid.addWidget(btn, 0, 2)
         # Video folder row
         paths_grid.addWidget(QtWidgets.QLabel("Video folder:"), 1, 0)
-        self.video_edit = QtWidgets.QLineEdit(self.model.video_folder)
+        self.video_edit = QtWidgets.QLineEdit(self.path_model.video_folder)
         self.video_edit.setReadOnly(True)
         self.video_edit.setFrame(False)
         self.video_edit.setStyleSheet(
@@ -55,62 +55,93 @@ class PathsWidget(QtWidgets.QWidget):
         filename_grid = QtWidgets.QGridLayout()
         # Image root row
         filename_grid.addWidget(QtWidgets.QLabel("Image root:"), 0, 0)
-        self.img_root = QtWidgets.QLineEdit(self.model.rootnames.get("img", "img_"))
+        self.img_root = QtWidgets.QLineEdit(self.path_model.rootnames.get("img", "img_"))
         filename_grid.addWidget(self.img_root, 0, 1)
         # Strategy row
         filename_grid.addWidget(QtWidgets.QLabel("Strategy:"), 1, 0)
         self.strategy = QtWidgets.QComboBox()
         self.strategy.addItems(["date", "sequence", "hash"])
-        self.strategy.setCurrentText(self.model.strategy)
+        self.strategy.setCurrentText(self.path_model.strategy)
+        self.strategy.currentIndexChanged.connect(self._update_strategy_in_model)
         filename_grid.addWidget(self.strategy, 1, 1)
         # Generate sample and Save row
-        self.preview_label = QtWidgets.QLabel(self.model.generate_filename("img"))
+        self.preview_label = QtWidgets.QLabel(self.path_model.generate_filename("img"))
         filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
-        gen_btn = QtWidgets.QPushButton("Generate sample")
-        gen_btn.clicked.connect(self._generate_sample)
-        filename_grid.addWidget(gen_btn, 2, 2)
-        save_btn = QtWidgets.QPushButton("Save")
-        save_btn.clicked.connect(self._save)
-        filename_grid.addWidget(save_btn, 3, 2)
+        # gen_btn = QtWidgets.QPushButton("Generate sample")
+        # gen_btn.clicked.connect(self._generate_sample)
+        # filename_grid.addWidget(gen_btn, 2, 2)
+        # save_btn = QtWidgets.QPushButton("Save")
+        # save_btn.clicked.connect(self._save)
+        #filename_grid.addWidget(save_btn, 3, 2)
         filename_group.setLayout(filename_grid)
         layout.addWidget(filename_group)
+
+        # update the img_root field in the path_model
+        self.img_root.editingFinished.connect(self._update_img_root_in_model)
 
         # Add stretch to keep group boxes compact on resize
         layout.addStretch(1)
 
         self.setLayout(layout)
 
-        # update model->widget if changed externally
-        self.model.pathsChanged.connect(self._update_from_model)
+        # update path_model->widget if changed externally
+        self.path_model.pathsChanged.connect(self._update_from_model)
 
     def _browse_still(self):
-        d = QtWidgets.QFileDialog.getExistingDirectory(self, "Select still folder", self.model.still_folder)
+        d = QtWidgets.QFileDialog.getExistingDirectory(self, "Select still folder", self.path_model.still_folder)
         if d:
             self.still_edit.setText(d)
-            self.model.set_still_folder(d)
+            self.path_model.set_still_folder(d)
 
     def _browse_video(self):
-        d = QtWidgets.QFileDialog.getExistingDirectory(self, "Select video folder", self.model.video_folder)
+        d = QtWidgets.QFileDialog.getExistingDirectory(self, "Select video folder", self.path_model.video_folder)
         if d:
             self.video_edit.setText(d)
-            self.model.set_video_folder(d)
+            self.path_model.set_video_folder(d)
 
-    def _generate_sample(self):
-        self.preview_label.setText(self.model.generate_filename("img"))
+    # def _generate_sample(self):
+    #     self.preview_label.setText(self.path_model.generate_filename("img"))
 
-    def _save(self):
-        self.model.set_rootname("img", self.img_root.text())
-        self.model.set_strategy(self.strategy.currentText())
-        # also sync edits to folder fields
-        self.model.set_still_folder(self.still_edit.text())
-        self.model.set_video_folder(self.video_edit.text())
+    # def _save(self):
+    #     self.path_model.set_rootname("img", self.img_root.text())
+    #     self.path_model.set_strategy(self.strategy.currentText())
+    #     # also sync edits to folder fields
+    #     self.path_model.set_still_folder(self.still_edit.text())
+    #     self.path_model.set_video_folder(self.video_edit.text())
 
     def _update_from_model(self):
-        self.still_edit.setText(self.model.still_folder)
-        self.video_edit.setText(self.model.video_folder)
-        self.img_root.setText(self.model.rootnames.get("img", "img_"))
-        self.strategy.setCurrentText(self.model.strategy)
-        self.preview_label.setText(self.model.generate_filename("img"))
+        if self.still_edit.text() != self.path_model.still_folder:
+            self.still_edit.blockSignals(True)
+            self.still_edit.setText(self.path_model.still_folder)
+            self.still_edit.blockSignals(False)
+
+        if self.video_edit.text() != self.path_model.video_folder:
+            self.video_edit.blockSignals(True)
+            self.video_edit.setText(self.path_model.video_folder)
+            self.video_edit.blockSignals(False)
+
+        if self.img_root.text() != self.path_model.rootnames.get("img", "img_"):
+            self.img_root.blockSignals(True)
+            self.img_root.setText(self.path_model.rootnames.get("img", "img_"))
+            self.img_root.blockSignals(False)
+
+        if self.strategy.currentText() != self.path_model.strategy:
+            self.strategy.blockSignals(True)
+            self.strategy.setCurrentText(self.path_model.strategy)
+            self.strategy.blockSignals(False)
+
+    def _update_img_root_in_model(self):
+        img_root = self.img_root.text().strip() or "img_"
+        if img_root != self.path_model.rootnames.get("img", "img_"):
+            self.path_model.set_rootname("img", img_root)
+            print(f"Updated path_model rootname to: {img_root}")
+        self.preview_label.setText(self.path_model.generate_filename("img"))
+
+    def _update_strategy_in_model(self, index):
+        strategy_text = self.strategy.itemText(index)
+        if strategy_text != self.path_model.strategy:
+            self.path_model.set_strategy(strategy_text)
+        self.preview_label.setText(self.path_model.generate_filename("img"))
 
 # Standalone test harness
 if __name__ == "__main__":
