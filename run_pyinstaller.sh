@@ -1,0 +1,34 @@
+pyinstaller --onefile --noconsole --exclude PyQt5 \
+  --hidden-import=av.bytesource \
+  --hidden-import=av.dictionary \
+  --hidden-import=av.container.pyio \
+  --hidden-import=av.utils \
+  --hidden-import=av.opaque \
+  --hidden-import=uuid \
+  --hidden-import=av.video.reformatter \
+  --hidden-import=OpenGL.platform.egl \
+  --hidden-import=OpenGL.arrays.strings \
+  --collect-all picamera2 \
+  --add-data "components:components" \
+  --add-data "ai_file_manager_base.py:." \
+  --add-data "app_signals.py:." \
+  --add-data "autofocus_widget.py:." \
+  --add-data "base_control_widget.py:." \
+  --add-data "config_model.py:." \
+  --add-data "controls_gui.py:." \
+  --add-data "controls_model.py:." \
+  --add-data "dummy.py:." \
+  --add-data "examine_properties.py:." \
+  --add-data "get_modes.py:." \
+  --add-data "main_window.py:." \
+  --add-data "paths_model.py:." \
+  --add-data "paths_widget.py:." \
+  --add-data "player.py:." \
+  --add-data "res_combo.py:." \
+  --add-data "setup_app.py:." \
+  --add-data "temp.py:." \
+  --add-data "tes_camera_0.py:." \
+  --add-data "viewport.py:." \
+  --add-data "zoomer.py:." \
+  --add-data "zoomsets_model.py:." \
+  main.py
