@@ -8,7 +8,7 @@ This model provides:
 - Property setters with signal emission and print diagnostics.
 """
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qt import QObject, pyqtSignal
 import subprocess
 import re
 import logging

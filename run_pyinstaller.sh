@@ -1,4 +1,5 @@
-pyinstaller --onefile --noconsole --exclude PyQt5 \
+pyinstaller --onefile --noconsole \
+  --exclude PyQt5 \
   --hidden-import=av.bytesource \
   --hidden-import=av.dictionary \
   --hidden-import=av.container.pyio \
