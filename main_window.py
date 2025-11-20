@@ -118,7 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         config_model=None,
         controls_model=None,
         zoomsets_model=None,
-        path_model=None,
+        paths_model=None,
         audio_model=None  # Add this argument
     ):
         """
@@ -129,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
             config_model: Configuration model object. Must not be None.
             controls_model: Controls model object. Optional.
             zoomsets_model: Zoom sets model object. Optional.
-            path_model: Path model object for file/folder management. Optional.
+            paths_model: Path model object for file/folder management. Optional.
         """
         if cam is None:
             raise ValueError("A valid camera instance must be provided to MainWindow.")
@@ -144,7 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config_model = config_model
         self.controls_model = controls_model
         self.zoomsets_model = zoomsets_model
-        self.path_model = path_model
+        self.paths_model = paths_model
         self.audio_model = audio_model or AudioModel()  # <-- Add this line
         self.modes = self.cam.sensor_modes
 
@@ -404,7 +404,7 @@ class MainWindow(QtWidgets.QMainWindow):
             "config_model": self.config_model,
             "controls_model": self.controls_model,
             "zoomsets_model": self.zoomsets_model,
-            "path_model": self.path_model,
+            "paths_model": self.paths_model,
             "audio_model": self.audio_model,  # <-- Add this line
         }
         if name is not None:

@@ -9,7 +9,7 @@ class ComponentBase(QtWidgets.QWidget):
         self.config_model = kwargs.get("config_model")
         self.controls_model = kwargs.get("controls_model")
         self.zoomsets_model = kwargs.get("zoomsets_model")
-        self.path_model = kwargs.get("path_model")
+        self.paths_model = kwargs.get("paths_model")
         self.audio_model = kwargs.get("audio_model")
         self.settings_group = kwargs.get("settings_group")
 

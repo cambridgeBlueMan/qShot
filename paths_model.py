@@ -3,7 +3,7 @@ import hashlib
 from datetime import datetime
 
 from qt import QtWidgets, QtGui, QtCore, Qt
-class PathModel(QtCore.QObject):
+class PathsModel(QtCore.QObject):
     """
     Centralised path and filename model.
     Persisted with QSettings under group 'paths'.

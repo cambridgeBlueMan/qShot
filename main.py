@@ -59,7 +59,7 @@ from dummy import Dummy
 from config_model import ConfigModel
 from controls_model import ControlsModel
 from zoomsets_model import ZoomsetsModel
-from path_model import PathModel
+from paths_model import PathsModel
 from audio_model import AudioModel
 
 # Configure logging
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         logging.info("ZoomsetsModel instance created.")
 
         # Create the path model
-        path_model = PathModel()
+        paths_model = PathsModel()
         logging.info("PathModel instance created.")
 
         # Create the audio model
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             config_model=config_model,
             controls_model=controls_model,
             zoomsets_model=zoomsets_model,
-            path_model=path_model,
+            paths_model=paths_model,
             audio_model=audio_model
         )
 
