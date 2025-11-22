@@ -134,6 +134,7 @@ class SimpleStill(ComponentBase):
         #self.strategy.currentIndexChanged.connect(self._update_strategy_in_model)
         # update paths_model->widget if changed externally
         self.paths_model.pathsChanged.connect(self._update_from_model)
+        self.config_model.configChanged.connect(self.on_config_changed)
 
     def capture_done(self, job):
         print("Image capture completed:", job)  
@@ -257,3 +258,11 @@ class SimpleStill(ComponentBase):
             self.paths_model.set_strategy(strategy_text)
             # self.preview_label.setText(self.paths_model.generate_filename("img"))
         self.preview_label.setText(self.paths_model.generate_filename("img"))
+
+    def on_config_changed(self, cfg):
+        was_running = getattr(self.cam, 'started', False)
+        if was_running:
+            self.cam.stop()
+        self.cam.configure(cfg)
+        if was_running:
+            self.cam.start()

@@ -15,8 +15,6 @@ except ImportError:
     Key_Return = QtCore.Qt.Key_Return
 
 try:
-    from PyQt6 import QtCore, QtGui, QtWidgets
     from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
 except ImportError:
-    from PyQt5 import QtCore, QtGui, QtWidgets
     from picamera2.previews.qt import QGlPicamera2
