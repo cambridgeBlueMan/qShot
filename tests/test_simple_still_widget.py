@@ -4,11 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import pytest
 from components.simple_still_widget import SimpleStill
-
-try:
-    from PyQt6 import QtCore
-except ImportError:
-    from PyQt5 import QtCore
+from qt import QtCore
 
 class DummySignal:
     def connect(self, *args, **kwargs): pass
@@ -31,11 +27,29 @@ class DummyConfigModel:
         return self._config
 
 class DummyControlsModel:
-    _control_ranges = {"JpegQuality": (1, 100)}
-    JpegQuality = 75
-    AeEnable = True
-    JpegQualityChanged = DummySignal()
-    AeEnableChanged = DummySignal()
+    _control_ranges = {
+        "JpegQuality": (1, 100, 75),  # (min, max, default)
+        "Contrast": (0, 32, 1.0),
+        "Brightness": (-1, 1, 0.0),
+        "Saturation": (0, 32, 1.0),
+        "Sharpness": (0, 16, 1.0)
+    }
+    
+    def __init__(self):
+        self.JpegQuality = 75
+        self.AeEnable = True
+        self.Contrast = 1.0
+        self.Brightness = 0.0
+        self.Saturation = 1.0
+        self.Sharpness = 1.0
+        
+        # Auto-create signal attributes
+        self.JpegQualityChanged = DummySignal()
+        self.AeEnableChanged = DummySignal()
+        self.ContrastChanged = DummySignal()
+        self.BrightnessChanged = DummySignal()
+        self.SaturationChanged = DummySignal()
+        self.SharpnessChanged = DummySignal()
 
 class DummyPathsModel:
     still_folder = "/tmp/stills"
@@ -88,9 +102,3 @@ def test_res_combo_changes_config_model(simple_still_widget, qtbot):
     combo.setCurrentIndex(0)
     size = combo.itemData(0)
     assert simple_still_widget.config_model._config["main"]["size"] == size
-
-def test_img_root_editing_updates_paths_model(paths_widget, qtbot):
-    edit = paths_widget.img_root
-    edit.setText("new_root")
-    qtbot.keyClick(edit, Qt.Key_Return)
-    assert paths_widget.paths_model.rootnames["img"] == "new_root"

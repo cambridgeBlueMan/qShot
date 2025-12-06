@@ -4,12 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import pytest
 from paths_widget import PathsWidget
-from qt import QtCore, QtWidgets, Qt
-
-try:
-    from PyQt6 import QtCore
-except ImportError:
-    from PyQt5 import QtCore
+from qt import QtCore, Key_Return
 
 class DummySignal:
     def connect(self, *args, **kwargs): pass
@@ -40,7 +35,7 @@ def paths_widget(qtbot):
 def test_img_root_editing_updates_paths_model(paths_widget, qtbot):
     edit = paths_widget.img_root
     edit.setText("new_root")
-    qtbot.keyClick(edit, Qt.Key_Return)
+    qtbot.keyClick(edit, Key_Return)
     assert paths_widget.paths_model.rootnames["img"] == "new_root"
 
 def test_strategy_combo_updates_paths_model(paths_widget, qtbot):

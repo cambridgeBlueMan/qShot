@@ -56,21 +56,11 @@ Summary Table
 import sys
 import logging
 import os
-from qt import QtWidgets, QtGui, QtCore, Qt
-
-# QAction compatibility for PyQt5/PyQt6
-try:
-    QAction = QtGui.QAction  # PyQt6
-except AttributeError:
-    QAction = QtWidgets.QAction  # PyQt5
+from qt import QtWidgets, QtGui, QtCore, Qt, QAction, QGlPicamera2
 
 from adjustments import AdjustmentsWidget
 from dummy import Dummy
 from picamera2 import Picamera2
-try:
-    from picamera2.previews.qt import QGl6Picamera2 as QGlPicamera2
-except ImportError:
-    from picamera2.previews.qt import QGlPicamera2
 from components.classifier_widget import Classifier
 from controls_gui import ControlsGui
 from zoomer import Zoomer

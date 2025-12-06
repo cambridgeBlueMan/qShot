@@ -18,14 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import pytest
 from components.example_widget import Example
-
-# PyQt5/PyQt6 compatibility import
-try:
-    from PyQt6 import QtCore
-    MouseButton = QtCore.Qt.MouseButton
-except ImportError:
-    from PyQt5 import QtCore
-    MouseButton = QtCore.Qt
+from qt import QtCore, Qt
 
 # Dummy dependencies as in your __main__ block
 class DummySignal:
@@ -64,7 +57,7 @@ def test_button_click_changes_label(test_widget, qtbot):
     button = test_widget.button
     label = test_widget.label
     assert label.text() == "This is the Test widget."
-    qtbot.mouseClick(button, MouseButton.LeftButton)
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
     assert label.text() == "Button clicked!"
 
 def test_camera_mode_combo_populated(test_widget):
