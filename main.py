@@ -88,6 +88,100 @@ def set_dark_palette(app):
     app.setPalette(dark_palette)
     app.setStyle("Fusion")
 
+def initialize_camera(csi_arg=None):
+    """
+    Initialize and return a Picamera2 camera instance.
+    
+    Parameters
+    ----------
+    csi_arg : int, optional
+        Camera index to use. If None, will be read from sys.argv[1] or prompt user if multiple cameras.
+    
+    Returns
+    -------
+    Picamera2
+        Initialized camera instance
+    
+    Raises
+    ------
+    SystemExit
+        If no cameras are detected or requested camera index is invalid
+    """
+    # Detect available cameras
+    logging.info("Detecting available cameras...")
+    camera_info_list = Picamera2.global_camera_info()
+    num_cameras = len(camera_info_list)
+    
+    for idx, info in enumerate(camera_info_list):
+        logging.info(f"Camera {idx}: {info}")
+    
+    # Handle no cameras attached
+    if num_cameras == 0:
+        error_msg = "No cameras detected. Please connect a camera and try again."
+        logging.error(error_msg)
+        QtWidgets.QMessageBox.critical(None, "No Camera Found", error_msg)
+        sys.exit(1)
+    
+    logging.info(f"Found {num_cameras} camera(s)")
+    
+    # Parse CSI argument if not provided
+    if csi_arg is None:
+        if len(sys.argv) > 1:
+            try:
+                csi_arg = int(sys.argv[1])
+                if csi_arg not in [0, 1]:
+                    logging.warning(f"Invalid CSI argument '{csi_arg}'. Must be 0 or 1. Defaulting to 0.")
+                    csi_arg = 0
+                else:
+                    logging.info(f"CSI argument provided via command line: {csi_arg}")
+            except ValueError:
+                logging.warning(f"Invalid CSI argument '{sys.argv[1]}'. Must be an integer (0 or 1). Defaulting to 0.")
+                csi_arg = 0
+        elif num_cameras > 1:
+            # Multiple cameras and no argument - show selection dialog
+            logging.info("Multiple cameras detected, prompting user for selection...")
+            items = []
+            for idx, info in enumerate(camera_info_list):
+                # Extract camera name/model from info dict
+                cam_name = info.get('Model', f'Camera {idx}')
+                items.append(f"Camera {idx}: {cam_name}")
+            
+            item, ok = QtWidgets.QInputDialog.getItem(
+                None,
+                "Select Camera",
+                "Multiple cameras detected. Please select one:",
+                items,
+                0,
+                False
+            )
+            
+            if ok and item:
+                # Extract index from selection
+                csi_arg = int(item.split(':')[0].split()[-1])
+                logging.info(f"User selected camera {csi_arg}")
+            else:
+                logging.info("User cancelled camera selection, defaulting to camera 0.")
+                csi_arg = 0
+        else:
+            # Single camera, no argument needed
+            logging.info("Single camera detected, using camera 0.")
+            csi_arg = 0
+    
+    # Validate that requested camera index exists
+    if csi_arg >= num_cameras:
+        error_msg = f"Camera index {csi_arg} requested, but only {num_cameras} camera(s) available."
+        error_msg += f"\nValid indices: {', '.join(str(i) for i in range(num_cameras))}"
+        logging.error(error_msg)
+        QtWidgets.QMessageBox.critical(None, "Invalid Camera Index", error_msg)
+        sys.exit(1)
+    
+    logging.info(f"Attempting to initialize camera at index {csi_arg}...")
+    camera = Picamera2(csi_arg)
+    logging.info(f"Camera successfully loaded: {camera_info_list[csi_arg]}")
+    
+    return camera
+
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication.instance()
     if not app:
@@ -105,17 +199,8 @@ if __name__ == "__main__":
     }
 """)
     try:
-        # Get csi argument from command line if provided, else default to 0
-        if len(sys.argv) > 1:
-            csi_arg = int(sys.argv[1])
-            logging.info(f"CSI argument provided via command line: {csi_arg}")
-        else:
-            csi_arg = 0
-            logging.info("No CSI argument provided, defaulting to 0.")
-
-        logging.info("About to create Picamera2 instance...")
-        camera = Picamera2(csi_arg)
-        logging.info(f"Camera successfully loaded with csi_arg={csi_arg}")
+        # Initialize camera
+        camera = initialize_camera()
 
         # Create the initial config model using the camera's video configuration
         config_model = ConfigModel(camera.create_video_configuration())
@@ -159,12 +244,6 @@ if __name__ == "__main__":
         logging.error(f"ImportError: {e}")
         print(f"ImportError: {e}")
     except Exception as e:
-        logging.exception("Exception occurred while loading the camera")
+        logging.exception("Exception occurred during application startup")
         print(f"Exception: {e}")
-
-    # Optionally, log available cameras
-    logging.info("Detecting available cameras...")
-    camera_info_list = Picamera2.global_camera_info()
-    for idx, info in enumerate(camera_info_list):
-        logging.info(f"Camera {idx}: {info}")
 
