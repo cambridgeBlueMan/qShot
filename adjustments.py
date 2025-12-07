@@ -378,17 +378,31 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         self.contrast_dial.setValue(slider_val)
         self.contrast_dial.blockSignals(False)
     def on_model_sharpness_changed(self, value):
+        slider_val = self.sharpness_to_slider(value)
         self.sharpness_slider.blockSignals(True)
-        self.sharpness_slider.setValue(self.sharpness_to_slider(value))
+        self.sharpness_slider.setValue(slider_val)
         self.sharpness_slider.blockSignals(False)
+        self.sharpness_dial.blockSignals(True)
+        self.sharpness_dial.setValue(slider_val)
+        self.sharpness_dial.blockSignals(False)
+
     def on_model_brightness_changed(self, value):
+        slider_val = self.brightness_to_slider(value)
         self.brightness_slider.blockSignals(True)
-        self.brightness_slider.setValue(self.brightness_to_slider(value))
+        self.brightness_slider.setValue(slider_val)
         self.brightness_slider.blockSignals(False)
+        self.brightness_dial.blockSignals(True)
+        self.brightness_dial.setValue(slider_val)
+        self.brightness_dial.blockSignals(False)
+
     def on_model_saturation_changed(self, value):
+        slider_val = self.saturation_to_slider(value)
         self.saturation_slider.blockSignals(True)
-        self.saturation_slider.setValue(self.saturation_to_slider(value))
+        self.saturation_slider.setValue(slider_val)
         self.saturation_slider.blockSignals(False)
+        self.saturation_dial.blockSignals(True)
+        self.saturation_dial.setValue(slider_val)
+        self.saturation_dial.blockSignals(False)
 
     def update_control_mode(self):
         if self.slider_radio.isChecked():
