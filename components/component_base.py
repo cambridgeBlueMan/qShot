@@ -144,6 +144,10 @@ class ComponentBase(QtWidgets.QWidget):
                 self.cam.stop()
             config_dict = self.config_model.to_dict()
             self.cam.configure(config_dict)
+            # Apply persisted controls after configure
+            controls_dict = self.controls_model.get_controls_dict()
+            if controls_dict:
+                self.cam.set_controls(controls_dict)
             if was_running:
                 self.cam.start()
 
@@ -176,6 +180,10 @@ class ComponentBase(QtWidgets.QWidget):
         if was_running:
             self.cam.stop()
         self.cam.configure(cfg)
+        # Apply persisted controls after configure
+        controls_dict = self.controls_model.get_controls_dict()
+        if controls_dict:
+            self.cam.set_controls(controls_dict)
         if was_running:
             self.cam.start()
 

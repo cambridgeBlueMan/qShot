@@ -17,6 +17,8 @@ Signals can be connected to GUI widgets to update the interface when the model c
 from picamera2 import Picamera2
 from typing import Tuple, Optional
 import logging
+import json
+from pathlib import Path
 
 MINIMUM_FOCUS_DISTANCE = 5  # Minimum focus distance in centimeters (camera can focus as close as 5cm)
 
@@ -125,6 +127,7 @@ class ControlsModel(QtCore.QObject):
 
         self._control_ranges["JpegQuality"] = (1, 95, 90)  # min, max, default
         self._JpegQuality = self._control_ranges["JpegQuality"][2]
+        self.load_settings()    
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -623,5 +626,64 @@ class ControlsModel(QtCore.QObject):
         """
         self.AfCycleDone.emit(success)
         logging.info(f"AfCycleDone called with success={success}")
+
+    def get_controls_dict(self):
+        """
+        Get controls to apply to camera.
+        Only returns the basic image adjustment controls.
+        """
+        if self.cam is None or not hasattr(self.cam, "camera_controls"):
+            return {}
+        
+        controls = {}
+        valid_controls = self.cam.camera_controls.keys()
+        
+        # Only add the basic image adjustment controls
+        for name in ['Contrast', 'Brightness', 'Saturation', 'Sharpness']:
+            if name in valid_controls:
+                private_name = f"_{name}"
+                if hasattr(self, private_name):
+                    value = getattr(self, private_name)
+                    if value is not None:
+                        controls[name] = value
+        
+        return controls
+
+    def get_settings_path(self):
+        config_dir = Path.home() / ".config" / "ai_capture"
+        config_dir.mkdir(parents=True, exist_ok=True)
+        return config_dir / "controls_settings.json"
+
+    def save_settings(self):
+        """Save only the basic image adjustment controls."""
+        settings = {}
+        for name in ['Contrast', 'Brightness', 'Saturation', 'Sharpness', 'JpegQuality']:
+            private_name = f"_{name}"
+            if hasattr(self, private_name):
+                settings[name] = getattr(self, private_name)
+        try:
+            settings_path = self.get_settings_path()
+            with open(settings_path, 'w') as f:
+                json.dump(settings, f, indent=2)
+            logging.info(f"Saved {len(settings)} control settings")
+        except Exception as e:
+            logging.error(f"Failed to save: {e}")
+
+    def load_settings(self):
+        """Load saved control settings and update via property setters (emits signals)."""
+        settings_path = self.get_settings_path()
+        if not settings_path.exists():
+            logging.info("No saved controls settings found, using defaults")
+            return
+        try:
+            with open(settings_path, 'r') as f:
+                settings = json.load(f)
+            for name, value in settings.items():
+                # Use the property setter, not the private attribute
+                if hasattr(self.__class__, name) and isinstance(getattr(self.__class__, name), property):
+                    setattr(self, name, value)
+            logging.info(f"Loaded {len(settings)} settings")
+        except Exception as e:
+            logging.error(f"Failed to load: {e}")
 
 

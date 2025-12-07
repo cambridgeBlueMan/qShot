@@ -209,6 +209,7 @@ if __name__ == "__main__":
         # Create the controls model using the camera's controls configuration
         controls_model = ControlsModel(cam=camera)
         logging.info("ControlsModel instance created with controls configuration.")
+        app.aboutToQuit.connect(controls_model.save_settings)
 
         # Create the zoomsets model
         zoomsets_model = ZoomsetsModel()
