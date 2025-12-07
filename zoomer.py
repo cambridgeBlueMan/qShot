@@ -202,6 +202,7 @@ class Zoomer(qtw.QWidget):
         """
         Adjust the viewport (DragButton) size in response to mouse wheel events,
         using logic similar to zoomTab.
+        Prevents resizing smaller than the current output resolution.
         """
         # Get current size and position
         old_width = self.viewport.bWidth
@@ -221,14 +222,35 @@ class Zoomer(qtw.QWidget):
         max_width = self.zoom_frame.width()
         max_height = self.zoom_frame.height()
 
+        # --- Minimum output resolution constraint ---
+        min_output_width, min_output_height = min_size, min_size
+        # Try to get from config_model
+        if self.config_model is not None:
+            size_tuple = self.config_model.config.get('main', {}).get('size', None)
+            if size_tuple and isinstance(size_tuple, (tuple, list)) and len(size_tuple) == 2:
+                min_output_width, min_output_height = size_tuple
+        # Fallback: Try to get from camera properties
+        elif self.cam is not None and hasattr(self.cam, "camera_properties"):
+            sensor_size = self.cam.camera_properties.get("PixelArraySize", None)
+            if sensor_size and isinstance(sensor_size, (tuple, list)) and len(sensor_size) == 2:
+                min_output_width, min_output_height = sensor_size
+
+        # Scale down for viewport (divide by SENSOR_FRAME_DIVIDER)
+        min_output_width = max(min_size, int(min_output_width // SENSOR_FRAME_DIVIDER))
+        min_output_height = max(min_size, int(min_output_height // SENSOR_FRAME_DIVIDER))
+
+        # Clamp to minimum output resolution
+        new_width = max(new_width, min_output_width)
+        new_height = max(new_height, min_output_height)
+
         # Compute scale factors for width and height
         scale_w = max_width / new_width if new_width > max_width else 1.0
         scale_h = max_height / new_height if new_height > max_height else 1.0
         overall_scale = min(scale_w, scale_h, 1.0)
 
         # Apply the overall scale to both dimensions
-        new_width = max(min_size, int(new_width * overall_scale))
-        new_height = max(min_size, int(new_height * overall_scale))
+        new_width = max(min_output_width, int(new_width * overall_scale))
+        new_height = max(min_output_height, int(new_height * overall_scale))
 
         # Center the viewport on its old center
         center_x = old_x + old_width // 2
