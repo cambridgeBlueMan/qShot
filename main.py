@@ -235,7 +235,7 @@ if __name__ == "__main__":
         # Optionally set a default size
         window.resize(1200, 800)
         window.show()
-
+        controls_model.load_settings()
         logging.info("Starting Qt event loop.")
         sys.exit(app.exec())
     except ValueError as e:

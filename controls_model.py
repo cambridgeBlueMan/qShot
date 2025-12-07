@@ -126,8 +126,7 @@ class ControlsModel(QtCore.QObject):
         # 1: 'Windows'
 
         self._control_ranges["JpegQuality"] = (1, 95, 90)  # min, max, default
-        self._JpegQuality = self._control_ranges["JpegQuality"][2]
-        self.load_settings()    
+        self._JpegQuality = self._control_ranges["JpegQuality"][2]  
 
     @property
     def Resolution(self) -> Tuple[int, int]:
@@ -175,6 +174,7 @@ class ControlsModel(QtCore.QObject):
         if value != self._Contrast:
             self._Contrast = value
             self.ContrastChanged.emit(value)
+            print("in setter with value", value)
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"Contrast": value})
 
