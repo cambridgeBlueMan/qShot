@@ -69,6 +69,8 @@ from autofocus_widget import AutofocusWidget
 from paths_widget import PathsWidget
 from audio_model import AudioModel
 from audio_widget import AudioWidget
+from resolutions_editor import ResolutionsEditor
+from resolutions_model import ResolutionsModel
 
 # Configure logging
 logging.basicConfig(
@@ -109,7 +111,9 @@ class MainWindow(QtWidgets.QMainWindow):
         controls_model=None,
         zoomsets_model=None,
         paths_model=None,
-        audio_model=None  # Add this argument
+        audio_model=None,  # Add this argument
+        resolutions_model=None,  # Add this argument
+        *args, **kwargs
     ):
         """
         Initialize the MainWindow and set its central widget, toolbars, docks, and menus.
@@ -125,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
             raise ValueError("A valid camera instance must be provided to MainWindow.")
         if config_model is None:
             raise ValueError("A valid config_model must be provided to MainWindow.")
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.setWindowTitle("Camera Capture App")
         logging.info("MainWindow initialized.")
 
@@ -136,6 +140,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoomsets_model = zoomsets_model
         self.paths_model = paths_model
         self.audio_model = audio_model or AudioModel()  # <-- Add this line
+        self.resolutions_model = resolutions_model  # <-- Add this line
         self.modes = self.cam.sensor_modes
 
         # Central stacked widget
@@ -215,8 +220,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         logging.info("Left, right, and bottom docks added.")
 
-        # Add a menu bar with a "Controls" menu and three checkable items
+        # --- Menu Bar ---
         menubar = self.menuBar()
+        # Add Edit menu if not present
+        edit_menu = menubar.findChild(QtWidgets.QMenu, "editMenu")
+        if edit_menu is None:
+            edit_menu = menubar.addMenu("Edit")
+            edit_menu.setObjectName("editMenu")
+
+        # Add Resolutions Editor action
+        self.res_editor_action = QtWidgets.QAction("Resolutions Editor", self)
+        self.res_editor_action.triggered.connect(self.open_resolutions_editor)
+        edit_menu.addAction(self.res_editor_action)
+
+        # Add a "Controls" menu and three checkable items
         controls_menu = menubar.addMenu("Controls")
         logging.info("Controls menu added to menu bar.")
 
@@ -417,6 +434,11 @@ class MainWindow(QtWidgets.QMainWindow):
         layout.addWidget(audio_widget)
         dialog.setLayout(layout)
         dialog.resize(400, 300)
+        dialog.exec()
+
+    def open_resolutions_editor(self):
+        """Open the resolutions editor dialog."""
+        dialog = ResolutionsEditor(self.resolutions_model)
         dialog.exec()
 
 if __name__ == "__main__":
