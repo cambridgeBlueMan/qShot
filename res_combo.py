@@ -30,12 +30,12 @@ class ResCombo(qtw.QComboBox):
         self.clear()
         for item in self.resolutions:
             if mode is not None:
-                if item[1][0] < mode['size'][0] and item[1][1] < mode['size'][1]:
+                if item[1][0] < mode['size'][0] and item[1][1] <= mode['size'][1]:
                     self.addItem(f"{item[0]}, {item[1]}", userData=item[1])
             else:
                 self.addItem(f"{item[0]}, {item[1]}", userData=item[1])
         print('current text', self.count(), self.currentText())
-        self.setCurrentIndex(0)
+        # self.setCurrentIndex(0)
 
     def applySettings(self, tup):
         ix = self.findData(tup)
@@ -52,15 +52,20 @@ class ResCombo(qtw.QComboBox):
             print(f"Set config['main']['size'] to {size}")
 
     def set_largest_resolution(self):
-        """Set the combo box to the largest available resolution."""
-        if not self.resolutions:
+        """Set the combo box to the largest available resolution currently in the combo."""
+        if self.count() == 0:
             return
-        largest = max(self.resolutions, key=lambda x: x[1][0] * x[1][1])
-        ix = self.findData(largest[1])
-        if ix != -1:
-            self.setCurrentIndex(ix)
-            print(f"Defaulting to largest resolution: {largest[0]}, {largest[1]}")
-
+        largest_ix = 0
+        largest_area = 0
+        for i in range(self.count()):
+            size = self.itemData(i)
+            if size:
+                area = size[0] * size[1]
+                if area > largest_area:
+                    largest_area = area
+                    largest_ix = i
+        self.setCurrentIndex(largest_ix)
+        print(f"Defaulting to largest resolution: {self.itemText(largest_ix)}, {self.itemData(largest_ix)}")
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)
     w = qtw.QWidget()
