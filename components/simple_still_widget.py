@@ -38,11 +38,12 @@ class SimpleStill(ComponentBase):
             self.preview.done_signal.connect(self.capture_done)
 
     def capture_done(self, job):
-        print("Image capture completed:", job)
+        file_path = self.paths_model.full_path()  # Get the full path
+        self.append_terminal(f"Image capture completed: {file_path}", color="#A8FF60")
         self.capture_button.setEnabled(True)
 
     def capture_image(self):
-        print("Capture button pressed: capturing still image...")
+        self.append_terminal("Capture button pressed: capturing still image...", color="#FFD700")
         if self.cam and self.preview:
             file_path = self.paths_model.full_path()
             self.cam.capture_file(file_path, signal_function=self.preview.signal_done)

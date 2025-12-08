@@ -116,6 +116,22 @@ class ComponentBase(QtWidgets.QWidget):
 
         self.common_controls_group.setLayout(group_layout)
         self.base_layout.addWidget(self.common_controls_group)
+
+        # --- Terminal-like status window ---
+        self.terminal = QtWidgets.QTextEdit(self)
+        self.terminal.setReadOnly(True)
+        self.terminal.setFixedHeight(100)  # ~4-5 lines
+        self.terminal.setStyleSheet("""
+            background-color: #222;
+            color: #A8FF60;
+            font-family: 'Fira Mono', 'Consolas', 'Monospace';
+            font-size: 12pt;
+            border: 1px solid #444;
+        """)
+        self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
+
+        # Insert terminal just before the stretch (usually last item)
+        self.base_layout.addWidget(self.terminal)
         self.base_layout.addStretch()
 
     # --- Common Signal Handlers ---
@@ -193,3 +209,29 @@ class ComponentBase(QtWidgets.QWidget):
             self.more_button.setText("less")
         else:
             self.more_button.setText("more...")
+
+    def append_terminal(self, text, color=None, clear=False, replace_last_line=False):
+        """
+        Append or update a line in the terminal window.
+        - text: The message to display.
+        - color: Optional text color (CSS string, e.g. '#A8FF60').
+        - clear: If True, clear the terminal before adding.
+        - replace_last_line: If True, replace the last line (for status/progress).
+        """
+        if clear:
+            self.terminal.clear()
+        if color:
+            html = f'<span style="color:{color}">{text}</span>'
+        else:
+            html = text
+
+        if replace_last_line:
+            cursor = self.terminal.textCursor()
+            cursor.movePosition(QtWidgets.QTextCursor.End)
+            cursor.select(QtWidgets.QTextCursor.BlockUnderCursor)
+            cursor.removeSelectedText()
+            cursor.deletePreviousChar()
+            cursor.insertHtml(html)
+            cursor.insertBlock()
+        else:
+            self.terminal.append(html)
