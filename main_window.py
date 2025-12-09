@@ -289,6 +289,17 @@ class MainWindow(QtWidgets.QMainWindow):
         show_audio_action.triggered.connect(self.show_audio_widget)
         logging.info("Audio menu and Show Audio Widget action added.")
 
+        # --- File menu ---
+        file_menu = menubar.findChild(QtWidgets.QMenu, "fileMenu")
+        if file_menu is None:
+            file_menu = QtWidgets.QMenu("File", self)
+            file_menu.setObjectName("fileMenu")
+            menubar.insertMenu(menubar.actions()[0] if menubar.actions() else None, file_menu)
+
+        quit_action = QtWidgets.QAction("Quit", self)
+        quit_action.triggered.connect(QtWidgets.QApplication.instance().quit)
+        file_menu.addAction(quit_action)
+
     def report_menu_status(self):
         """
         Report the current status of the checkable menu actions (tom, dick, harry)
@@ -459,11 +470,19 @@ if __name__ == "__main__":
     config_model = ConfigModel()
     controls_model = ControlsModel()
     audio_model = AudioModel()
+    resolutions_model = ResolutionsModel([
+        ('CGA', (320, 200)),
+        ('VGA', (640, 480)),
+        ('HD 720', (1280, 720)),
+        ('HD 1080', (1920, 1080)),
+        ('4K UHD', (3840, 2160)),
+    ])
     window = MainWindow(
         cam=cam,
         config_model=config_model,
         controls_model=controls_model,
-        audio_model=audio_model
+        audio_model=audio_model,
+        resolutions_model=resolutions_model  # <-- Pass here
     )
     window.show()
     logging.info("MainWindow shown. Entering Qt event loop.")

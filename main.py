@@ -54,6 +54,7 @@ os.environ.pop("QT_PLUGIN_PATH", None)
 
 from qt import QtWidgets, QtGui, QtCore, Qt
 from picamera2 import Picamera2
+from resolutions_model import ResolutionsModel
 from main_window import MainWindow
 from dummy import Dummy
 from config_model import ConfigModel
@@ -223,13 +224,24 @@ if __name__ == "__main__":
         audio_model = AudioModel()
         logging.info("AudioModel instance created.")
 
+        # Create the resolutions model
+        resolutions_model = ResolutionsModel([
+            ('CGA', (320, 200)),
+            ('VGA', (640, 480)),
+            ('HD 720', (1280, 720)),
+            ('HD 1080', (1920, 1080)),
+            ('4K UHD', (3840, 2160)),
+        ])
+        logging.info("ResolutionsModel instance created.")
+
         window = MainWindow(
             cam=camera,
             config_model=config_model,
             controls_model=controls_model,
             zoomsets_model=zoomsets_model,
             paths_model=paths_model,
-            audio_model=audio_model
+            audio_model=audio_model,
+            resolutions_model=resolutions_model
         )
 
         # Optionally set a default size
