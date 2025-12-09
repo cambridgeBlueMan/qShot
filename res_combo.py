@@ -31,6 +31,7 @@ class ResCombo(qtw.QComboBox):
                 self.addItem(f"{item[0]}, {item[1]}", userData=item[1])
                 print(f"Item added without mode filter: {item}")
         print('Combo count:', self.count(), 'Current text:', self.currentText())
+        self.set_largest_resolution()  # <-- Ensure largest is selected
 
     def applySettings(self, tup):
         ix = self.findData(tup)

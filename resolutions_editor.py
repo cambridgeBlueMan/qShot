@@ -1,5 +1,8 @@
 from qt import QtWidgets
 
+MIN_RES_SIZE = 16
+MAX_RES_SIZE = 8192
+
 class ResolutionsEditor(QtWidgets.QDialog):
     def __init__(self, resolutions_model):
         super().__init__()
@@ -54,12 +57,23 @@ class ResolutionsEditor(QtWidgets.QDialog):
     def save_resolutions(self):
         resolutions = []
         for row in range(self.table.rowCount()):
-            name = self.table.item(row, 0).text()
+            name = self.table.item(row, 0).text().strip()
             try:
                 width = int(self.table.item(row, 1).text())
                 height = int(self.table.item(row, 2).text())
+                # Constraints using constants
+                if not name:
+                    QtWidgets.QMessageBox.warning(self, "Invalid Entry", f"Name cannot be empty (row {row+1})")
+                    return
+                if width < MIN_RES_SIZE or width > MAX_RES_SIZE or height < MIN_RES_SIZE or height > MAX_RES_SIZE:
+                    QtWidgets.QMessageBox.warning(
+                        self, "Invalid Entry",
+                        f"Width/Height must be between {MIN_RES_SIZE} and {MAX_RES_SIZE} (row {row+1})"
+                    )
+                    return
                 resolutions.append((name, (width, height)))
             except Exception:
-                continue
+                QtWidgets.QMessageBox.warning(self, "Invalid Entry", f"Width and Height must be integers (row {row+1})")
+                return
         self.resolutions_model.set_resolutions(resolutions)
         self.accept()
