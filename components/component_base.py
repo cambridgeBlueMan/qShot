@@ -9,6 +9,7 @@ class ComponentBase(QtWidgets.QWidget):
         config_model=None,
         controls_model=None,
         paths_model=None,
+        resolutions_model=None,  # <-- Add this line
         parent=None,
         show_jpeg_quality=True,
         show_ae=True,
@@ -22,6 +23,7 @@ class ComponentBase(QtWidgets.QWidget):
         self.config_model = config_model
         self.controls_model = controls_model
         self.paths_model = paths_model
+        self.resolutions_model = resolutions_model  # <-- Store it
 
         self.base_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.base_layout)
@@ -62,7 +64,10 @@ class ComponentBase(QtWidgets.QWidget):
         if show_resolution:
             res_layout = QtWidgets.QHBoxLayout()
             res_label = QtWidgets.QLabel("Select Resolution")
-            self.res_combo = ResCombo(config_model=self.config_model)
+            self.res_combo = ResCombo(
+                config_model=self.config_model,
+                resolutions_model=self.resolutions_model
+            )
             res_layout.addWidget(res_label)
             res_layout.addWidget(self.res_combo)
             group_layout.addLayout(res_layout)

@@ -225,13 +225,7 @@ if __name__ == "__main__":
         logging.info("AudioModel instance created.")
 
         # Create the resolutions model
-        resolutions_model = ResolutionsModel([
-            ('CGA', (320, 200)),
-            ('VGA', (640, 480)),
-            ('HD 720', (1280, 720)),
-            ('HD 1080', (1920, 1080)),
-            ('4K UHD', (3840, 2160)),
-        ])
+        resolutions_model = ResolutionsModel()
         logging.info("ResolutionsModel instance created.")
 
         window = MainWindow(

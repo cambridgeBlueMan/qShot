@@ -423,7 +423,8 @@ class MainWindow(QtWidgets.QMainWindow):
             "controls_model": self.controls_model,
             "zoomsets_model": self.zoomsets_model,
             "paths_model": self.paths_model,
-            "audio_model": self.audio_model,  # <-- Add this line
+            "audio_model": self.audio_model,
+            "resolutions_model": self.resolutions_model,  # <-- Add this line
         }
         if name is not None:
             args["settings_group"] = name
