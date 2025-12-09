@@ -8,12 +8,15 @@ class SimpleStill(ComponentBase):
         self.controls_model = kwargs.get("controls_model")
         self.paths_model = kwargs.get("paths_model")
         self.preview = kwargs.get("preview")
+        self.preview = kwargs.get("preview")
+        self.resolutions_model = kwargs.get("resolutions_model")
         super().__init__(
             parent=parent,
             cam=self.cam,
             config_model=self.config_model,
             controls_model=self.controls_model,
             paths_model=self.paths_model,
+            resolutions_model=self.resolutions_model,
             show_jpeg_quality=True,
             show_ae=True,
             show_resolution=True,
