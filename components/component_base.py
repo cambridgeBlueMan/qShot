@@ -9,13 +9,14 @@ class ComponentBase(QtWidgets.QWidget):
         config_model=None,
         controls_model=None,
         paths_model=None,
-        resolutions_model=None,  # <-- Add this line
+        resolutions_model=None,
         parent=None,
         show_jpeg_quality=True,
         show_ae=True,
         show_resolution=True,
         show_adjustments=True,
         show_filename=True,
+        show_terminal=True,  # <-- Add this line
         **kwargs
     ):
         super().__init__(parent)
@@ -123,20 +124,19 @@ class ComponentBase(QtWidgets.QWidget):
         self.base_layout.addWidget(self.common_controls_group)
 
         # --- Terminal-like status window ---
-        self.terminal = QtWidgets.QTextEdit(self)
-        self.terminal.setReadOnly(True)
-        self.terminal.setFixedHeight(100)  # ~4-5 lines
-        self.terminal.setStyleSheet("""
-            background-color: #222;
-            color: #A8FF60;
-            font-family: 'Fira Mono', 'Consolas', 'Monospace';
-            font-size: 12pt;
-            border: 1px solid #444;
-        """)
-        self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
-
-        # Insert terminal just before the stretch (usually last item)
-        self.base_layout.addWidget(self.terminal)
+        if show_terminal:
+            self.terminal = QtWidgets.QTextEdit(self)
+            self.terminal.setReadOnly(True)
+            self.terminal.setFixedHeight(100)  # ~4-5 lines
+            self.terminal.setStyleSheet("""
+                background-color: #222;
+                color: #A8FF60;
+                font-family: 'Fira Mono', 'Consolas', 'Monospace';
+                font-size: 12pt;
+                border: 1px solid #444;
+            """)
+            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
+            self.base_layout.addWidget(self.terminal)
         self.base_layout.addStretch()
 
     # --- Common Signal Handlers ---
