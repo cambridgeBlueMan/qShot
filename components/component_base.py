@@ -132,10 +132,10 @@ class ComponentBase(QtWidgets.QWidget):
                 background-color: #222;
                 color: #A8FF60;
                 font-family: 'Fira Mono', 'Consolas', 'Monospace';
-                font-size: 12pt;
+                font-size: 9pt;
                 border: 1px solid #444;
             """)
-            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
+            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
             self.base_layout.addWidget(self.terminal)
         self.base_layout.addStretch()
 

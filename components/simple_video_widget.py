@@ -1,5 +1,7 @@
 from components.component_base import ComponentBase
-from qt import QtWidgets
+from qt import QtWidgets, QtCore
+from picamera2.encoders import H264Encoder
+from picamera2.outputs import FfmpegOutput
 
 class SimpleVideo(ComponentBase):
     def __init__(self, parent=None, **kwargs):
@@ -8,42 +10,91 @@ class SimpleVideo(ComponentBase):
         self.controls_model = kwargs.get("controls_model")
         self.paths_model = kwargs.get("paths_model")
         self.preview = kwargs.get("preview")
+        self.resolutions_model = kwargs.get("resolutions_model")
         super().__init__(
             parent=parent,
             cam=self.cam,
             config_model=self.config_model,
             controls_model=self.controls_model,
             paths_model=self.paths_model,
-            show_jpeg_quality=False,  # or True if you want
+            resolutions_model=self.resolutions_model,
+            show_jpeg_quality=False,
             show_ae=True,
             show_resolution=True,
             show_adjustments=True,
-            show_filename=True
+            show_filename=True,
+            show_terminal=True
         )
 
-        # Button row (copied from SimpleStill, customize as needed)
+        self.is_recording = False
+        self.flash_on = False
+        self.flash_timer = QtCore.QTimer(self)
+        self.flash_timer.setInterval(1000)  # 1 second
+        self.flash_timer.timeout.connect(self.flash_record_button)
+
+        # Button row
         button_row = QtWidgets.QHBoxLayout()
         self.record_button = QtWidgets.QPushButton("Record")
         button_row.addWidget(self.record_button)
-        self.record_button.clicked.connect(self.record_video)
+        self.record_button.clicked.connect(self.toggle_recording)
 
         self.more_button = QtWidgets.QPushButton("more...")
         self.more_button.setCheckable(True)
         button_row.addWidget(self.more_button)
         self.more_button.toggled.connect(self.toggle_common_controls)
 
-        self.base_layout.insertLayout(0, button_row)  # Insert at the top
+        self.base_layout.insertLayout(0, button_row)
 
         if self.preview:
             self.preview.done_signal.connect(self.record_done)
 
-    def record_done(self, job):
-        print("Video recording completed:", job)
+    def flash_record_button(self):
+        if self.flash_on:
+            self.record_button.setStyleSheet("")
+            self.flash_on = False
+        else:
+            self.record_button.setStyleSheet("background-color: red; color: white;")
+            self.flash_on = True
+
+    def toggle_recording(self):
+        if not self.is_recording:
+            self.start_recording()
+        else:
+            self.stop_recording()
+
+    def start_recording(self):
+        file_path = self.paths_model.full_path(kind="vid")
+        self.last_video_path = file_path  # Store for later use
+        self.append_terminal(f"Recording to: {file_path}", color="#FFD700")
+        if self.cam:
+            encoder = H264Encoder(10000000)
+            output = FfmpegOutput(file_path, audio=True)
+            self.cam.start_recording(encoder, output)
+            self.is_recording = True
+            self.record_button.setText("Stop")
+            self.flash_timer.start()
+            self.flash_on = False
+            self.record_button.setStyleSheet("")  # Ensure initial state
+
+    def stop_recording(self):
+        self.append_terminal("Stopping video recording...", color="#FFD700")
+        if self.cam:
+            self.cam.stop_recording()
+        self.is_recording = False
+        self.flash_timer.stop()
+        self.record_button.setStyleSheet("")
+        self.record_button.setText("Record")
         self.record_button.setEnabled(True)
 
-    def record_video(self):
-        print("Record button pressed: starting video recording...")
-        if self.cam and self.preview:
-            file_path = self.paths_model.full_path(kind="vid")
-            self.cam.record_file(file_path, signal_function=self.preview.signal_done)
-            self.record_button.setEnabled(False)
+    def record_done(self, job):
+        # Show the output file name in the terminal
+        file_path = getattr(self, "last_video_path", None)
+        if file_path:
+            self.append_terminal(f"Video recording completed: {file_path}", color="#A8FF60")
+        else:
+            self.append_terminal(f"Video recording completed: {job}", color="#A8FF60")
+        self.is_recording = False
+        self.flash_timer.stop()
+        self.record_button.setStyleSheet("")
+        self.record_button.setText("Record")
+        self.record_button.setEnabled(True)
