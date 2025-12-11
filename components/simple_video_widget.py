@@ -2,6 +2,7 @@ from components.component_base import ComponentBase
 from qt import QtWidgets, QtCore
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
+import subprocess
 
 class SimpleVideo(ComponentBase):
     def __init__(self, parent=None, **kwargs):
@@ -45,8 +46,9 @@ class SimpleVideo(ComponentBase):
 
         self.base_layout.insertLayout(0, button_row)
 
-        if self.preview:
-            self.preview.done_signal.connect(self.record_done)
+        # Restore the preview signal connection
+        # if self.preview:
+        #     self.preview.done_signal.connect(self.record_done)
 
     def flash_record_button(self):
         if self.flash_on:
@@ -64,12 +66,13 @@ class SimpleVideo(ComponentBase):
 
     def start_recording(self):
         file_path = self.paths_model.full_path(kind="vid")
-        self.last_video_path = file_path  # Store for later use
+        self.last_video_path = file_path
         self.append_terminal(f"Recording to: {file_path}", color="#FFD700")
         if self.cam:
             encoder = H264Encoder(10000000)
-            output = FfmpegOutput(file_path, audio=True)
-            self.cam.start_recording(encoder, output)
+            # Pass self.record_done as the signal function
+            output = FfmpegOutput(file_path, audio=True, )
+            self.cam.start_encoder(encoder, output)
             self.is_recording = True
             self.record_button.setText("Stop")
             self.flash_timer.start()
@@ -79,7 +82,17 @@ class SimpleVideo(ComponentBase):
     def stop_recording(self):
         self.append_terminal("Stopping video recording...", color="#FFD700")
         if self.cam:
-            self.cam.stop_recording()
+            self.cam.stop_encoder()
+        # Do NOT reset UI or output link here; let record_done handle it
+        file_path = getattr(self, "last_video_path", None)
+        if file_path:
+            file_url = f"file://{file_path}"
+            self.append_terminal(
+                f'Video recording completed: <a href="{file_url}">{file_path}</a>',
+                color="#A8FF60"
+            )
+        else:
+            self.append_terminal("Video recording completed.", color="#A8FF60")
         self.is_recording = False
         self.flash_timer.stop()
         self.record_button.setStyleSheet("")
@@ -87,14 +100,21 @@ class SimpleVideo(ComponentBase):
         self.record_button.setEnabled(True)
 
     def record_done(self, job):
-        # Show the output file name in the terminal
         file_path = getattr(self, "last_video_path", None)
         if file_path:
-            self.append_terminal(f"Video recording completed: {file_path}", color="#A8FF60")
+            file_url = f"file://{file_path}"
+            self.append_terminal(
+                f'Video recording completed: <a href="{file_url}">{file_path}</a>',
+                color="#A8FF60"
+            )
         else:
-            self.append_terminal(f"Video recording completed: {job}", color="#A8FF60")
+            self.append_terminal("Video recording completed.", color="#A8FF60")
         self.is_recording = False
         self.flash_timer.stop()
         self.record_button.setStyleSheet("")
         self.record_button.setText("Record")
         self.record_button.setEnabled(True)
+
+    def handle_terminal_link(self, url):
+        file_path = url.toLocalFile()
+        subprocess.Popen(['vlc', file_path])

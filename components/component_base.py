@@ -1,6 +1,7 @@
 from qt import QtWidgets, Qt
 from adjustments import AdjustmentsWidget
 from res_combo import ResCombo
+import subprocess
 
 class ComponentBase(QtWidgets.QWidget):
     def __init__(
@@ -24,7 +25,8 @@ class ComponentBase(QtWidgets.QWidget):
         self.config_model = config_model
         self.controls_model = controls_model
         self.paths_model = paths_model
-        self.resolutions_model = resolutions_model  # <-- Store it
+        self.resolutions_model = resolutions_model
+        self.show_terminal = show_terminal  # <-- Add this line
 
         self.base_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.base_layout)
@@ -125,7 +127,7 @@ class ComponentBase(QtWidgets.QWidget):
 
         # --- Terminal-like status window ---
         if show_terminal:
-            self.terminal = QtWidgets.QTextEdit(self)
+            self.terminal = QtWidgets.QTextBrowser(self)
             self.terminal.setReadOnly(True)
             self.terminal.setFixedHeight(100)  # ~4-5 lines
             self.terminal.setStyleSheet("""
@@ -136,6 +138,8 @@ class ComponentBase(QtWidgets.QWidget):
                 border: 1px solid #444;
             """)
             self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
+            self.terminal.setOpenExternalLinks(False)
+            self.terminal.anchorClicked.connect(self.handle_terminal_link)
             self.base_layout.addWidget(self.terminal)
         self.base_layout.addStretch()
 
@@ -240,3 +244,7 @@ class ComponentBase(QtWidgets.QWidget):
             cursor.insertBlock()
         else:
             self.terminal.append(html)
+
+    def handle_terminal_link(self, url):
+        file_path = url.toLocalFile()
+        subprocess.Popen(['vlc', file_path])
