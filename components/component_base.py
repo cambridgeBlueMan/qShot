@@ -2,6 +2,9 @@ from qt import QtWidgets, Qt
 from adjustments import AdjustmentsWidget
 from res_combo import ResCombo
 import subprocess
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 class ComponentBase(QtWidgets.QWidget):
     def __init__(
@@ -247,4 +250,7 @@ class ComponentBase(QtWidgets.QWidget):
 
     def handle_terminal_link(self, url):
         file_path = url.toLocalFile()
-        subprocess.Popen(['vlc', file_path])
+        from vlc_player_test import MainWindow as VLCPlayerWindow
+        # Create and show the VLC player window
+        self.vlc_window = VLCPlayerWindow(file_path)
+        self.vlc_window.show()

@@ -115,6 +115,10 @@ class SimpleVideo(ComponentBase):
         self.record_button.setText("Record")
         self.record_button.setEnabled(True)
 
-    def handle_terminal_link(self, url):
-        file_path = url.toLocalFile()
-        subprocess.Popen(['vlc', file_path])
+    # def handle_terminal_link(self, url):
+    #     file_path = url.toLocalFile()
+    #     subprocess.Popen(
+    #         ['vlc', '--start-paused', file_path],
+    #         stdout=subprocess.DEVNULL,
+    #         stderr=subprocess.DEVNULL
+    #     )

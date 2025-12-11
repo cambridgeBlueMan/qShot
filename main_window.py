@@ -80,7 +80,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "simple_still"
+DEFAULT_WIDGET = "simple_video"
 
 class MainWindow(QtWidgets.QMainWindow):
     """
