@@ -17,7 +17,7 @@ class ResolutionsModel(QtCore.QObject):
             ('2K', (2048, 1080)), ('Small Square', (100, 100)),
             ('Medium Square', (200, 200)), ('Large Square', (400, 400)),
             ('half size', (960, 540)),
-            ('4K UHD', (3840, 2160)), ('8K UHD', (7680, 4320))  
+            ('4K UHD', (3840, 2160)), 
         ]
     def __init__(self, resolutions=None):
         super().__init__()
