@@ -1,6 +1,6 @@
 import sys
 import vlc
-from PyQt5 import QtWidgets, QtCore
+from qt import QtWidgets, QtCore
 
 class VLCPlayerWidget(QtWidgets.QFrame):
     def __init__(self, filepath=None, parent=None):

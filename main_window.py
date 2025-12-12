@@ -71,6 +71,7 @@ from audio_model import AudioModel
 from audio_widget import AudioWidget
 from resolutions_editor import ResolutionsEditor
 from resolutions_model import ResolutionsModel
+from video_player import VideoPlayer
 
 # Configure logging
 logging.basicConfig(
@@ -207,7 +208,7 @@ class MainWindow(QtWidgets.QMainWindow):
         bottom_col2 = AdjustmentsWidget(**self.get_component_args())
         # Third column: placeholder widget
         bottom_col3 = PathsWidget(**self.get_component_args())
-
+        # bottom_col3 = VideoPlayer(parent=self)
         bottom_layout.addWidget(bottom_col1, 1)
         bottom_layout.addWidget(bottom_col2, 1)
         bottom_layout.addWidget(bottom_col3, 1)
@@ -452,6 +453,28 @@ class MainWindow(QtWidgets.QMainWindow):
         """Open the resolutions editor dialog."""
         dialog = ResolutionsEditor(self.resolutions_model)
         dialog.exec()
+
+    def play_video_file(self, filepath):
+        if hasattr(self, "video_widget"):
+            self.bottom_col3.play_file(filepath)
+
+    def show_video_player(self, filepath):
+        # Remove any existing VideoPlayer from the stack
+        for i in range(self.central_stack.count()):
+            widget = self.central_stack.widget(i)
+            if isinstance(widget, VideoPlayer):
+                self.central_stack.removeWidget(widget)
+                widget.deleteLater()
+                break
+
+        # Create a new VideoPlayer and add it to the stack
+        self.video_player = VideoPlayer(parent=self)
+        self.central_stack.addWidget(self.video_player)
+        self.central_stack.setCurrentWidget(self.video_player)
+        self.video_player.play_file(filepath)
+
+    def show_preview(self):
+        self.central_stack.setCurrentWidget(self.preview)
 
 if __name__ == "__main__":
     """

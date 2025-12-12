@@ -5,6 +5,7 @@ from picamera2.outputs import FfmpegOutput
 import subprocess
 
 class SimpleVideo(ComponentBase):
+
     def __init__(self, parent=None, **kwargs):
         self.cam = kwargs.get("cam")
         self.config_model = kwargs.get("config_model")
@@ -115,10 +116,7 @@ class SimpleVideo(ComponentBase):
         self.record_button.setText("Record")
         self.record_button.setEnabled(True)
 
-    # def handle_terminal_link(self, url):
-    #     file_path = url.toLocalFile()
-    #     subprocess.Popen(
-    #         ['vlc', '--start-paused', file_path],
-    #         stdout=subprocess.DEVNULL,
-    #         stderr=subprocess.DEVNULL
-    #     )
+    def handle_terminal_link(self, filepath):
+        main_window = self.window()
+        if hasattr(main_window, "show_video_player"):
+            main_window.show_video_player(filepath)
