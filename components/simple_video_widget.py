@@ -1,10 +1,11 @@
-from components.component_base import ComponentBase
+from components.component_base_video import ComponentBaseVideo
 from qt import QtWidgets, QtCore
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
 import subprocess
+from app_signals import app_signals
 
-class SimpleVideo(ComponentBase):
+class SimpleVideo(ComponentBaseVideo):
 
     def __init__(self, parent=None, **kwargs):
         self.cam = kwargs.get("cam")
@@ -79,6 +80,7 @@ class SimpleVideo(ComponentBase):
             self.flash_timer.start()
             self.flash_on = False
             self.record_button.setStyleSheet("")  # Ensure initial state
+            app_signals.isRecordingChanged.emit(True)
 
     def stop_recording(self):
         self.append_terminal("Stopping video recording...", color="#FFD700")
@@ -99,6 +101,7 @@ class SimpleVideo(ComponentBase):
         self.record_button.setStyleSheet("")
         self.record_button.setText("Record")
         self.record_button.setEnabled(True)
+        app_signals.isRecordingChanged.emit(False)
 
     def record_done(self, job):
         file_path = getattr(self, "last_video_path", None)
@@ -120,3 +123,7 @@ class SimpleVideo(ComponentBase):
         main_window = self.window()
         if hasattr(main_window, "show_video_player"):
             main_window.show_video_player(filepath)
+
+    def handle_playing_state(self, is_playing):
+        # Disable recording controls if a video is playing
+        self.record_button.setEnabled(not is_playing)

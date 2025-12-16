@@ -1,6 +1,8 @@
+from qt import QtCore
 
-from qt import QtWidgets, QtGui, QtCore, Qt
 class AppSignals(QtCore.QObject):
-    mode_changed = QtCore.pyqtSignal(object)  # Pass mode info (dict, index, etc.)
+    mode_changed = QtCore.pyqtSignal(object)  # Existing signal
+    isRecordingChanged = QtCore.pyqtSignal(bool)
+    isPlayingChanged = QtCore.pyqtSignal(bool)
 
 app_signals = AppSignals()

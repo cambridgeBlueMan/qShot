@@ -1,9 +1,11 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
 import vlc
+from app_signals import app_signals
 
 
 class VideoPlayer(QtWidgets.QFrame):
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.instance = vlc.Instance()
@@ -36,12 +38,19 @@ class VideoPlayer(QtWidgets.QFrame):
         elif sys.platform == "darwin":
             self.mediaplayer.set_nsobject(int(self.video_frame.winId()))
         self.mediaplayer.play()
+        app_signals.isPlayingChanged.emit(True)
 
     def exit_to_preview(self):
         # Ask the main window to show the preview
         main_window = self.window()
         if hasattr(main_window, "show_preview"):
             main_window.show_preview()
+        app_signals.isPlayingChanged.emit(False)
+
+    def handle_recording_state(self, is_recording):
+        # Disable playback controls if recording is active
+        self.exit_button.setEnabled(not is_recording)
+        # ...other UI updates...
 
 
 # Standalone test
