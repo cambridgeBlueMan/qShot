@@ -122,7 +122,7 @@ class SimpleVideo(ComponentBaseVideo):
         self.record_button.setEnabled(True)
 
     def handle_terminal_link(self, filepath):
-        self._saved_terminal_text = self.terminal.toPlainText()
+        self._saved_terminal_text = self.terminal.toHtml()
         if hasattr(self.window(), "show_video_player"):
             self.window().show_video_player(filepath)
 
@@ -133,4 +133,4 @@ class SimpleVideo(ComponentBaseVideo):
     def handle_playing_changed(self, is_playing):
         self.record_button.setEnabled(not is_playing)
         if not is_playing and self._saved_terminal_text:
-            self.terminal.setPlainText(self._saved_terminal_text)
+            self.terminal.setHtml(self._saved_terminal_text)
