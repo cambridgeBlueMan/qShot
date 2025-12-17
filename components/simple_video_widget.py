@@ -51,6 +51,8 @@ class SimpleVideo(ComponentBaseVideo):
         # Restore the preview signal connection
         # if self.preview:
         #     self.preview.done_signal.connect(self.record_done)
+        app_signals.isPlayingChanged.connect(self.handle_playing_changed)
+        self._saved_terminal_text = ""
 
     def flash_record_button(self):
         if self.flash_on:
@@ -120,10 +122,15 @@ class SimpleVideo(ComponentBaseVideo):
         self.record_button.setEnabled(True)
 
     def handle_terminal_link(self, filepath):
-        main_window = self.window()
-        if hasattr(main_window, "show_video_player"):
-            main_window.show_video_player(filepath)
+        self._saved_terminal_text = self.terminal.toPlainText()
+        if hasattr(self.window(), "show_video_player"):
+            self.window().show_video_player(filepath)
 
     def handle_playing_state(self, is_playing):
         # Disable recording controls if a video is playing
         self.record_button.setEnabled(not is_playing)
+
+    def handle_playing_changed(self, is_playing):
+        self.record_button.setEnabled(not is_playing)
+        if not is_playing and self._saved_terminal_text:
+            self.terminal.setPlainText(self._saved_terminal_text)

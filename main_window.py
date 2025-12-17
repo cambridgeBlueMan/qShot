@@ -454,10 +454,6 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = ResolutionsEditor(self.resolutions_model)
         dialog.exec()
 
-    def play_video_file(self, filepath):
-        if hasattr(self, "video_widget"):
-            self.bottom_col3.play_file(filepath)
-
     def show_video_player(self, filepath):
         # Remove any existing VideoPlayer from the stack
         for i in range(self.central_stack.count()):
