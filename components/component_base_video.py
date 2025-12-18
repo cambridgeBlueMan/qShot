@@ -1,12 +1,56 @@
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 from components.component_base import ComponentBase
 from app_signals import app_signals
-class ComponentBaseVideo(ComponentBase):
 
+class ComponentBaseVideo(ComponentBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app_signals.isRecordingChanged.connect(self.handle_recording_state)
         app_signals.isPlayingChanged.connect(self.handle_playing_state)
+
+        # --- Video mode selection logic ---
+        self.video_mode = self.select_video_mode(min_fps=30)
+        if self.video_mode:
+            if self.config_model:
+                self.config_model.set_nested('sensor', 'output_size', self.video_mode['size'])
+                self.config_model.set_nested('sensor', 'bit_depth', self.video_mode.get('bit_depth', 8))
+            if self.controls_model:
+                frame_duration = int(1_000_000 / self.video_mode['fps'])
+                self.controls_model.FrameDurationLimits = (frame_duration, frame_duration)
+            if hasattr(self, "res_combo"):
+                self.res_combo.generateComboItems(self.video_mode)
+                self.res_combo.set_largest_resolution()
+
+        # --- FPS selector ---
+        self.fps_combo = QtWidgets.QComboBox()
+        fps_options = []
+        if hasattr(self, "cam") and hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
+            fps_options = sorted({m['fps'] for m in self.cam.sensor_modes}, reverse=True)
+            for fps in fps_options:
+                self.fps_combo.addItem(f"{fps} fps", userData=fps)
+        self.fps_combo.currentIndexChanged.connect(self.set_fps_in_controls)
+
+        # Always add to the base_layout (created in the superclass)
+        self.base_layout.addWidget(self.fps_combo)
+
+    def select_video_mode(self, min_fps=30):
+        if hasattr(self, "cam") and hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
+            suitable_modes = [m for m in self.cam.sensor_modes if m.get('fps', 0) >= min_fps]
+            if suitable_modes:
+                # Pick the one with the highest resolution
+                best_mode = max(suitable_modes, key=lambda m: m['size'][0] * m['size'][1])
+                return best_mode
+            else:
+                # Fallback: pick the highest fps available
+                best_mode = max(self.cam.sensor_modes, key=lambda m: m.get('fps', 0))
+                return best_mode
+        return None
+
+    def set_fps_in_controls(self, index):
+        fps = self.fps_combo.itemData(index)
+        if self.controls_model and fps:
+            frame_duration = int(1_000_000 / fps)
+            self.controls_model.FrameDurationLimits = (frame_duration, frame_duration)
 
     @QtCore.pyqtSlot(bool)
     def handle_recording_state(self, is_recording):
