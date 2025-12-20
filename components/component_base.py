@@ -6,6 +6,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+MINIMUM_WIDTH = 485
+
 class ComponentBase(QtWidgets.QWidget):
     def __init__(
         self,
@@ -20,10 +22,11 @@ class ComponentBase(QtWidgets.QWidget):
         show_resolution=True,
         show_adjustments=True,
         show_filename=True,
-        show_terminal=True,  # <-- Add this line
+        show_terminal=True,
         **kwargs
     ):
         super().__init__(parent)
+        self.setMinimumWidth(MINIMUM_WIDTH)
         self.cam = cam
         self.config_model = config_model
         self.controls_model = controls_model

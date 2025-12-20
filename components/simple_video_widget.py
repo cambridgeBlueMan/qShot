@@ -131,6 +131,12 @@ class SimpleVideo(ComponentBaseVideo):
         self.record_button.setEnabled(not is_playing)
 
     def handle_playing_changed(self, is_playing):
+        if is_playing:
+            # Hide text by setting foreground color to background color
+            self.terminal.setStyleSheet("color: #222; background-color: #222;")  # Use your actual background color
+        else:
+            # Restore text and color
+            self.terminal.setStyleSheet("")  # Reset to default
+            if self._saved_terminal_text:
+                self.terminal.setHtml(self._saved_terminal_text)
         self.record_button.setEnabled(not is_playing)
-        if not is_playing and self._saved_terminal_text:
-            self.terminal.setHtml(self._saved_terminal_text)

@@ -2,6 +2,8 @@ from PyQt5 import QtCore, QtWidgets
 from components.component_base import ComponentBase
 from app_signals import app_signals
 
+AVAILABLE_FPS = [10, 20, 24, 25, 30, 50, 60, 120]
+
 class ComponentBaseVideo(ComponentBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,11 +25,10 @@ class ComponentBaseVideo(ComponentBase):
 
         # --- FPS selector ---
         self.fps_combo = QtWidgets.QComboBox()
-        fps_options = []
-        if hasattr(self, "cam") and hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
-            fps_options = sorted({m['fps'] for m in self.cam.sensor_modes}, reverse=True)
-            for fps in fps_options:
-                self.fps_combo.addItem(f"{fps} fps", userData=fps)
+        max_mode_fps = self.video_mode['fps'] if self.video_mode else 30
+        fps_options = [fps for fps in AVAILABLE_FPS if fps <= max_mode_fps]
+        for fps in fps_options:
+            self.fps_combo.addItem(f"{fps} fps", userData=fps)
         self.fps_combo.currentIndexChanged.connect(self.set_fps_in_controls)
 
         # Always add to the base_layout (created in the superclass)
