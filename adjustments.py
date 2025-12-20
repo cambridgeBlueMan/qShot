@@ -369,7 +369,6 @@ class AdjustmentsWidget(QtWidgets.QWidget):
 
     # --- Slots for model changes ---
     def on_model_contrast_changed(self, value):
-        print("Contrast changed", value)
         slider_val = self.contrast_to_slider(value)
         self.contrast_slider.blockSignals(True)
         self.contrast_slider.setValue(slider_val)

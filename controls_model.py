@@ -174,7 +174,7 @@ class ControlsModel(QtCore.QObject):
         if value != self._Contrast:
             self._Contrast = value
             self.ContrastChanged.emit(value)
-            print("in setter with value", value)
+            # print("in setter with value", value)
             if hasattr(self, 'cam') and self.cam is not None:
                 self.cam.set_controls({"Contrast": value})
 

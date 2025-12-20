@@ -1,5 +1,8 @@
 import sys
+import logging
 from qt import QtWidgets, QtGui, QtCore, Qt
+
+logger = logging.getLogger(__name__)
 
 class PathsWidget(QtWidgets.QWidget):
     """
@@ -142,7 +145,7 @@ class PathsWidget(QtWidgets.QWidget):
         img_root = self.img_root.text().strip() or "img_"
         if img_root != self.paths_model.rootnames.get("img", "img_"):
             self.paths_model.set_rootname("img", img_root)
-            print(f"Updated paths_model rootname to: {img_root}")
+            logger.info(f"Updated paths_model rootname to: {img_root}")
         self.preview_label.setText(self.paths_model.generate_filename("img"))
 
     def _update_strategy_in_model(self, index):

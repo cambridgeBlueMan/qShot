@@ -81,7 +81,7 @@ class AudioModel(QObject):
     def bit_depth(self, value):
         """Set bit depth, emit signal, and print diagnostic if changed."""
         if value != self._bit_depth:
-            print(f"[AudioModel] bit_depth set to {value}")
+            logger.info(f"[AudioModel] bit_depth set to {value}")
             self._bit_depth = value
             self.bitDepthChanged.emit(value)
 
@@ -106,7 +106,7 @@ class AudioModel(QObject):
     def sample_rate(self, value):
         """Set sample rate, emit signal, and print diagnostic if changed."""
         if value != self._sample_rate:
-            print(f"[AudioModel] sample_rate set to {value}")
+            logger.info(f"[AudioModel] sample_rate set to {value}")
             self._sample_rate = value
             self.sampleRateChanged.emit(value)
 
@@ -119,7 +119,7 @@ class AudioModel(QObject):
     def audio_active(self, value):
         """Set audio active state and emit signal if changed."""
         if value != self._audio_active:
-            print(f"[AudioModel] audio_active set to {value}")
+            logger.info(f"[AudioModel] audio_active set to {value}")
             self._audio_active = value
             self.audioActiveChanged.emit(value)
 
@@ -132,7 +132,7 @@ class AudioModel(QObject):
     def mux_after_record(self, value):
         """Set mux after record state and emit signal if changed."""
         if value != self._mux_after_record:
-            print(f"[AudioModel] mux_after_record set to {value}")
+            logger.info(f"[AudioModel] mux_after_record set to {value}")
             self._mux_after_record = value
             self.muxAfterRecordChanged.emit(value)
 
@@ -151,9 +151,9 @@ class AudioModel(QObject):
                     self._audio_sync = str(int_value)
                     self.audioSyncChanged.emit(self._audio_sync)
             else:
-                print(f"[AudioModel] audio_sync value {value} out of range (-1000 to 1000)")
+                logger.warning(f"[AudioModel] audio_sync value {value} out of range (-1000 to 1000)")
         except ValueError:
-            print(f"[AudioModel] audio_sync value {value} is not an integer")
+            logger.warning(f"[AudioModel] audio_sync value {value} is not an integer")
 
     def get_alsa_devices(self):
         """
@@ -185,7 +185,7 @@ class AudioModel(QObject):
                     display_name = f"{device_str} - {card_name} {device_name}"
                     devices.append((display_name, device_str))
         except Exception as e:
-            print(f"ALSA device listing error: {e}")
+            logger.error(f"ALSA device listing error: {e}")
         return devices
 
     def probe_supported_sample_rates(self, device_str):
@@ -243,7 +243,7 @@ class AudioModel(QObject):
             rate_min, rate_max = None, None
             for line in output.splitlines():
                 if line.startswith("FORMAT:"):
-                    print(f"DIAGNOSTIC: FORMAT line: {line}")
+                    logger.debug(f"DIAGNOSTIC: FORMAT line: {line}")
                     # Split formats and map to bit depths
                     formats = line.replace("FORMAT:", "").strip().split()
                     for fmt in formats:
@@ -270,5 +270,5 @@ class AudioModel(QObject):
                     if rate_min <= r <= rate_max:
                         sample_rates.add(r)
         except Exception as e:
-            print(f"ALSA hw params error: {e}")
+            logger.error(f"ALSA hw params error: {e}")
         return sorted(bit_depths, key=int), [str(sr) for sr in sorted(sample_rates)]

@@ -23,6 +23,7 @@ class ComponentBase(QtWidgets.QWidget):
         show_adjustments=True,
         show_filename=True,
         show_terminal=True,
+        show_fps_combo=False,
         **kwargs
     ):
         super().__init__(parent)
@@ -147,6 +148,29 @@ class ComponentBase(QtWidgets.QWidget):
             self.terminal.setOpenExternalLinks(False)
             self.terminal.anchorClicked.connect(self.handle_terminal_link)
             self.base_layout.addWidget(self.terminal)
+
+        # --- FPS Combo Box ---
+        if show_fps_combo:
+            fps_layout = QtWidgets.QHBoxLayout()
+            fps_label = QtWidgets.QLabel("Framerate:")
+            self.fps_combo = QtWidgets.QComboBox()
+            self.fps_combo.setMinimumWidth(80)
+            fps_layout.addWidget(fps_label)
+            fps_layout.addWidget(self.fps_combo)
+            # Insert FPS row just before the resolutions row
+            # Find the index of the resolutions row (if present)
+            insert_index = 0
+            for i in range(group_layout.count()):
+                item = group_layout.itemAt(i)
+                if isinstance(item, QtWidgets.QHBoxLayout):
+                    # Try to find the res_label in this layout
+                    for j in range(item.count()):
+                        widget = item.itemAt(j).widget()
+                        if isinstance(widget, QtWidgets.QLabel) and widget.text().lower().startswith("select resolution"):
+                            insert_index = i
+                            break
+            group_layout.insertLayout(insert_index, fps_layout)
+
         self.base_layout.addStretch()
 
     # --- Common Signal Handlers ---

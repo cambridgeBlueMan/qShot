@@ -77,24 +77,25 @@ if __name__ == "__main__":
     pp = pprint.PrettyPrinter(indent=2)
 
     def on_config_changed(cfg):
-        print("Config changed:")
-        pp.pprint(cfg)
+        # print("Config changed:")
+        # pp.pprint(cfg)
+        pass
 
     model.configChanged.connect(on_config_changed)
 
-    print("Initial config:")
-    pp.pprint(model.config)
+    # print("Initial config:")
+    # pp.pprint(model.config)
 
     # Test get/set for nested keys: 'main', 'format', 'size', 'preserve_ar'
-    print("\nTesting nested get/set for 'main', 'format', 'size', and 'preserve_ar':")
-    print("Original main.format:", model.get_nested('main', 'format'))
-    print("Original main.size:", model.get_nested('main', 'size'))
-    print("Original main.preserve_ar:", model.get_nested('main', 'preserve_ar'))
+    # print("\nTesting nested get/set for 'main', 'format', 'size', and 'preserve_ar':")
+    # print("Original main.format:", model.get_nested('main', 'format'))
+    # print("Original main.size:", model.get_nested('main', 'size'))
+    # print("Original main.preserve_ar:", model.get_nested('main', 'preserve_ar'))
 
     model.set_nested('main', 'format', 'YUV420')
     model.set_nested('main', 'size', (1280, 720))
     model.set_nested('main', 'preserve_ar', False)
 
-    print("Updated main.format:", model.get_nested('main', 'format'))
-    print("Updated main.size:", model.get_nested('main', 'size'))
-    print("Updated main.preserve_ar:", model.get_nested('main', 'preserve_ar'))
+    # print("Updated main.format:", model.get_nested('main', 'format'))
+    # print("Updated main.size:", model.get_nested('main', 'size'))
+    # print("Updated main.preserve_ar:", model.get_nested('main', 'preserve_ar'))

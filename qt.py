@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 # Configuration: Set to True to force PyQt5 only, False to allow PyQt5/PyQt6 auto-detection
 QT5_ONLY = True
 
@@ -27,4 +30,4 @@ else:
         from picamera2.previews.qt import QGlPicamera2
 
 # Debug: confirm which Qt binding is being used
-print(f"Using Qt binding: {QtCore.__name__}")
+logger.info(f"Using Qt binding: {QtCore.__name__}")

@@ -6,12 +6,14 @@ AVAILABLE_FPS = [10, 20, 24, 25, 30, 50, 60, 120]
 
 class ComponentBaseVideo(ComponentBase):
     def __init__(self, *args, **kwargs):
+        kwargs['show_fps_combo'] = True
         super().__init__(*args, **kwargs)
         app_signals.isRecordingChanged.connect(self.handle_recording_state)
         app_signals.isPlayingChanged.connect(self.handle_playing_state)
 
         # --- Video mode selection logic ---
         self.video_mode = self.select_video_mode(min_fps=30)
+        print("video_mode:", self.video_mode)
         if self.video_mode:
             if self.config_model:
                 self.config_model.set_nested('sensor', 'output_size', self.video_mode['size'])
@@ -23,16 +25,16 @@ class ComponentBaseVideo(ComponentBase):
                 self.res_combo.generateComboItems(self.video_mode)
                 self.res_combo.set_largest_resolution()
 
-        # --- FPS selector ---
-        self.fps_combo = QtWidgets.QComboBox()
-        max_mode_fps = self.video_mode['fps'] if self.video_mode else 30
-        fps_options = [fps for fps in AVAILABLE_FPS if fps <= max_mode_fps]
-        for fps in fps_options:
-            self.fps_combo.addItem(f"{fps} fps", userData=fps)
-        self.fps_combo.currentIndexChanged.connect(self.set_fps_in_controls)
+        if self.fps_combo:
+            max_mode_fps = self.video_mode['fps'] if self.video_mode else 30
+            fps_options = [fps for fps in AVAILABLE_FPS if fps <= max_mode_fps]
+            for fps in fps_options:
+                self.fps_combo.addItem(f"{fps} fps", userData=fps)
+            self.fps_combo.currentIndexChanged.connect(self.set_fps_in_controls)
+            print("FPS combo items:", [self.fps_combo.itemText(i) for i in range(self.fps_combo.count())])
 
         # Always add to the base_layout (created in the superclass)
-        self.base_layout.addWidget(self.fps_combo)
+        # self.base_layout.addWidget(self.fps_combo)
 
     def select_video_mode(self, min_fps=30):
         if hasattr(self, "cam") and hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:

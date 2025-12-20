@@ -1,5 +1,8 @@
 from qt import QtWidgets, QtGui, QtCore, Qt
 from base_control_widget import BaseControlWidget
+import logging
+
+logger = logging.getLogger(__name__)
 
 MINIMUM_SLIDER_VALUE = 0
 MAXIMUM_SLIDER_VALUE = 100
@@ -144,9 +147,9 @@ class AutofocusWidget(BaseControlWidget):
         """Callback for autofocus completion."""
         success = self.cam.wait(job)
         if success:
-            print("Autofocus successful")
+            logger.info("Autofocus successful")
         else:
-            print("Autofocus failed")
+            logger.info("Autofocus failed")
 
     def on_camera_job_done(self, job):
         """Handle completion of a camera job."""
@@ -154,11 +157,11 @@ class AutofocusWidget(BaseControlWidget):
             try:
                 success = job.get_result()
                 if success:
-                    print("Autofocus successful")
+                    logger.info("Autofocus successful")
                 else:
-                    print("Autofocus failed")
+                    logger.info("Autofocus failed")
             except TimeoutError:
-                print("Autofocus operation timed out")
+                logger.warning("Autofocus operation timed out")
             self._af_job = None  # Clear job reference
 
     def setAfMode(self, mode):
@@ -167,7 +170,7 @@ class AutofocusWidget(BaseControlWidget):
         Disables manual focus controls unless in manual mode (mode == 0).
         Also updates group box title style to be bold only when enabled.
         """
-        print(f"AF Mode set to {mode}")
+        logger.info(f"AF Mode set to {mode}")
         self.controls_model.AfMode = mode
         manual_enabled = (mode == 0)
         self.manual_focus_group.setEnabled(manual_enabled)

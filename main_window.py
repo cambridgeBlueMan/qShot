@@ -439,7 +439,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def show_audio_widget(self):
         """Instantiate AudioWidget and show it in a dialog window."""
-        print("[MainWindow] show_audio_widget called")
+        logging.info("[MainWindow] show_audio_widget called")
         audio_widget = AudioWidget(**self.get_component_args())
         dialog = QtWidgets.QDialog(self)
         dialog.setWindowTitle("Audio Widget")

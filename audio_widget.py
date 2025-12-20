@@ -29,20 +29,23 @@ Example:
 """
 
 import sys
+import logging
+logger = logging.getLogger(__name__)
+
 from qt import QtWidgets, QtGui, QtCore, Qt, QIntValidator
 from audio_model import AudioModel
 
-print("[audio_widget.py] imported")
+#print("[audio_widget.py] imported")
 
 class AudioWidget(QtWidgets.QWidget):
     def __init__(self, audio_model=None, parent=None, **kwargs):
-        print("[AudioWidget] __init__ called")
-        if QtWidgets.QApplication.instance() is None:
-            print("[AudioWidget] QApplication does NOT exist!")
-        else:
-            print("[AudioWidget] QApplication exists!")
+        #print("[AudioWidget] __init__ called")
+        #if QtWidgets.QApplication.instance() is None:
+            #print("[AudioWidget] QApplication does NOT exist!")
+        #else:
+            #print("[AudioWidget] QApplication exists!")
         super().__init__(parent)
-        print("[AudioWidget] super().__init__ complete")
+        #print("[AudioWidget] super().__init__ complete")
         self.audio_model = audio_model or AudioModel()
 
         group = QtWidgets.QGroupBox("Audio")
@@ -180,14 +183,14 @@ class AudioWidget(QtWidgets.QWidget):
         self.on_device_selected(self.name_combo.currentIndex())
 
     def set_audio_active(self, value: bool):
-        """Set the model's audio_active property from the checkbox, with diagnostic print."""
-        print(f"[AudioWidget] Setting audio_active to {value}")
+        """Set the model's audio_active property from the checkbox, with diagnostic log."""
+        logger.info(f"[AudioWidget] Setting audio_active to {value}")
         self.audio_model.audio_active = value
         self.audio_active.setChecked(value)
 
     def set_mux_after_record(self, value: bool):
-        """Set the model's mux_after_record property from the checkbox, with diagnostic print."""
-        print(f"[AudioWidget] Setting mux_after_record to {value}")
+        """Set the model's mux_after_record property from the checkbox, with diagnostic log."""
+        logger.info(f"[AudioWidget] Setting mux_after_record to {value}")
         self.audio_model.mux_after_record = value
         self.mux_after_record.setChecked(value)
 

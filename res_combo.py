@@ -13,24 +13,16 @@ class ResCombo(qtw.QComboBox):
             self.resolutions_model.resolutionsChanged.connect(lambda: self.generateComboItems(mode=None))
 
     def generateComboItems(self, mode):
-        print("generateComboItems called")
         self.clear()
         if not self.resolutions_model:
-            print("No resolutions_model provided!")
             return
         resolutions = self.resolutions_model.get_resolutions()
-        print(f"Resolutions fetched from model: {resolutions}")
         for item in resolutions:
-            print(f"Adding item: {item}")
             if mode is not None:
-                print(f"Mode provided: {mode}")
                 if item[1][0] < mode['size'][0] and item[1][1] <= mode['size'][1]:
                     self.addItem(f"{item[0]}, {item[1]}", userData=item[1])
-                    print(f"Item added with mode filter: {item}")
             else:
                 self.addItem(f"{item[0]}, {item[1]}", userData=item[1])
-                print(f"Item added without mode filter: {item}")
-        print('Combo count:', self.count(), 'Current text:', self.currentText())
         self.set_largest_resolution()  # <-- Ensure largest is selected
 
     def applySettings(self, tup):
@@ -42,7 +34,6 @@ class ResCombo(qtw.QComboBox):
         size = self.itemData(index)
         if size and self.config_model:
             self.config_model.set_nested('main', 'size', size)
-            print(f"Set config['main']['size'] to {size}")
 
     def set_largest_resolution(self):
         if self.count() == 0:
@@ -57,7 +48,6 @@ class ResCombo(qtw.QComboBox):
                     largest_area = area
                     largest_ix = i
         self.setCurrentIndex(largest_ix)
-        print(f"Defaulting to largest resolution: {self.itemText(largest_ix)}, {self.itemData(largest_ix)}")
 
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)

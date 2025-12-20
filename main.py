@@ -246,11 +246,8 @@ if __name__ == "__main__":
         sys.exit(app.exec())
     except ValueError as e:
         logging.error(f"ValueError: {e}")
-        print(f"Error: {e}")
     except ImportError as e:
         logging.error(f"ImportError: {e}")
-        print(f"ImportError: {e}")
     except Exception as e:
         logging.exception("Exception occurred during application startup")
-        print(f"Exception: {e}")
 
