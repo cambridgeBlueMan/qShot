@@ -26,7 +26,9 @@ class SimpleVideo(ComponentBaseVideo):
             show_resolution=True,
             show_adjustments=True,
             show_filename=True,
-            show_terminal=True
+            show_terminal=True,
+            show_fps_combo=True,
+            show_mode_combo=True,
         )
 
         self.is_recording = False

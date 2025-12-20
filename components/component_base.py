@@ -6,6 +6,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+import logging
+logger = logging.getLogger(__name__)
+
 MINIMUM_WIDTH = 485
 
 class ComponentBase(QtWidgets.QWidget):
@@ -24,6 +27,7 @@ class ComponentBase(QtWidgets.QWidget):
         show_filename=True,
         show_terminal=True,
         show_fps_combo=False,
+        show_mode_combo=False,
         **kwargs
     ):
         super().__init__(parent)
@@ -149,6 +153,45 @@ class ComponentBase(QtWidgets.QWidget):
             self.terminal.anchorClicked.connect(self.handle_terminal_link)
             self.base_layout.addWidget(self.terminal)
 
+        # --- Mode Combo Box ---
+        if show_mode_combo:
+            logger.info("Mode combo: show_mode_combo is True")
+            mode_layout = QtWidgets.QHBoxLayout()
+            mode_label = QtWidgets.QLabel("Mode:")
+            self.mode_combo = QtWidgets.QComboBox()
+            self.mode_combo.setMinimumWidth(120)
+            # Populate with available modes if self.cam has sensor_modes
+            logger.info(f"cam: {self.cam}")
+            logger.info(f"sensor_modes: {getattr(self.cam, 'sensor_modes', None)}")
+            if hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
+                for i, mode in enumerate(self.cam.sensor_modes):
+                    label = f"{mode.get('size', '')} @ {mode.get('fps', '')}fps"
+                    logger.info(f"Adding mode to combo: {label}")
+                    self.mode_combo.addItem(label, userData=i)
+            else:
+                logger.warning("No sensor_modes found; mode_combo will be empty.")
+            mode_layout.addWidget(mode_label)
+            mode_layout.addWidget(self.mode_combo)
+            # Insert before FPS and resolutions
+            insert_index = 0
+            for i in range(group_layout.count()):
+                item = group_layout.itemAt(i)
+                if isinstance(item, QtWidgets.QHBoxLayout):
+                    for j in range(item.count()):
+                        widget = item.itemAt(j).widget()
+                        if isinstance(widget, QtWidgets.QLabel) and (
+                            widget.text().lower().startswith("framerate") or
+                            widget.text().lower().startswith("select resolution")
+                        ):
+                            insert_index = i
+                            break
+            logger.info(f"Inserting mode_layout at index {insert_index}")
+            group_layout.insertLayout(insert_index, mode_layout)
+            self.mode_combo.setVisible(True)  # Hidden by default
+        else:
+            logger.info("Mode combo: show_mode_combo is False")
+            self.mode_combo = None
+
         # --- FPS Combo Box ---
         if show_fps_combo:
             fps_layout = QtWidgets.QHBoxLayout()
@@ -171,6 +214,7 @@ class ComponentBase(QtWidgets.QWidget):
                             break
             group_layout.insertLayout(insert_index, fps_layout)
 
+        
         self.base_layout.addStretch()
 
     # --- Common Signal Handlers ---

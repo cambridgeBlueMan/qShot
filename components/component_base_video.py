@@ -1,19 +1,21 @@
 from PyQt5 import QtCore, QtWidgets
 from components.component_base import ComponentBase
 from app_signals import app_signals
+import logging
+
+logger = logging.getLogger(__name__)
 
 AVAILABLE_FPS = [10, 20, 24, 25, 30, 50, 60, 120]
 
 class ComponentBaseVideo(ComponentBase):
     def __init__(self, *args, **kwargs):
-        kwargs['show_fps_combo'] = True
         super().__init__(*args, **kwargs)
         app_signals.isRecordingChanged.connect(self.handle_recording_state)
         app_signals.isPlayingChanged.connect(self.handle_playing_state)
 
         # --- Video mode selection logic ---
         self.video_mode = self.select_video_mode(min_fps=30)
-        print("video_mode:", self.video_mode)
+        logger.info(f"video_mode: {self.video_mode}")
         if self.video_mode:
             if self.config_model:
                 self.config_model.set_nested('sensor', 'output_size', self.video_mode['size'])
@@ -25,16 +27,19 @@ class ComponentBaseVideo(ComponentBase):
                 self.res_combo.generateComboItems(self.video_mode)
                 self.res_combo.set_largest_resolution()
 
-        if self.fps_combo:
-            max_mode_fps = self.video_mode['fps'] if self.video_mode else 30
+        if self.fps_combo is not None and self.video_mode and 'fps' in self.video_mode:
+            max_mode_fps = float(self.video_mode['fps'])
             fps_options = [fps for fps in AVAILABLE_FPS if fps <= max_mode_fps]
             for fps in fps_options:
                 self.fps_combo.addItem(f"{fps} fps", userData=fps)
             self.fps_combo.currentIndexChanged.connect(self.set_fps_in_controls)
-            print("FPS combo items:", [self.fps_combo.itemText(i) for i in range(self.fps_combo.count())])
-
-        # Always add to the base_layout (created in the superclass)
-        # self.base_layout.addWidget(self.fps_combo)
+        else:
+            logger.warning(f"FPS combo not populated: fps_combo={self.fps_combo}, video_mode={self.video_mode}")
+        # logger.info(f"fps_combo exists: {hasattr(self, 'fps_combo')}, video_mode: {self.video_mode}")
+        # logger.info(f"Type of fps_combo: {type(self.fps_combo)}")
+        # logger.info(f"fps_combo is None: {self.fps_combo is None}")
+        # logger.info(f"video_mode: {self.video_mode}")
+        # logger.info(f"AVAILABLE_FPS: {AVAILABLE_FPS}")
 
     def select_video_mode(self, min_fps=30):
         if hasattr(self, "cam") and hasattr(self.cam, "sensor_modes") and self.cam.sensor_modes:
@@ -42,7 +47,7 @@ class ComponentBaseVideo(ComponentBase):
             if suitable_modes:
                 # Pick the one with the highest resolution
                 best_mode = max(suitable_modes, key=lambda m: m['size'][0] * m['size'][1])
-                return best_mode
+                return best_mode  # Return the mode dictionary
             else:
                 # Fallback: pick the highest fps available
                 best_mode = max(self.cam.sensor_modes, key=lambda m: m.get('fps', 0))
