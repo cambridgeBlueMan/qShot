@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 MINIMUM_WIDTH = 485
 
 class ComponentBase(QtWidgets.QWidget):
+    CAPTURE_TYPE = "img"  # Default to still capture
+
     def __init__(
         self,
         cam=None,
@@ -113,14 +115,14 @@ class ComponentBase(QtWidgets.QWidget):
             """)
             filename_grid = QtWidgets.QGridLayout()
             filename_grid.addWidget(QtWidgets.QLabel("Image root:"), 0, 0)
-            self.img_root = QtWidgets.QLineEdit(self.paths_model.rootnames.get("img", "img_"))
+            self.img_root = QtWidgets.QLineEdit(self.paths_model.rootnames.get(self.CAPTURE_TYPE, f"{self.CAPTURE_TYPE}_"))
             filename_grid.addWidget(self.img_root, 0, 1)
             filename_grid.addWidget(QtWidgets.QLabel("Strategy:"), 1, 0)
             self.strategy = QtWidgets.QComboBox()
             self.strategy.addItems(["date", "sequence", "hash"])
             self.strategy.setCurrentText(self.paths_model.strategy)
             filename_grid.addWidget(self.strategy, 1, 1)
-            self.preview_label = QtWidgets.QLabel(self.paths_model.generate_filename("img"))
+            self.preview_label = QtWidgets.QLabel(self.paths_model.generate_filename(self.CAPTURE_TYPE))
             filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
             filename_group.setLayout(filename_grid)
             group_layout.addWidget(filename_group)
@@ -251,22 +253,26 @@ class ComponentBase(QtWidgets.QWidget):
                 self.cam.start()
 
     def _update_from_model(self):
-        if hasattr(self, "img_root") and self.img_root.text() != self.paths_model.rootnames.get("img", "img_"):
+        kind = self.CAPTURE_TYPE
+        default_root = f"{kind}_"
+        if hasattr(self, "img_root") and self.img_root.text() != self.paths_model.rootnames.get(kind, default_root):
             self.img_root.blockSignals(True)
-            self.img_root.setText(self.paths_model.rootnames.get("img", "img_"))
+            self.img_root.setText(self.paths_model.rootnames.get(kind, default_root))
             self.img_root.blockSignals(False)
-            self.preview_label.setText(self.paths_model.generate_filename("img"))
+            self.preview_label.setText(self.paths_model.generate_filename(kind))
         if hasattr(self, "strategy") and self.strategy.currentText() != self.paths_model.strategy:
             self.strategy.blockSignals(True)
             self.strategy.setCurrentText(self.paths_model.strategy)
             self.strategy.blockSignals(False)
-            self.preview_label.setText(self.paths_model.generate_filename("img"))
+            self.preview_label.setText(self.paths_model.generate_filename(kind))
 
     def _update_img_root_in_model(self):
-        img_root = self.img_root.text().strip() or "img_"
-        if img_root != self.paths_model.rootnames.get("img", "img_"):
-            self.paths_model.set_rootname("img", img_root)
-        self.preview_label.setText(self.paths_model.generate_filename("img"))
+        kind = self.CAPTURE_TYPE
+        default_root = f"{kind}_"
+        img_root = self.img_root.text().strip() or default_root
+        if img_root != self.paths_model.rootnames.get(kind, default_root):
+            self.paths_model.set_rootname(kind, img_root)
+        self.preview_label.setText(self.paths_model.generate_filename(kind))
 
     def _update_strategy_in_model(self, index):
         strategy_text = self.strategy.itemText(index)

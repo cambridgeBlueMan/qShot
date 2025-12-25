@@ -280,9 +280,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.left_dock.visibilityChanged.connect(self.on_left_dock_visibility_changed)
 
-        # Initialize AudioModel
-        self.audio_model = AudioModel()
-
         # Add an "Audio" menu with an action to show AudioWidget
         audio_menu = menubar.addMenu("Audio")
         show_audio_action = QAction("Show Audio Widget", self)
@@ -440,14 +437,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_audio_widget(self):
         """Instantiate AudioWidget and show it in a dialog window."""
         logging.info("[MainWindow] show_audio_widget called")
-        audio_widget = AudioWidget(**self.get_component_args())
-        dialog = QtWidgets.QDialog(self)
-        dialog.setWindowTitle("Audio Widget")
-        layout = QtWidgets.QVBoxLayout(dialog)
-        layout.addWidget(audio_widget)
-        dialog.setLayout(layout)
-        dialog.resize(400, 300)
-        dialog.exec()
+        audio_widget = AudioWidget(**self.get_component_args(), parent=self)
+        audio_widget.exec()
 
     def open_resolutions_editor(self):
         """Open the resolutions editor dialog."""

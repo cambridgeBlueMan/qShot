@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 AVAILABLE_FPS = [10, 20, 24, 25, 30, 50, 60, 120]
 
 class ComponentBaseVideo(ComponentBase):
+    CAPTURE_TYPE = "vid"  # Override for video capture
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app_signals.isRecordingChanged.connect(self.handle_recording_state)

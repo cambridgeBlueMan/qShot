@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger("audio_model")
 
 DEFAULT_AUDIO_SYNC = "300"
+AUDIO_CODECS = ("aac", "mp3", "libopus")
 
 class AudioModel(QObject):
     """
@@ -33,10 +34,11 @@ class AudioModel(QObject):
     muxAfterRecordChanged = pyqtSignal(bool)
     audioSyncChanged = pyqtSignal(str)
 
-    def __init__(self, name="", index=0, bit_depth=16, bit_rate=128, sample_rate=44100,
-                 audio_sync=DEFAULT_AUDIO_SYNC, audio_active=False, mux_after_record=False):
+    def __init__(self, name="", index=0, bit_depth=16, bit_rate=128000, sample_rate=44100,
+                 audio_sync=DEFAULT_AUDIO_SYNC, audio_active=False, mux_after_record=False, audio_codec="aac"):
         """
         Initialize the AudioModel with default or provided values.
+        If ALSA devices are available, populate model properties from the first device.
         """
         super().__init__()
         self._name = name
@@ -47,6 +49,26 @@ class AudioModel(QObject):
         self._audio_sync = audio_sync
         self._audio_active = audio_active
         self._mux_after_record = mux_after_record
+        self._audio_codec = audio_codec  # <-- Add this line
+
+        self.init_from_first_device()  # <-- Initialize from first ALSA device if available
+
+    def init_from_first_device(self):
+        """Initialize model properties from the first available ALSA device."""
+        devices = self.get_alsa_devices()
+        if devices:
+            display_name, device_str = devices[0]
+            self.name = device_str
+            self.index = 0
+            bit_depths, sample_rates = self.get_alsa_hw_params(device_str)
+            if bit_depths:
+                self.bit_depth = int(bit_depths[0])
+            if sample_rates:
+                self.sample_rate = int(sample_rates[0])
+            self.bit_rate = 128666  # Set to default or adjust as needed
+            logger.info(f"[AudioModel] Initialized from device: {device_str}")
+        else:
+            logger.warning("[AudioModel] No ALSA devices found during initialization.")
 
     @property
     def name(self):
@@ -58,6 +80,7 @@ class AudioModel(QObject):
         """Set device name and emit signal if changed."""
         if value != self._name:
             self._name = value
+            print(f"[AudioModel] name set to {value}")
             self.nameChanged.emit(value)
 
     @property
@@ -154,6 +177,18 @@ class AudioModel(QObject):
                 logger.warning(f"[AudioModel] audio_sync value {value} out of range (-1000 to 1000)")
         except ValueError:
             logger.warning(f"[AudioModel] audio_sync value {value} is not an integer")
+
+    @property
+    def audio_codec(self):
+        """Current audio codec (default: 'aac')."""
+        return self._audio_codec
+
+    @audio_codec.setter
+    def audio_codec(self, value):
+        """Set audio codec."""
+        if value != self._audio_codec:
+            self._audio_codec = value
+            logger.info(f"[AudioModel] audio_codec set to {value}")
 
     def get_alsa_devices(self):
         """
@@ -263,7 +298,7 @@ class AudioModel(QObject):
                     rates = re.findall(r"\[(\d+)\s+(\d+)\]", line)
                     if rates:
                         rate_min, rate_max = map(int, rates[0])
-            # Offer common rates within the reported range
+            # Offer common rates within the reported rate
             common_rates = [8000, 11025, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 176400, 192000]
             if rate_min and rate_max:
                 for r in common_rates:
