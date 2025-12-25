@@ -44,6 +44,33 @@ class ComponentBase(QtWidgets.QWidget):
         self.base_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.base_layout)
 
+        # --- Top Buttons (e.g., more/less, capture, etc.) ---
+        # (Assuming you have buttons like self.more_button and others at the top)
+        # Add your top buttons here, e.g.:
+        # self.more_button = QtWidgets.QPushButton("more...")
+        # self.capture_button = QtWidgets.QPushButton("Capture")
+        # top_button_layout = QtWidgets.QHBoxLayout()
+        # top_button_layout.addWidget(self.more_button)
+        # top_button_layout.addWidget(self.capture_button)
+        # self.base_layout.addLayout(top_button_layout)
+
+        # --- Terminal-like status window (move this block here, just below the top buttons) ---
+        if show_terminal:
+            self.terminal = QtWidgets.QTextBrowser(self)
+            self.terminal.setReadOnly(True)
+            self.terminal.setFixedHeight(100)  # ~4-5 lines
+            self.terminal.setStyleSheet("""
+                background-color: #222;
+                color: #A8FF60;
+                font-family: 'Fira Mono', 'Consolas', 'Monospace';
+                font-size: 9pt;
+                border: 1px solid #444;
+            """)
+            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
+            self.terminal.setOpenExternalLinks(False)
+            self.terminal.anchorClicked.connect(self.handle_terminal_link)
+            self.base_layout.addWidget(self.terminal)
+
         # --- Common Controls Group (hidden by default, toggled by "more..." button) ---
         self.common_controls_group = QtWidgets.QGroupBox("Common Controls")
         self.common_controls_group.setVisible(False)
@@ -122,8 +149,10 @@ class ComponentBase(QtWidgets.QWidget):
             self.strategy.addItems(["date", "sequence", "hash"])
             self.strategy.setCurrentText(self.paths_model.strategy)
             filename_grid.addWidget(self.strategy, 1, 1)
+            # Add preview label row with description
+            filename_grid.addWidget(QtWidgets.QLabel("For example:"), 2, 0)
             self.preview_label = QtWidgets.QLabel(self.paths_model.generate_filename(self.CAPTURE_TYPE))
-            filename_grid.addWidget(self.preview_label, 2, 0, 1, 2)
+            filename_grid.addWidget(self.preview_label, 2, 1)
             filename_group.setLayout(filename_grid)
             group_layout.addWidget(filename_group)
 
@@ -137,23 +166,6 @@ class ComponentBase(QtWidgets.QWidget):
 
         self.common_controls_group.setLayout(group_layout)
         self.base_layout.addWidget(self.common_controls_group)
-
-        # --- Terminal-like status window ---
-        if show_terminal:
-            self.terminal = QtWidgets.QTextBrowser(self)
-            self.terminal.setReadOnly(True)
-            self.terminal.setFixedHeight(100)  # ~4-5 lines
-            self.terminal.setStyleSheet("""
-                background-color: #222;
-                color: #A8FF60;
-                font-family: 'Fira Mono', 'Consolas', 'Monospace';
-                font-size: 9pt;
-                border: 1px solid #444;
-            """)
-            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
-            self.terminal.setOpenExternalLinks(False)
-            self.terminal.anchorClicked.connect(self.handle_terminal_link)
-            self.base_layout.addWidget(self.terminal)
 
         # --- Mode Combo Box ---
         if show_mode_combo:
