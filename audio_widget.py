@@ -35,6 +35,9 @@ logger = logging.getLogger(__name__)
 from qt import QtWidgets, QtGui, QtCore, Qt, QIntValidator
 from audio_model import AUDIO_CODECS  # Make sure AUDIO_CODECS = ("aac", "mp3", "opus") is defined in audio_model.py
 
+
+AVAILABL_BIT_RATES = ["64", "128", "192", "256", "320"]  # in kbps
+DEFAULT_BIT_RATE = "128"  # in kbps
 class AudioWidget(QtWidgets.QDialog):
     def __init__(self, audio_model=None, parent=None, **kwargs):
         super().__init__(parent)
@@ -72,7 +75,10 @@ class AudioWidget(QtWidgets.QDialog):
         bit_rate_row = QtWidgets.QHBoxLayout()
         self.bit_rate_label = QtWidgets.QLabel("Bit Rate")
         self.bit_rate_combo = QtWidgets.QComboBox()
-        self.bit_rate_combo.addItems(["64", "128", "192", "256", "320"])
+        self.bit_rate_combo.addItems(AVAILABL_BIT_RATES)
+        idx = self.bit_rate_combo.findText(DEFAULT_BIT_RATE)
+        if idx >= 0:
+            self.bit_rate_combo.setCurrentIndex(idx)            
         bit_rate_row.addWidget(self.bit_rate_label)
         bit_rate_row.addWidget(self.bit_rate_combo)
         layout.addLayout(bit_rate_row)
@@ -129,11 +135,8 @@ class AudioWidget(QtWidgets.QDialog):
         group.setLayout(layout)
 
         # Dialog buttons
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
-        )
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
         button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.addWidget(group)
@@ -153,7 +156,7 @@ class AudioWidget(QtWidgets.QDialog):
 
         # Connect audio sync edit text change to model
         self.audio_sync_edit.textChanged.connect(self.on_audio_sync_changed)
-        self.audio_active.setChecked(self.audio_model.audio_active)
+        self.audio_active.setChecked(bool(self.audio_model.audio_active))
         self.mux_after_record.setChecked(self.audio_model.mux_after_record)
 
         # Populate bit depth and sample rate for initial selection
@@ -172,6 +175,7 @@ class AudioWidget(QtWidgets.QDialog):
 
     def on_audio_active_changed(self, state):
         self.audio_model.audio_active = bool(state)
+        self.audio_active.setChecked(bool(self.audio_model.audio_active))  # Ensure checkbox reflects model state
 
     def on_mux_after_record_changed(self, state):
         self.audio_model.mux_after_record = bool(state)
@@ -192,9 +196,18 @@ class AudioWidget(QtWidgets.QDialog):
         self.sample_rate_combo.addItems([str(sr) for sr in sample_rates])
         # Optionally, set initial values in the model
         if bit_depths:
-            self.audio_model.bit_depth = int(bit_depths[0])
+            self.audio_model.bit_depth = int(bit_depths[-1])
         if sample_rates:
-            self.audio_model.sample_rate = int(sample_rates[0])
+            self.audio_model.sample_rate = int(sample_rates[-1])
+        # Set combo to model's value (which should be the highest)
+        if bit_depths:
+            idx = self.bit_depth_combo.findText(str(self.audio_model.bit_depth))
+            if idx >= 0:
+                self.bit_depth_combo.setCurrentIndex(idx)
+        if sample_rates:
+            idx = self.sample_rate_combo.findText(str(self.audio_model.sample_rate))
+            if idx >= 0:
+                self.sample_rate_combo.setCurrentIndex(idx)
 
     def on_bit_depth_selected(self, idx):
         value = self.bit_depth_combo.itemText(idx)

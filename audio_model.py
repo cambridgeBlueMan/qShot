@@ -15,7 +15,7 @@ import logging
 
 logger = logging.getLogger("audio_model")
 
-DEFAULT_AUDIO_SYNC = "300"
+DEFAULT_AUDIO_SYNC = "0"  # in milliseconds
 AUDIO_CODECS = ("aac", "mp3", "libopus")
 
 class AudioModel(QObject):
@@ -62,12 +62,14 @@ class AudioModel(QObject):
             self.index = 0
             bit_depths, sample_rates = self.get_alsa_hw_params(device_str)
             if bit_depths:
-                self.bit_depth = int(bit_depths[0])
+                self.bit_depth = int(bit_depths[-1])  # Highest
             if sample_rates:
-                self.sample_rate = int(sample_rates[0])
+                self.sample_rate = int(sample_rates[-1])  # Highest
             self.bit_rate = 128666  # Set to default or adjust as needed
+            self.audio_active = True  # <-- Ensure audio is active if a device is found
             logger.info(f"[AudioModel] Initialized from device: {device_str}")
         else:
+            self.audio_active = False  # <-- Set to False if no device found
             logger.warning("[AudioModel] No ALSA devices found during initialization.")
 
     @property

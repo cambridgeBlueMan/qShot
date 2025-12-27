@@ -238,8 +238,10 @@ if __name__ == "__main__":
             resolutions_model=resolutions_model
         )
 
-        # Optionally set a default size
-        window.resize(1200, 800)
+        INITIAL_WIDTH = 1600
+        INITIAL_HEIGHT = 800
+
+        window.resize(INITIAL_WIDTH, INITIAL_HEIGHT)
         window.show()
         controls_model.load_settings()
         logging.info("Starting Qt event loop.")

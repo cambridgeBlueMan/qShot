@@ -13,6 +13,13 @@ MINIMUM_WIDTH = 485
 
 class ComponentBase(QtWidgets.QWidget):
     CAPTURE_TYPE = "img"  # Default to still capture
+    TERMINAL_STYLE_SHEET = """
+    background-color: #222;
+    color: #A8FF60;
+    font-family: 'Fira Mono', 'Consolas', 'Monospace';
+    font-size: 9pt;
+    border: 1px solid #444;
+"""
 
     def __init__(
         self,
@@ -59,13 +66,7 @@ class ComponentBase(QtWidgets.QWidget):
             self.terminal = QtWidgets.QTextBrowser(self)
             self.terminal.setReadOnly(True)
             self.terminal.setFixedHeight(100)  # ~4-5 lines
-            self.terminal.setStyleSheet("""
-                background-color: #222;
-                color: #A8FF60;
-                font-family: 'Fira Mono', 'Consolas', 'Monospace';
-                font-size: 9pt;
-                border: 1px solid #444;
-            """)
+            self.terminal.setStyleSheet(self.TERMINAL_STYLE_SHEET)
             self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
             self.terminal.setOpenExternalLinks(False)
             self.terminal.anchorClicked.connect(self.handle_terminal_link)

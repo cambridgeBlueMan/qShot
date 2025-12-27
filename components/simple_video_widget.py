@@ -30,7 +30,7 @@ class SimpleVideo(ComponentBaseVideo):
             show_filename=True,
             show_terminal=True,
             show_fps_combo=True,
-            show_mode_combo=True,
+            show_mode_combo=False,
         )
 
         self.is_recording = False
@@ -80,23 +80,32 @@ class SimpleVideo(ComponentBaseVideo):
             encoder = H264Encoder(10000000)
             # Pass self.record_done as the signal function
             
-            output = FfmpegOutput(
-                file_path,
-                audio=True,
-                audio_device= self.audio_model.name,
-                #audio_sync=self.audio_model.audio_sync,
-                #audio_samplerate=self.audio_model.sample_rate,
-                #audio_bitrate=self.audio_model.bit_rate,
-                #audio_codec=getattr(self.audio_model, "audio_codec", "aac"),  # if you add this property
-            )
-            logging.getLogger(__name__).info(
-                f"AudioModel parameters: "
-                f"name={self.audio_model.name}, "
-                f"audio_sync={self.audio_model.audio_sync}, "
-                f"sample_rate={self.audio_model.sample_rate}, "
-                f"bit_rate={self.audio_model.bit_rate}, "
-                f"audio_codec={getattr(self.audio_model, 'audio_codec', 'aac')}"
-            )
+            if self.audio_model.audio_active:
+                output = FfmpegOutput(
+                    file_path,
+                    audio=True,
+                    audio_device=self.audio_model.name,
+                    audio_sync=self.audio_model.audio_sync,
+                    audio_samplerate=self.audio_model.sample_rate,
+                    # audio_bitrate=self.audio_model.bit_rate,
+                    # audio_codec=getattr(self.audio_model, "audio_codec", "aac"),
+                )
+                logging.getLogger(__name__).info(
+                    f"AudioModel parameters: "
+                    f"name={self.audio_model.name}, "
+                    f"audio_sync={self.audio_model.audio_sync}, "
+                    f"sample_rate={self.audio_model.sample_rate}, "
+                    f"bit_rate={self.audio_model.bit_rate}, "
+                    f"audio_codec={getattr(self.audio_model, 'audio_codec', 'aac')}"
+                )
+            else:
+                output = FfmpegOutput(
+                    file_path,
+                    audio=False
+                )
+                logging.getLogger(__name__).info(
+                    "AudioModel parameters: audio is inactive"
+                )
             self.cam.start_encoder(encoder, output)
             self.is_recording = True
             self.record_button.setText("Stop")
@@ -157,7 +166,7 @@ class SimpleVideo(ComponentBaseVideo):
             self.terminal.setStyleSheet("color: #222; background-color: #222;")  # Use your actual background color
         else:
             # Restore text and color
-            self.terminal.setStyleSheet("")  # Reset to default
+            self.terminal.setStyleSheet(self.TERMINAL_STYLE_SHEET)  # Reset to default
             if self._saved_terminal_text:
                 self.terminal.setHtml(self._saved_terminal_text)
         self.record_button.setEnabled(not is_playing)
