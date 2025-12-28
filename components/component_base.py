@@ -61,20 +61,10 @@ class ComponentBase(QtWidgets.QWidget):
         # top_button_layout.addWidget(self.capture_button)
         # self.base_layout.addLayout(top_button_layout)
 
-        # --- Terminal-like status window (move this block here, just below the top buttons) ---
-        if show_terminal:
-            self.terminal = QtWidgets.QTextBrowser(self)
-            self.terminal.setReadOnly(True)
-            self.terminal.setFixedHeight(100)  # ~4-5 lines
-            self.terminal.setStyleSheet(self.TERMINAL_STYLE_SHEET)
-            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)  # Enable wrapping
-            self.terminal.setOpenExternalLinks(False)
-            self.terminal.anchorClicked.connect(self.handle_terminal_link)
-            self.base_layout.addWidget(self.terminal)
-
         # --- Common Controls Group (hidden by default, toggled by "more..." button) ---
         self.common_controls_group = QtWidgets.QGroupBox("Common Controls")
         self.common_controls_group.setVisible(False)
+        self.common_controls_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         group_layout = QtWidgets.QVBoxLayout()
 
         # --- JPEG Quality Slider ---
@@ -136,11 +126,7 @@ class ComponentBase(QtWidgets.QWidget):
         # --- File Name Group Box ---
         if show_filename:
             filename_group = QtWidgets.QGroupBox("File name")
-            filename_group.setStyleSheet("""
-                QtWidgets.QGroupBox {
-                    font-weight: bold;
-                }
-            """)
+            filename_group.setStyleSheet("QGroupBox { font-weight: bold; }")
             filename_grid = QtWidgets.QGridLayout()
             filename_grid.addWidget(QtWidgets.QLabel("Image root:"), 0, 0)
             self.img_root = QtWidgets.QLineEdit(self.paths_model.rootnames.get(self.CAPTURE_TYPE, f"{self.CAPTURE_TYPE}_"))
@@ -153,6 +139,7 @@ class ComponentBase(QtWidgets.QWidget):
             # Add preview label row with description
             filename_grid.addWidget(QtWidgets.QLabel("For example:"), 2, 0)
             self.preview_label = QtWidgets.QLabel(self.paths_model.generate_filename(self.CAPTURE_TYPE))
+            self.preview_label.setStyleSheet("font-style: italic;")
             filename_grid.addWidget(self.preview_label, 2, 1)
             filename_group.setLayout(filename_grid)
             group_layout.addWidget(filename_group)
@@ -167,6 +154,30 @@ class ComponentBase(QtWidgets.QWidget):
 
         self.common_controls_group.setLayout(group_layout)
         self.base_layout.addWidget(self.common_controls_group)
+
+        # --- Terminal-like status window (move this block here, just below the top buttons) ---
+        if show_terminal:
+            self.terminal = QtWidgets.QTextBrowser(self)
+            self.terminal.setReadOnly(True)
+            self.terminal.setMinimumHeight(50)
+            self.terminal.setMaximumHeight(300)  # Optional: limit max height
+            self.terminal.setStyleSheet(self.TERMINAL_STYLE_SHEET)
+            self.terminal.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)
+            self.terminal.setOpenExternalLinks(False)
+            self.terminal.anchorClicked.connect(self.handle_terminal_link)
+
+            # Create a splitter for terminal and the rest of the UI
+            self.splitter = QtWidgets.QSplitter(Qt.Vertical)
+            self.splitter.addWidget(self.terminal)
+
+            self.rest_widget = QtWidgets.QWidget()
+            self.rest_layout = QtWidgets.QVBoxLayout(self.rest_widget)
+            self.rest_layout.addWidget(self.common_controls_group)
+            self.splitter.addWidget(self.rest_widget)
+            self.base_layout.addWidget(self.splitter)
+
+            # Set initial splitter sizes: [terminal height, rest of UI]
+            self.splitter.setSizes([150, 400])  # 100px for terminal, rest for main UI
 
         # --- Mode Combo Box ---
         if show_mode_combo:

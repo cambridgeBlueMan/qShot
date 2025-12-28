@@ -350,7 +350,6 @@ class MainWindow(QtWidgets.QMainWindow):
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            # Use CamelCase for class name
             class_name = ''.join(part.capitalize() for part in name.split('_'))
             widget_class = getattr(module, class_name)
             widget_instance = widget_class(**self.get_component_args(name))
@@ -361,6 +360,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     old_widget.cleanup()
                 old_widget.deleteLater()
             self.right_dock.setWidget(widget_instance)
+            # --- Set dock title to component name ---
+            pretty_title = name.replace('_', ' ').title()
+            self.set_right_dock_title(pretty_title)
             self.right_dock.show()
             logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
         except Exception as e:
@@ -371,7 +373,13 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Programmatically load and insert a component widget into the right dock by name.
         Used for loading the default widget at startup or when switching components in code.
-        Ensures proper cleanup of the outgoing widget.
+        Ensures proper cleanup and replacement of widgets when switching components.
+
+        Args:
+            name (str): The name of the component to load (without _widget.py).
+
+        Returns:
+            widget_instance: The instantiated widget class, or Dummy widget on failure.
         """
         class_name = None
         module_name = None
@@ -381,7 +389,6 @@ class MainWindow(QtWidgets.QMainWindow):
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            # Use CamelCase for class name
             class_name = ''.join(part.capitalize() for part in name.split('_'))
             widget_class = getattr(module, class_name)
             widget_instance = widget_class(**self.get_component_args(name))
@@ -395,6 +402,9 @@ class MainWindow(QtWidgets.QMainWindow):
                         logging.error(f"Error during cleanup of {type(old_widget).__name__}: {e}")
                 old_widget.deleteLater()
             self.right_dock.setWidget(widget_instance)
+            # --- Set dock title to component name ---
+            pretty_title = name.replace('_', ' ').title()
+            self.set_right_dock_title(pretty_title)
             self.right_dock.show()
             logging.info(f"Instantiated and inserted widget: {class_name} into right dock (previous content cleaned up)")
             return widget_instance
@@ -462,6 +472,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def show_preview(self):
         self.central_stack.setCurrentWidget(self.preview)
+
+    def set_right_dock_title(self, title):
+        """Set the right dock's title with bold text."""
+        label = QtWidgets.QLabel(title)
+        label.setStyleSheet("font-weight: bold; font-size: 12pt; padding-left: 4px;")
+        self.right_dock.setTitleBarWidget(label)
 
 if __name__ == "__main__":
     """
