@@ -163,19 +163,19 @@ class MainWindow(QtWidgets.QMainWindow):
         logging.info("Camera started and QGlPicamera2 preview created.")
 
         # Add a toolbar
-        toolbar = self.addToolBar("Main Toolbar")
-        toolbar.setMovable(False)
-        logging.info("Toolbar added.")
+        #toolbar = self.addToolBar("Main Toolbar")
+        #toolbar.setMovable(False)
+        #logging.info("Toolbar added.")
 
         # Add a save action with an icon to the toolbar
-        save_action = toolbar.addAction(QtGui.QIcon.fromTheme("document-save"), "Save")
-        save_action.setStatusTip("Save the current document")
-        save_action.triggered.connect(self.save_file_dialog)  # Connect to save dialog
-        logging.info("Save action added to toolbar.")
+        #save_action = toolbar.addAction(QtGui.QIcon.fromTheme("document-save"), "Save")
+        #save_action.setStatusTip("Save the current document")
+        #save_action.triggered.connect(self.save_file_dialog)  # Connect to save dialog
+        #logging.info("Save action added to toolbar.")
 
         # Add a status bar
-        self.statusBar().showMessage("Ready")
-        logging.info("Status bar initialized.")
+        # self.statusBar().showMessage("Ready")
+        #logging.info("Status bar initialized.")
 
         # Set the default widget name (without _widget.py)
         self.default_widget_name = DEFAULT_WIDGET
