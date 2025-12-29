@@ -191,26 +191,39 @@ class AdjustmentsWidget(QtWidgets.QWidget):
         main_layout.addWidget(group)
         self.setLayout(main_layout)
 
-        # --- Hookups: Sliders and Dials ---
+        # --- Hookups: Sliders and Dials
         self.contrast_slider.valueChanged.connect(self.on_contrast_slider_changed)
         self.contrast_dial.valueChanged.connect(self.on_contrast_dial_changed)
         controls_model.ContrastChanged.connect(self.on_model_contrast_changed)
+        self.contrast_reset_btn.clicked.connect(self.reset_contrast)
+        self.contrast_dial_reset_btn.clicked.connect(self.reset_contrast)
 
         self.sharpness_slider.valueChanged.connect(self.on_sharpness_slider_changed)
         self.sharpness_dial.valueChanged.connect(self.on_sharpness_dial_changed)
         controls_model.SharpnessChanged.connect(self.on_model_sharpness_changed)
+        self.sharpness_reset_btn.clicked.connect(self.reset_sharpness)
+        self.sharpness_dial_reset_btn.clicked.connect(self.reset_sharpness)
 
         self.brightness_slider.valueChanged.connect(self.on_brightness_slider_changed)
         self.brightness_dial.valueChanged.connect(self.on_brightness_dial_changed)
         controls_model.BrightnessChanged.connect(self.on_model_brightness_changed)
+        self.brightness_reset_btn.clicked.connect(self.reset_brightness)
+        self.brightness_dial_reset_btn.clicked.connect(self.reset_brightness)
 
         self.saturation_slider.valueChanged.connect(self.on_saturation_slider_changed)
         self.saturation_dial.valueChanged.connect(self.on_saturation_dial_changed)
         controls_model.SaturationChanged.connect(self.on_model_saturation_changed)
+        self.saturation_reset_btn.clicked.connect(self.reset_saturation)
+        self.saturation_dial_reset_btn.clicked.connect(self.reset_saturation)
 
-        # --- Update control mode on radio button toggle ---
         self.slider_radio.toggled.connect(self.update_control_mode)
         self.update_control_mode()  # Ensure correct initial mode
+
+        # Initialize slider values from the model
+        self.contrast_slider.setValue(self.contrast_to_slider(self.controls_model.Contrast))
+        self.sharpness_slider.setValue(self.sharpness_to_slider(self.controls_model.Sharpness))
+        self.brightness_slider.setValue(self.brightness_to_slider(self.controls_model.Brightness))
+        self.saturation_slider.setValue(self.saturation_to_slider(self.controls_model.Saturation))
 
     def update_control_mode(self):
         if self.slider_radio.isChecked():
