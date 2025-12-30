@@ -196,30 +196,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_dock)
 
         # Add a bottom dock with 3 equally sized columns, one is ControlsGui
-        self.bottom_dock = QtWidgets.QDockWidget("Bottom Dock", self)
-        bottom_widget = QtWidgets.QWidget(self.bottom_dock)
-        bottom_layout = QtWidgets.QHBoxLayout(bottom_widget)
-        bottom_layout.setContentsMargins(0, 0, 0, 0)
-        bottom_layout.setSpacing(0)
+        # self.bottom_dock = QtWidgets.QDockWidget("Bottom Dock", self)
+        # bottom_widget = QtWidgets.QWidget(self.bottom_dock)
+        # bottom_layout = QtWidgets.QHBoxLayout(bottom_widget)
+        # bottom_layout.setContentsMargins(0, 0, 0, 0)
+        # bottom_layout.setSpacing(0)
 
         # First column: placeholder widget
-        bottom_col1 = self.create_autofocus_widget()
-        # Second column: instantiate AdjustmentsWidget with kwargs
-        bottom_col2 = AdjustmentsWidget(**self.get_component_args())
-        # Third column: placeholder widget
-        bottom_col3 = PathsWidget(**self.get_component_args())
-        # bottom_col3 = VideoPlayer(parent=self)
-        bottom_layout.addWidget(bottom_col1, 1)
-        bottom_layout.addWidget(bottom_col2, 1)
-        bottom_layout.addWidget(bottom_col3, 1)
-        bottom_widget.setLayout(bottom_layout)
-        self.bottom_dock.setWidget(bottom_widget)
+        # bottom_col1 = self.create_autofocus_widget()
+        # # Second column: instantiate AdjustmentsWidget with kwargs
+        # bottom_col2 = AdjustmentsWidget(**self.get_component_args())
+        # # Third column: placeholder widget
+        # bottom_col3 = PathsWidget(**self.get_component_args())
+        # # bottom_col3 = VideoPlayer(parent=self)
+        # bottom_layout.addWidget(bottom_col1, 1)
+        # bottom_layout.addWidget(bottom_col2, 1)
+        # bottom_layout.addWidget(bottom_col3, 1)
+        # bottom_widget.setLayout(bottom_layout)
+        # self.bottom_dock.setWidget(bottom_widget)
         
-        self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
-        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
-        self.bottom_dock.hide()  # Hide bottom dock on launch
+        # self.bottom_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        # self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_dock)
+        # self.bottom_dock.hide()  # Hide bottom dock on launch
 
-        logging.info("Left, right, and bottom docks added.")
+        logging.info("Left and right docks added.")
 
         # --- Menu Bar ---
         menubar = self.menuBar()
@@ -280,7 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):
         view_menu = menubar.addMenu("View")
         view_menu.addAction(self.left_dock.toggleViewAction())
         view_menu.addAction(self.right_dock.toggleViewAction())
-        view_menu.addAction(self.bottom_dock.toggleViewAction())
+        #view_menu.addAction(self.bottom_dock.toggleViewAction())
         logging.info("View menu with dock toggle actions added.")
 
         self.left_dock.visibilityChanged.connect(self.on_left_dock_visibility_changed)
