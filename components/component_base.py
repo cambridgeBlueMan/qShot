@@ -302,7 +302,7 @@ class ComponentBase(QtWidgets.QWidget):
         strategy_text = self.strategy.itemText(index)
         if strategy_text != self.paths_model.strategy:
             self.paths_model.set_strategy(strategy_text)
-        self.preview_label.setText(self.paths_model.generate_filename("img"))
+        self.preview_label.setText(self.paths_model.generate_filename(self.CAPTURE_TYPE))
 
     def on_config_changed(self, cfg):
         was_running = getattr(self.cam, 'started', False)
