@@ -230,9 +230,14 @@ class MainWindow(QtWidgets.QMainWindow):
             edit_menu.setObjectName("editMenu")
 
         # Add Resolutions Editor action
-        self.res_editor_action = QtWidgets.QAction("Resolutions Editor", self)
+        self.res_editor_action = QtWidgets.QAction("Resolutions", self)
         self.res_editor_action.triggered.connect(self.open_resolutions_editor)
         edit_menu.addAction(self.res_editor_action)
+
+        # Add File Paths action to Edit menu
+        self.file_paths_action = QtWidgets.QAction("File Paths", self)
+        self.file_paths_action.triggered.connect(self.show_file_paths_widget)
+        edit_menu.addAction(self.file_paths_action)
 
         # Add a "Controls" menu and three checkable items
         #controls_menu = menubar.addMenu("Controls")
@@ -282,10 +287,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Add an "Audio" menu with an action to show AudioWidget
         audio_menu = menubar.addMenu("Audio")
-        show_audio_action = QAction("Show Audio Widget", self)
+        show_audio_action = QAction("Show Audio Devices", self)
         audio_menu.addAction(show_audio_action)
         show_audio_action.triggered.connect(self.show_audio_widget)
         logging.info("Audio menu and Show Audio Widget action added.")
+
+        # --- Autofocus menu ---
+        autofocus_menu = menubar.addMenu("Autofocus")
+        self.autofocus_action = QtWidgets.QAction("Autofocus Tool", self)
+        self.autofocus_action.triggered.connect(self.show_autofocus_widget)
+        autofocus_menu.addAction(self.autofocus_action)
+
+        # Enable/disable based on camera AF support
+        if hasattr(self.cam, "camera_controls") and "AfMode" in self.cam.camera_controls:
+            self.autofocus_action.setEnabled(True)
+        else:
+            self.autofocus_action.setEnabled(False)
 
         # --- File menu ---
         file_menu = menubar.findChild(QtWidgets.QMenu, "fileMenu")
@@ -478,6 +495,37 @@ class MainWindow(QtWidgets.QMainWindow):
         label = QtWidgets.QLabel(title)
         label.setStyleSheet("font-weight: bold; font-size: 12pt; padding-left: 4px;")
         self.right_dock.setTitleBarWidget(label)
+
+    def show_file_paths_widget(self):
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle("File Paths")
+        layout = QtWidgets.QVBoxLayout(dialog)
+        widget = PathsWidget(paths_model=self.paths_model, parent=dialog)
+        layout.addWidget(widget)
+        # Optional: add OK button
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        button_box.accepted.connect(dialog.accept)
+        layout.addWidget(button_box)
+        dialog.setLayout(layout)
+        dialog.resize(500, 200)
+        dialog.exec()
+
+    def show_autofocus_widget(self):
+        """Show the autofocus widget in a dialog if supported."""
+        if hasattr(self.cam, "camera_controls") and "AfMode" in self.cam.camera_controls:
+            dialog = QtWidgets.QDialog(self)
+            dialog.setWindowTitle("Autofocus Tool")
+            layout = QtWidgets.QVBoxLayout(dialog)
+            widget = AutofocusWidget(**self.get_component_args(), parent=dialog)
+            layout.addWidget(widget)
+            button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+            button_box.accepted.connect(dialog.accept)
+            layout.addWidget(button_box)
+            dialog.setLayout(layout)
+            dialog.resize(400, 200)
+            dialog.exec()
+        else:
+            QtWidgets.QMessageBox.warning(self, "Autofocus Not Supported", "This camera does not support autofocus.")
 
 if __name__ == "__main__":
     """
