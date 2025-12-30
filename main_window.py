@@ -235,8 +235,8 @@ class MainWindow(QtWidgets.QMainWindow):
         edit_menu.addAction(self.res_editor_action)
 
         # Add a "Controls" menu and three checkable items
-        controls_menu = menubar.addMenu("Controls")
-        logging.info("Controls menu added to menu bar.")
+        #controls_menu = menubar.addMenu("Controls")
+        #logging.info("Controls menu added to menu bar.")
 
         # Add a "Components" menu
         components_menu = menubar.addMenu("Components")
@@ -257,19 +257,19 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             logging.warning(f"Components directory not found: {components_dir}")
 
-        self.action_tom = QAction("tom", self, checkable=True)
-        self.action_dick = QAction("dick", self, checkable=True)
-        self.action_harry = QAction("harry", self, checkable=True)
+        # self.action_tom = QAction("tom", self, checkable=True)
+        # self.action_dick = QAction("dick", self, checkable=True)
+        # self.action_harry = QAction("harry", self, checkable=True)
 
-        controls_menu.addAction(self.action_tom)
-        controls_menu.addAction(self.action_dick)
-        controls_menu.addAction(self.action_harry)
-        logging.info("Checkable actions (tom, dick, harry) added to Controls menu.")
+        # controls_menu.addAction(self.action_tom)
+        # controls_menu.addAction(self.action_dick)
+        # controls_menu.addAction(self.action_harry)
+        # logging.info("Checkable actions (tom, dick, harry) added to Controls menu.")
 
-        # Connect actions to a reporting function
-        self.action_tom.triggered.connect(self.report_menu_status)
-        self.action_dick.triggered.connect(self.report_menu_status)
-        self.action_harry.triggered.connect(self.report_menu_status)
+        # # Connect actions to a reporting function
+        #self.action_tom.triggered.connect(self.report_menu_status)
+        #self.action_dick.triggered.connect(self.report_menu_status)
+        #self.action_harry.triggered.connect(self.report_menu_status)
 
         # Add a "View" menu to toggle dock widgets using toggleViewAction
         view_menu = menubar.addMenu("View")
