@@ -1,4 +1,6 @@
 from qt import QtWidgets, QtGui, QtCore, Qt
+from components.base_camera_manager import BaseCameraManager
+from components.base_ai_file_manager import BaseAIFileManager
 """
 Detector Widget Module
 ----------------------
@@ -259,7 +261,7 @@ class SaveChangesDialog(QtWidgets.QDialog):
         layout.addWidget(btn_no)
         self.setLayout(layout)
 
-class CameraManager(QtWidgets.QWidget):
+class CameraManager(BaseCameraManager):
     """
     Widget that provides camera controls and image capture functionality.
 
@@ -276,32 +278,16 @@ class CameraManager(QtWidgets.QWidget):
     """
 
     def __init__(self, file_manager=None, parent=None, **kwargs):
-        super().__init__(parent)
+        super().__init__(
+            cam=kwargs.get("cam"),
+            preview=kwargs.get("preview"),
+            config_model=kwargs.get("config_model"),
+            controls_model=kwargs.get("controls_model"),
+            settings_group=kwargs.get("settings_group"),
+            parent=parent
+        )
         self.file_manager = file_manager
-        self.cam = kwargs.get("cam")
-        self.modes = self.cam.sensor_modes
-        self.preview = kwargs.get("preview")
-        self.config_model = kwargs.get("config_model")
-        self.controls_model = kwargs.get("controls_model")
-        self.settings_group = kwargs.get("settings_group")
-
         self.frozen = False  # Track freeze state
-
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setSpacing(4)  # Reduce vertical spacing between rows
-
-        # Camera Mode row
-        camera_mode_layout = QtWidgets.QHBoxLayout()
-        camera_mode_label = QtWidgets.QLabel("Camera Mode")
-        camera_mode_layout.addWidget(camera_mode_label)
-        combo = QtWidgets.QComboBox()
-        self._add_sensor_mode_dropdown(camera_mode_layout, self.modes, combo=combo)
-        main_layout.addLayout(camera_mode_layout)
-
-        self.setLayout(main_layout)
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.setFocus()
-        logging.info("CameraManager widget initialized with camera and csi.")
 
     def freeze_image(self):
         logging.info("Freeze button pressed.")
@@ -435,7 +421,7 @@ class CameraManager(QtWidgets.QWidget):
     def get_bbox_label(self):
         return getattr(self, "bbox_label", None)
 
-class Detector(AIFileManager):
+class Detector(BaseAIFileManager):
     """
     Detector widget for annotation. Inherits file management UI from AIFileManager.
 

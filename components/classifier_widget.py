@@ -1,10 +1,11 @@
+
 import logging
 import os
 from datetime import datetime
 from qt import QtWidgets, QtGui, QtCore, Qt
-from ai_file_manager_base import AIFileManager
 from app_signals import app_signals
-# from config_model import config_model
+from components.base_camera_manager import BaseCameraManager
+from components.base_ai_file_manager import BaseAIFileManager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,52 +16,32 @@ logging.basicConfig(
 
 IMG_EXT = ".jpg"
 
-class CameraManager(QtWidgets.QWidget):
+class CameraManager(BaseCameraManager):
     """
-    CameraManager widget that receives camera and csi information and provides capture controls.
-    Handles single and interval image capture, as well as UI feedback for sequence capture.
+    CameraManager widget for Classifier, extends BaseCameraManager with sequence and crop controls.
     """
-
     def __init__(self, file_manager=None, parent=None, **kwargs):
-        """
-        Initialize the CameraManager widget.
-
-        Args:
-            cam: Camera object.
-            csi: Camera serial interface index.
-            modes: List of camera modes.
-            file_manager: FileManagerWidget instance.
-            preview: Preview widget with signal_done.
-            parent: Parent QWidget.
-        """
-        super().__init__(parent)
+        super().__init__(
+            cam=kwargs.get("cam"),
+            preview=kwargs.get("preview"),
+            config_model=kwargs.get("config_model"),
+            controls_model=kwargs.get("controls_model"),
+            settings_group=kwargs.get("settings_group"),
+            parent=parent
+        )
         self.file_manager = file_manager
-        self.cam = kwargs.get("cam")
-        self.modes = self.cam.sensor_modes
-        self.preview = kwargs.get("preview")
-        self.config_model = kwargs.get("config_model")
-        self.controls_model = kwargs.get("controls_model")
-        self.settings_group = kwargs.get("settings_group")
-        
         self.sequence_running = False
         self.sequence_flash_on = False
         self.sequence_timer = QtCore.QTimer(self)
         self.sequence_timer.timeout.connect(self._flash_sequence_btn)
         self.signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
 
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setSpacing(4)
+        # Add extra UI for sequence and crop controls
+        self._add_extra_controls()
+        app_signals.mode_changed.connect(self._set_mode_from_signal)
 
-        # Camera Mode row
-        camera_mode_layout = QtWidgets.QHBoxLayout()
-        camera_mode_label = QtWidgets.QLabel("Camera Mode")
-        camera_mode_layout.addWidget(camera_mode_label)
-        self.camera_mode_combo = QtWidgets.QComboBox()
-        self._add_sensor_mode_dropdown(camera_mode_layout, self.modes, combo=self.camera_mode_combo)
-        self.camera_mode_combo.currentIndexChanged.connect(self._on_mode_changed)
-        camera_mode_layout.addWidget(self.camera_mode_combo)
-        main_layout.addLayout(camera_mode_layout)
-
+    def _add_extra_controls(self):
+        layout = self.layout()
         # Sequence interval row
         interval_layout = QtWidgets.QHBoxLayout()
         interval_label = QtWidgets.QLabel("Sequence Interval")
@@ -72,7 +53,7 @@ class CameraManager(QtWidgets.QWidget):
         self.sequence_interval_spin.setValue(0.5)
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.sequence_interval_spin)
-        main_layout.addLayout(interval_layout)
+        layout.addLayout(interval_layout)
 
         # Capture button row
         capture_layout = QtWidgets.QHBoxLayout()
@@ -81,7 +62,7 @@ class CameraManager(QtWidgets.QWidget):
         self.capture_btn.clicked.connect(self.capture_image)
         self.capture_btn.setEnabled(False)
         capture_layout.addWidget(self.capture_btn)
-        main_layout.addLayout(capture_layout)
+        layout.addLayout(capture_layout)
 
         # Sequence capture button row
         sequence_layout = QtWidgets.QHBoxLayout()
@@ -90,7 +71,7 @@ class CameraManager(QtWidgets.QWidget):
         self.sequence_btn.clicked.connect(self.toggle_sequence_capture)
         self.sequence_btn.setEnabled(False)
         sequence_layout.addWidget(self.sequence_btn)
-        main_layout.addLayout(sequence_layout)
+        layout.addLayout(sequence_layout)
 
         # X/Y position row
         pos_layout = QtWidgets.QHBoxLayout()
@@ -110,15 +91,9 @@ class CameraManager(QtWidgets.QWidget):
         pos_layout.addWidget(ypos_label)
         pos_layout.addWidget(self.ypos_spin)
         pos_layout.addWidget(set_btn)
-        main_layout.addLayout(pos_layout)
+        layout.addLayout(pos_layout)
 
-        self.setLayout(main_layout)
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.setFocus()
-        logging.info("CameraManager widget initialized with camera and csi.")
-
-        # Listen for global mode changes
-        app_signals.mode_changed.connect(self._set_mode_from_signal)
+    # ...existing methods for sequence, crop, and validation remain unchanged...
 
     def _capture_done(self, job):
         logging.info("Image capture completed.")
@@ -258,32 +233,25 @@ class CameraManager(QtWidgets.QWidget):
             self.camera_mode_combo.setCurrentIndex(idx)
             logging.info(f"CameraManager updated dropdown to mode: {mode}")
 
-class Classifier(AIFileManager):
+
+from components.base_ai_file_manager import BaseAIFileManager
+
+class Classifier(BaseAIFileManager):
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManager controls (with set/class dropdowns)
     Row 2: CameraManager widget
     """
-
     def __init__(self, parent=None, **kwargs):
-        """
-        Initialize the Classifier widget.
-
-        Args (passed via kwargs):
-            cam: Camera object.
-            config_model: Configuration model object.
-            controls_model: Controls model object.
-            settings_group: Optional settings group name.
-            csi, modes, preview, parent: Other optional arguments.
-        """
         logging.info(f"Loading Classifier component with settings_group={kwargs.get('settings_group')}")
-        super().__init__(kwargs.get("parent", None), settings_group=kwargs.get("settings_group"))
+        super().__init__(parent, settings_group=kwargs.get("settings_group"))
 
         self.cam = kwargs.get("cam")
         self.config_model = kwargs.get("config_model")
         self.controls_model = kwargs.get("controls_model")
         self.settings_group = kwargs.get("settings_group")
 
+        # Add any extra UI unique to Classifier here
         spacer_above = QtWidgets.QWidget()
         spacer_above.setFixedHeight(12)
         self.base_layout.addWidget(spacer_above)
@@ -299,10 +267,6 @@ class Classifier(AIFileManager):
         spacer_below = QtWidgets.QWidget()
         spacer_below.setFixedHeight(12)
         self.base_layout.addWidget(spacer_below)
-
-        group_layout = QtWidgets.QVBoxLayout()
-        group_layout.setSpacing(10)
-        group_layout.setContentsMargins(0, 0, 0, 0)
 
         group_box = QtWidgets.QGroupBox("Dataset Controls")
         group_box_layout = QtWidgets.QGridLayout()
