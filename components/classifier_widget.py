@@ -1,4 +1,3 @@
-
 import logging
 import os
 from datetime import datetime
@@ -36,9 +35,12 @@ class CameraManager(BaseCameraManager):
         self.sequence_timer.timeout.connect(self._flash_sequence_btn)
         self.signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
 
-        # Add extra UI for sequence and crop controls
+        # Constrain resolution to 244x244 (ideal for imagenet)
+        if self.config_model is not None:
+            self.config_model.set_nested('main', 'size', (244,244))
+
+        # Add extra UI for sequence and crop controls (mode selector removed)
         self._add_extra_controls()
-        app_signals.mode_changed.connect(self._set_mode_from_signal)
 
     def _add_extra_controls(self):
         layout = self.layout()
@@ -73,26 +75,6 @@ class CameraManager(BaseCameraManager):
         sequence_layout.addWidget(self.sequence_btn)
         layout.addLayout(sequence_layout)
 
-        # X/Y position row
-        pos_layout = QtWidgets.QHBoxLayout()
-        xpos_label = QtWidgets.QLabel("X pos")
-        self.xpos_spin = QtWidgets.QSpinBox()
-        self.xpos_spin.setRange(0, 816)
-        self.xpos_spin.setValue(0)
-        ypos_label = QtWidgets.QLabel("Y pos")
-        self.ypos_spin = QtWidgets.QSpinBox()
-        self.ypos_spin.setRange(0, 608)
-        self.ypos_spin.setValue(0)
-        set_btn = QtWidgets.QPushButton("Set")
-        set_btn.setToolTip("Set ScalerCrop to current X/Y values")
-        set_btn.clicked.connect(self._update_scaler_crop)
-        pos_layout.addWidget(xpos_label)
-        pos_layout.addWidget(self.xpos_spin)
-        pos_layout.addWidget(ypos_label)
-        pos_layout.addWidget(self.ypos_spin)
-        pos_layout.addWidget(set_btn)
-        layout.addLayout(pos_layout)
-
     # ...existing methods for sequence, crop, and validation remain unchanged...
 
     def _capture_done(self, job):
@@ -110,7 +92,22 @@ class CameraManager(BaseCameraManager):
         if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
             file_name = self.file_manager.get_new_file_path()
             logging.info(f"Generated file path from FileManagerWidget: {file_name}")
-            self.cam.capture_file(file_name, signal_function=self.signal_function)
+            # Get JPEG quality from controls_model if available, else use 80
+            quality = 80
+            if hasattr(self, 'controls_model') and self.controls_model is not None:
+                quality = getattr(self.controls_model, 'JpegQuality', 80)
+                if not isinstance(quality, int):
+                    try:
+                        quality = int(quality)
+                    except Exception:
+                        quality = 80
+            logging.info(f"Using JPEG quality: {quality}")
+            # Pass quality to capture_file if supported
+            try:
+                self.cam.capture_file(file_name, signal_function=self.signal_function, quality=quality)
+            except TypeError:
+                # Fallback if capture_file does not accept quality argument
+                self.cam.capture_file(file_name, signal_function=self.signal_function)
         else:
             logging.info("FileManagerWidget not available or does not have get_new_file_path().")
 
@@ -134,20 +131,6 @@ class CameraManager(BaseCameraManager):
             self.sequence_btn.setStyleSheet("background-color: red; color: white;")
         self.sequence_flash_on = not self.sequence_flash_on
 
-    def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
-        if combo is None:
-            combo = QtWidgets.QComboBox()
-        if modes:
-            for idx, mode in enumerate(modes):
-                desc = f"{idx}: {mode.get('size', '')} {mode.get('format', '')}"
-                combo.addItem(desc, userData=mode)
-            logging.info(f"Sensor mode dropdown populated with {len(modes)} modes.")
-        else:
-            combo.addItem("No sensor modes found")
-            logging.warning("No sensor modes found for dropdown.")
-        combo.setToolTip("Select sensor mode")
-        layout.addWidget(combo)
-
     def start_interval_capture(self):
         interval = self.sequence_interval_spin.value()
         if interval <= 0:
@@ -165,16 +148,7 @@ class CameraManager(BaseCameraManager):
             self.interval_capture_timer.stop()
             logging.info("Stopped interval capture.")
 
-    def _update_scaler_crop(self):
-        x = self.xpos_spin.value()
-        y = self.ypos_spin.value()
-        width = 640
-        height = 480
-        try:
-            self.cam.set_controls({"ScalerCrop": (x, y, width, height)})
-            logging.info(f"ScalerCrop set to: x={x}, y={y}, width={width}, height={height}")
-        except Exception as e:
-            logging.error(f"Failed to set ScalerCrop: {e}")
+
 
     def validate_and_update_buttons(self):
         logging.info("validate_and_update_buttons() called")
@@ -220,12 +194,7 @@ class CameraManager(BaseCameraManager):
             logging.error(f"Error reading labels file: {e}")
             return False
 
-    def _on_mode_changed(self, index):
-        mode = self.cam.sensor_modes[index]
-        self.config_model.set_nested('sensor', 'output_size', mode['size'])
-        self.config_model.set_nested('sensor', 'bit_depth', mode['bit_depth'])
-        logging.info(f"Camera mode changed: {mode}")
-        print(self.config_model.to_dict())
+
 
     def _set_mode_from_signal(self, mode):
         idx = self.camera_mode_combo.findData(mode)

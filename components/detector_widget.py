@@ -263,13 +263,12 @@ class SaveChangesDialog(QtWidgets.QDialog):
 
 class CameraManager(BaseCameraManager):
     """
-    Widget that provides camera controls and image capture functionality.
+    CameraManager widget for Detector, extends BaseCameraManager with freeze/annotation logic (mode selector removed).
 
     Responsibilities:
     - Allows freezing (capturing) the current camera image.
     - Displays the captured image using BBoxLabel for annotation.
     - Handles restoring the live preview.
-    - Provides UI for selecting camera mode.
 
     Interactions:
     - Instantiated by Detector.
@@ -288,6 +287,7 @@ class CameraManager(BaseCameraManager):
         )
         self.file_manager = file_manager
         self.frozen = False  # Track freeze state
+        # No mode selector UI
 
     def freeze_image(self):
         logging.info("Freeze button pressed.")
@@ -389,28 +389,6 @@ class CameraManager(BaseCameraManager):
             main_window.detector_widget.update_freeze_button()
         elif hasattr(main_window, "parent") and hasattr(main_window.parent(), "update_freeze_button"):
             main_window.parent().update_freeze_button()
-
-    def _add_sensor_mode_dropdown(self, layout, modes, combo=None):
-        """
-        Add a sensor mode dropdown to the given layout.
-
-        Args:
-            layout: The layout to add the dropdown to.
-            modes: List of camera modes.
-            combo: Optional QtWidgets.QComboBox to use.
-        """
-        if combo is None:
-            combo = QtWidgets.QComboBox()
-        if modes:
-            for idx, mode in enumerate(modes):
-                desc = f"{idx}: {mode.get('size', '')} {mode.get('format', '')}"
-                combo.addItem(desc, userData=mode)
-            logging.info(f"Sensor mode dropdown populated with {len(modes)} modes.")
-        else:
-            combo.addItem("No sensor modes found")
-            logging.warning("No sensor modes found for dropdown.")
-        combo.setToolTip("Select sensor mode")
-        layout.addWidget(combo)
 
     def cleanup(self):
         if self.frozen:
@@ -573,6 +551,7 @@ class Detector(BaseAIFileManager):
 
         delete_btn.clicked.connect(on_delete_clicked)
 
+
     def saveFrame(self):
         print("Saving frame...")
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -589,8 +568,17 @@ class Detector(BaseAIFileManager):
                 pil_img = pil_img.convert("RGB")
             elif pil_img.mode == "RGBA":
                 pil_img = pil_img.convert("RGB")
-            pil_img.save(imgPath, "JPEG")
-            print(f"Saved image to {imgPath}")
+            # Get JPEG quality from controls_model if available, else use 80
+            quality = 80
+            if hasattr(self, 'controls_model') and self.controls_model is not None:
+                quality = getattr(self.controls_model, 'JpegQuality', 80)
+                if not isinstance(quality, int):
+                    try:
+                        quality = int(quality)
+                    except Exception:
+                        quality = 80
+            pil_img.save(imgPath, "JPEG", quality=quality)
+            print(f"Saved image to {imgPath} with quality={quality}")
 
         # Create annotation XML
         root = Element("annotation")
