@@ -1,6 +1,6 @@
 from qt import QtWidgets, QtGui, QtCore, Qt
 from components.base_camera_manager import BaseCameraManager
-from components.base_ai_file_manager import BaseAIFileManager
+from ai_file_manager_base import AIFileManager
 """
 Detector Widget Module
 ----------------------
@@ -399,7 +399,7 @@ class CameraManager(BaseCameraManager):
     def get_bbox_label(self):
         return getattr(self, "bbox_label", None)
 
-class Detector(BaseAIFileManager):
+class Detector(AIFileManager):
     """
     Detector widget for annotation. Inherits file management UI from AIFileManager.
 

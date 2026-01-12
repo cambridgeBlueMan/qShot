@@ -4,53 +4,29 @@ from abc import ABC, abstractmethod
 import os
 import logging
 
+
 class AIFileManager(QtWidgets.QWidget):
     """
-    Abstract base class for file manager widgets.
-
-    Layout and Usage:
-    -----------------
-    - This class creates a vertical box layout (`self.base_layout`) as the main container.
-    - A grid layout is created and added to `self.base_layout` in `init_base_ui()`.
-      The grid layout contains all the core file management widgets:
-        * Dataset path selector
-        * Class labels file selector
-        * JPEG quality slider
-        * Init button
-    - The expectation is that subclasses will add additional layouts or widgets
-      to `self.base_layout` (e.g., below the grid), allowing flexible extension
-      of the UI while preserving the file management controls at the top.
-
-    Features:
-    ---------
-    - Provides persistent settings management for dataset path, class labels, and JPEG quality.
-    - Offers abstract methods (`get_new_file_path`, `init_action`) that must be implemented by subclasses.
-    - Handles loading and saving of settings automatically.
-    - Designed for extensibility: inherited classes can add more widgets/layouts to `self.base_layout`.
-
-    Typical subclass usage:
-    ----------------------
-    class MyComponent(AIFileManager):
-        def __init__(self, ...):
-            super().__init__(...)
-            # Add custom widgets/layouts below the file manager controls
-            self.base_layout.addWidget(MyCustomWidget())
-            # etc.
-
-        def get_new_file_path(self):
-            # Implementation here
-
-        def init_action(self):
-            # Implementation here
+    Abstract base class for file manager widgets with extensible, unified settings management.
+    Subclasses can extend the settings_schema to add their own settings.
     """
+
+    # Subclasses can extend this dict with their own settings
+    settings_schema = {
+        "dataset_path": {"type": str, "default": ""},
+        "class_labels_path": {"type": str, "default": ""},
+        "jpeg_quality": {"type": int, "default": 95},
+    }
 
     def __init__(self, parent=None, settings_group=None):
         super().__init__(parent)
         self.settings = QtCore.QSettings("MyCompany", "CameraCaptureApp")
         self.settings_group = settings_group  # e.g., "detector" or "classifier"
         self.base_layout = QtWidgets.QVBoxLayout()
+        # Settings data dict, initialized from schema
+        self.settings_data = {k: v["default"] for k, v in self.settings_schema.items()}
         self.init_base_ui()
-        self.load_settings()  # <-- Add this line!
+        self.load_settings()
         # Do NOT call self.setLayout(self.base_layout) here!
 
         # Connect text changes to validation (add this after creating inputs)
@@ -106,39 +82,45 @@ class AIFileManager(QtWidgets.QWidget):
             self.class_labels_input.setText(path)
             self.save_settings()
 
+
     def save_settings(self):
-        """Save dataset path, class labels, and jpeg quality to persistent storage under a group."""
+        """Save all settings in settings_data to persistent storage under a group."""
+        # Update settings_data from UI widgets (base class only; subclasses should extend if needed)
+        self.settings_data["dataset_path"] = self.dataset_path_input.text()
+        self.settings_data["class_labels_path"] = self.class_labels_input.text()
+        self.settings_data["jpeg_quality"] = self.jpeg_quality_slider.value()
         if self.settings_group:
             self.settings.beginGroup(self.settings_group)
-        self.settings.setValue("dataset_path", self.dataset_path_input.text())
-        self.settings.setValue("class_labels_path", self.class_labels_input.text())
-        self.settings.setValue("jpeg_quality", self.jpeg_quality_slider.value())
+        for key, value in self.settings_data.items():
+            self.settings.setValue(key, value)
         if self.settings_group:
             self.settings.endGroup()
 
+
     def load_settings(self):
-        """Load dataset path, class labels, and jpeg quality from persistent storage under a group."""
+        """Load all settings in settings_schema from persistent storage under a group."""
         if self.settings_group:
             self.settings.beginGroup(self.settings_group)
+        for key, meta in self.settings_schema.items():
+            value = self.settings.value(key, meta["default"])
+            # Convert to correct type
+            try:
+                value = meta["type"](value)
+            except Exception:
+                value = meta["default"]
+            self.settings_data[key] = value
+        if self.settings_group:
+            self.settings.endGroup()
 
-        dataset_path = self.settings.value("dataset_path", "")
-        labels_path = self.settings.value("class_labels_path", "")
-
-        # Debug logging
-        logging.info(f"Loading settings - labels_path from settings: '{labels_path}'")
-        logging.info(f"labels_path type: {type(labels_path)}")
-        logging.info(f"labels_path exists: {os.path.exists(labels_path)}")
-        logging.info(f"labels_path isfile: {os.path.isfile(labels_path)}")
-
-        # Dataset path - works fine
+        # Update UI widgets from settings_data (base class only; subclasses should extend if needed)
+        dataset_path = self.settings_data["dataset_path"]
+        labels_path = self.settings_data["class_labels_path"]
         if os.path.isdir(dataset_path):
             self.dataset_path_input.setText(dataset_path)
         else:
             self.dataset_path_input.setText("")
             if dataset_path:
                 logging.info(f"Saved dataset path does not exist: {dataset_path}. Field left empty.")
-
-        # Make labels path exactly like dataset path
         if labels_path and os.path.isfile(labels_path):
             logging.info(f"Setting labels path: {labels_path}")
             self.class_labels_input.setText(labels_path)
@@ -146,11 +128,7 @@ class AIFileManager(QtWidgets.QWidget):
             self.class_labels_input.setText("")
             if labels_path:
                 logging.info(f"Saved labels path does not exist: {labels_path}. Field left empty.")
-
-        self.jpeg_quality_slider.setValue(int(self.settings.value("jpeg_quality", 95)))
-
-        if self.settings_group:
-            self.settings.endGroup()
+        self.jpeg_quality_slider.setValue(self.settings_data["jpeg_quality"])
 
     def _on_paths_changed(self):
         """Called when dataset or labels path changes."""
@@ -159,16 +137,46 @@ class AIFileManager(QtWidgets.QWidget):
             if hasattr(child, 'validate_and_update_buttons'):
                 child.validate_and_update_buttons()
 
-    @abstractmethod
-    def get_new_file_path(self):
-        """Generate a new file path based on the dataset path, set, and class."""
-        pass
+    def get_new_file_path(self, set_value=None, class_value=None, ext=".jpg"):
+        import datetime
+        dataset_path = self.dataset_path_input.text()
+        set_value = set_value or (self.current_set_dropdown.currentText() if hasattr(self, "current_set_dropdown") and self.current_set_dropdown.count() else "unknown_set")
+        class_value = class_value or (self.current_class_dropdown.currentText() if hasattr(self, "current_class_dropdown") and self.current_class_dropdown.count() else "unknown_class")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        file_path = os.path.join(
+            dataset_path,
+            set_value,
+            class_value,
+            f"{class_value}_{timestamp}{ext}"
+        )
+        logging.info(f"Generated file path: {file_path}")
+        return file_path
 
-    @abstractmethod
-    def init_action(self):
-        """
-        Initialize directories and populate dropdowns.
-        Scan the dataset path for set/class folders and populate the dropdowns.
-        Also create 'train', 'test', and 'val' directories if missing.
-        """
-        pass
+    def ensure_dataset_structure(self, class_labels, sets=("train", "test", "val")):
+        dataset_path = self.dataset_path_input.text()
+        for set_name in sets:
+            set_dir = os.path.join(dataset_path, set_name)
+            os.makedirs(set_dir, exist_ok=True)
+            for class_label in class_labels:
+                class_dir = os.path.join(set_dir, class_label)
+                os.makedirs(class_dir, exist_ok=True)
+
+    def load_class_labels(self):
+        labels_path = self.class_labels_input.text() if hasattr(self, "class_labels_input") else ""
+        if os.path.isfile(labels_path):
+            with open(labels_path, "r") as f:
+                labels = [line.strip() for line in f if line.strip()]
+            return labels
+        return []
+
+    def update_image_count(self, set_value=None, class_value=None):
+        dataset_path = self.dataset_path_input.text()
+        set_value = set_value or (self.current_set_dropdown.currentText() if hasattr(self, "current_set_dropdown") else None)
+        class_value = class_value or (self.current_class_dropdown.currentText() if hasattr(self, "current_class_dropdown") else None)
+        count = 0
+        if dataset_path and set_value and class_value:
+            folder = os.path.join(dataset_path, set_value, class_value)
+            if os.path.isdir(folder):
+                count = len([f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))])
+        if hasattr(self, "image_count_label"):
+            self.image_count_label.setText(str(count))

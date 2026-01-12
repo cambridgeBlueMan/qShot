@@ -4,7 +4,8 @@ from datetime import datetime
 from qt import QtWidgets, QtGui, QtCore, Qt
 from app_signals import app_signals
 from components.base_camera_manager import BaseCameraManager
-from components.base_ai_file_manager import BaseAIFileManager
+
+from ai_file_manager_base import AIFileManager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,7 +14,9 @@ logging.basicConfig(
     filemode='w'
 )
 
+
 IMG_EXT = ".jpg"
+IMAGENET_DEFAULT = 244
 
 class CameraManager(BaseCameraManager):
     """
@@ -33,17 +36,17 @@ class CameraManager(BaseCameraManager):
         self.sequence_flash_on = False
         self.sequence_timer = QtCore.QTimer(self)
         self.sequence_timer.timeout.connect(self._flash_sequence_btn)
-        self.signal_function = self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
+        self.preview.done_signal.connect(self._capture_done)  #= self.preview.signal_done if self.preview and hasattr(self.preview, "signal_done") else None
 
-        # Constrain resolution to 244x244 (ideal for imagenet)
-        if self.config_model is not None:
-            self.config_model.set_nested('main', 'size', (244,244))
+        # Constrain resolution to IMAGENET_DEFAULT x IMAGENET_DEFAULT (ideal for imagenet)
+        # (config_model logic is now obsolete and can be removed)
 
         # Add extra UI for sequence and crop controls (mode selector removed)
         self._add_extra_controls()
 
     def _add_extra_controls(self):
         layout = self.layout()
+
         # Sequence interval row
         interval_layout = QtWidgets.QHBoxLayout()
         interval_label = QtWidgets.QLabel("Sequence Interval")
@@ -75,41 +78,44 @@ class CameraManager(BaseCameraManager):
         sequence_layout.addWidget(self.sequence_btn)
         layout.addLayout(sequence_layout)
 
+    # Removed: _on_size_slider_changed and _on_resample_checkbox_changed (handled by Classifier)
+
     # ...existing methods for sequence, crop, and validation remain unchanged...
 
     def _capture_done(self, job):
         logging.info("Image capture completed.")
-        result = self.cam.wait(job)
+        try:
+            pil_image = self.cam.wait(job)
+            if pil_image is None:
+                logging.error("No image returned from camera job.")
+                self.capture_btn.setDisabled(False)
+                return
+            # Get file path and settings
+            if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
+                file_name = self.file_manager.get_new_file_path()
+                quality = self.file_manager.settings_data.get("jpeg_quality", 80)
+                resample_on_save = self.file_manager.settings_data.get("resample_on_save", False)
+                # Resample if needed
+                if resample_on_save:
+                    pil_image = pil_image.resize((IMAGENET_DEFAULT, IMAGENET_DEFAULT))
+                    logging.info(f"Resampled image to: {IMAGENET_DEFAULT}x{IMAGENET_DEFAULT}")
+                # Ensure directory exists
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                pil_image.save(file_name, format="JPEG", quality=quality)
+                logging.info(f"Saved image to {file_name} with quality={quality}")
+                if hasattr(self.file_manager, "update_image_count"):
+                    self.file_manager.update_image_count()
+            else:
+                logging.info("FileManagerWidget not available or does not have get_new_file_path().")
+        except Exception as e:
+            logging.error(f"Error during image capture or save: {e}")
         self.capture_btn.setDisabled(False)
-        if self.file_manager and hasattr(self.file_manager, "update_image_count"):
-            self.file_manager.update_image_count()
 
     def capture_image(self):
         logging.info("Capture button pressed.")
         self.capture_btn.setDisabled(True)
-        if self.preview and hasattr(self.preview, "done_signal"):
-            self.preview.done_signal.connect(self._capture_done)
-        if self.file_manager and hasattr(self.file_manager, "get_new_file_path"):
-            file_name = self.file_manager.get_new_file_path()
-            logging.info(f"Generated file path from FileManagerWidget: {file_name}")
-            # Get JPEG quality from controls_model if available, else use 80
-            quality = 80
-            if hasattr(self, 'controls_model') and self.controls_model is not None:
-                quality = getattr(self.controls_model, 'JpegQuality', 80)
-                if not isinstance(quality, int):
-                    try:
-                        quality = int(quality)
-                    except Exception:
-                        quality = 80
-            logging.info(f"Using JPEG quality: {quality}")
-            # Pass quality to capture_file if supported
-            try:
-                self.cam.capture_file(file_name, signal_function=self.signal_function, quality=quality)
-            except TypeError:
-                # Fallback if capture_file does not accept quality argument
-                self.cam.capture_file(file_name, signal_function=self.signal_function)
-        else:
-            logging.info("FileManagerWidget not available or does not have get_new_file_path().")
+        # Start async capture; _capture_done will handle the result
+        self.cam.capture_image(signal_function=self.preview.signal_done)
 
     def toggle_sequence_capture(self):
         logging.info("Sequence capture button pressed.")
@@ -203,9 +209,15 @@ class CameraManager(BaseCameraManager):
             logging.info(f"CameraManager updated dropdown to mode: {mode}")
 
 
-from components.base_ai_file_manager import BaseAIFileManager
 
-class Classifier(BaseAIFileManager):
+
+class Classifier(AIFileManager):
+    # Extend the settings schema for classifier-specific settings
+    settings_schema = AIFileManager.settings_schema.copy()
+    settings_schema.update({
+        "square_size": {"type": int, "default": IMAGENET_DEFAULT},
+        "resample_on_save": {"type": bool, "default": False},
+    })
     """
     Widget for the right dock: 1 column, 2 rows.
     Row 1: FileManager controls (with set/class dropdowns)
@@ -219,6 +231,11 @@ class Classifier(BaseAIFileManager):
         self.config_model = kwargs.get("config_model")
         self.controls_model = kwargs.get("controls_model")
         self.settings_group = kwargs.get("settings_group")
+
+        # Set config_model 'main', 'size' to (square_size, square_size) from settings on init
+        if self.config_model is not None:
+            square_size = self.settings_data.get("square_size", IMAGENET_DEFAULT)
+            self.config_model.set_nested('main', 'size', (square_size, square_size))
 
         # Add any extra UI unique to Classifier here
         spacer_above = QtWidgets.QWidget()
@@ -274,6 +291,40 @@ class Classifier(BaseAIFileManager):
         self.current_set_dropdown.currentIndexChanged.connect(self.update_image_count)
         self.current_class_dropdown.currentIndexChanged.connect(self.update_image_count)
         app_signals.mode_changed.connect(self.on_global_mode_changed)
+
+        # --- Classifier-specific settings widgets ---
+        # Square size slider
+        self.square_size_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
+        self.square_size_slider.setMinimum(IMAGENET_DEFAULT)
+        self.square_size_slider.setMaximum(512)
+        self.square_size_slider.setValue(self.settings_data["square_size"])
+        self.square_size_slider.valueChanged.connect(self._on_square_size_changed)
+        self.square_size_label = QtWidgets.QLabel(str(self.square_size_slider.value()))
+        sq_layout = QtWidgets.QHBoxLayout()
+        sq_layout.addWidget(QtWidgets.QLabel("Square Size"))
+        sq_layout.addWidget(self.square_size_slider)
+        sq_layout.addWidget(self.square_size_label)
+        self.base_layout.addLayout(sq_layout)
+
+        # Resample on save checkbox
+        self.resample_checkbox = QtWidgets.QCheckBox("Resample on save")
+        self.resample_checkbox.setChecked(self.settings_data["resample_on_save"])
+        self.resample_checkbox.stateChanged.connect(self._on_resample_checkbox_changed)
+        resample_layout = QtWidgets.QHBoxLayout()
+        resample_layout.addWidget(self.resample_checkbox)
+        self.base_layout.addLayout(resample_layout)
+
+    def _on_square_size_changed(self, value):
+        self.square_size_label.setText(str(value))
+        self.settings_data["square_size"] = value
+        self.save_settings()
+        # Update config_model 'main', 'size' to (square_size, square_size) when changed
+        if hasattr(self, 'config_model') and self.config_model is not None:
+            self.config_model.set_nested('main', 'size', (value, value))
+
+    def _on_resample_checkbox_changed(self, state):
+        self.settings_data["resample_on_save"] = bool(state)
+        self.save_settings()
 
     def get_new_file_path(self):
         dataset_path = self.dataset_path_input.text()
