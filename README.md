@@ -6,15 +6,16 @@
 ---
 
 ## Prerequisites
-Requires PyQt5, Libcamera2 and Vlc (for playback). 
 
-All three of these come pre-installed with either Bookworm or Trixie. 
+### Hardware prerequisites:
+Qshot may run on a Raspberry Pi 4, although I have not tested that. For hardware I would recommend a Pi 5 as minimum with as much memory as possible: ideally 16 Gb, minimum 8Gb.
 
-Qshot may run on a Raspberry Pi 4, although I have not tested that. For hardware I would recommend a Pi 5 as minimum with, ideally, a clean install of either full Bookworm or full Trixie. As much memory as possible: ideally 16 Gb, minimum 8Gb.
+I don't recommend running this app in a virtual environment. Building PyQt5 in a virtual environment can be a can of worms.
+### Software prerequisites:
+Requires PyQt5, Libcamera2 and Vlc (for playback). The simplest was to ensure these are present is to do a full install of Debian 12 (Bookworm) or Debian 13 (Trixie) as either of these operating systems will have included these three packages.
 
-I don't recommend running this app in a virtual environment. Building PyQt5 in a venv can be a can of worms.
+The only thing you will need to install is the vlc python library:
 
-PyQt5 and LIbcamera2 come pre installed with the above mentioned OSs. Vlc is also pre-installed The only thing you will need to install is the vlc python library:
 
 ```bash
     sudo apt install python3-vlc
@@ -37,7 +38,7 @@ You can check that a camera is attached by opening a terminal window aand runnin
 ```bash
     rpicam-hello
 ```
-
+This should open a window on your screen, display briefly the current camera view, then close the window.
 
 ## Documentation
 
