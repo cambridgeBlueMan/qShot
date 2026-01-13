@@ -1,3 +1,36 @@
+INIT_ACTION_TOOLTIP = (
+    "Create folder structure under Datasets folder and populate the Current Set "
+    "and Current Class drop downs. (This action is non destructive)"
+)
+DATASET_PATH_TOOLTIP = "Select a folder for your Dataset"
+LABELS_FILE_TOOLTIP = (
+    "Select a well formed labels file for your class labels "
+    "(see docs)"
+)
+SEQUENCE_INTERVAL_TOOLTIP = (
+    "Interval between each when using Sequence Capture"
+)
+CURRENT_CLASS_TOOLTIP = (
+    "Select the folder to which classes will be captured (Under the Current Set "
+    "folder, and only if the system has been initialised with appropriate Dataset "
+    "Path and Labels.txt)"
+)
+IMAGE_COUNT_TOOLTIP = (
+    "Provides a dynamic count of the number of images already captured "
+    "(read only)"
+)
+CAPTURE_IMAGE_TOOLTIP = (
+    "Capture a single image and store it in the appropriate folder defined by Set "
+    "and Class drop down boxes"
+)
+CAPTURE_SEQUENCE_TOOLTIP = (
+    "Capture a sequence of images to the appropriate folder. Time interval set "
+    "with Sequence Interval"
+)
+SQUARE_SIZE_TOOLTIP = (
+    "Adjust image size. Resolutions are constrained to be squares with this component"
+)
+RESAMPLE_ON_SAVE_TOOLTIP = "Set active to save all images at 244 X 244 pixels."
 import logging
 import os
 from datetime import datetime
@@ -51,6 +84,7 @@ class CameraManager(BaseCameraManager):
         interval_layout = QtWidgets.QHBoxLayout()
         interval_label = QtWidgets.QLabel("Sequence Interval")
         self.sequence_interval_spin = QtWidgets.QDoubleSpinBox()
+        self.sequence_interval_spin.setToolTip(SEQUENCE_INTERVAL_TOOLTIP)
         self.sequence_interval_spin.setDecimals(1)
         self.sequence_interval_spin.setSingleStep(0.1)
         self.sequence_interval_spin.setMinimum(0.1)
@@ -63,7 +97,7 @@ class CameraManager(BaseCameraManager):
         # Capture button row
         capture_layout = QtWidgets.QHBoxLayout()
         self.capture_btn = QtWidgets.QPushButton("Capture Image")
-        self.capture_btn.setToolTip("Capture Image")
+        self.capture_btn.setToolTip(CAPTURE_IMAGE_TOOLTIP)
         self.capture_btn.clicked.connect(self.capture_image)
         self.capture_btn.setEnabled(False)
         capture_layout.addWidget(self.capture_btn)
@@ -72,7 +106,7 @@ class CameraManager(BaseCameraManager):
         # Sequence capture button row
         sequence_layout = QtWidgets.QHBoxLayout()
         self.sequence_btn = QtWidgets.QPushButton("Capture Image Sequence")
-        self.sequence_btn.setToolTip("Start or stop capturing an image sequence")
+        self.sequence_btn.setToolTip(CAPTURE_SEQUENCE_TOOLTIP)
         self.sequence_btn.clicked.connect(self.toggle_sequence_capture)
         self.sequence_btn.setEnabled(False)
         sequence_layout.addWidget(self.sequence_btn)
@@ -212,6 +246,13 @@ class CameraManager(BaseCameraManager):
 
 
 class Classifier(AIFileManager):
+    def _make_even_size(size):
+        # Ensures both width and height are even
+        w, h = size
+        w_even = w if w % 2 == 0 else w - 1
+        h_even = h if h % 2 == 0 else h - 1
+        return (w_even, h_even)
+
     # Extend the settings schema for classifier-specific settings
     settings_schema = AIFileManager.settings_schema.copy()
     settings_schema.update({
@@ -231,11 +272,19 @@ class Classifier(AIFileManager):
         self.config_model = kwargs.get("config_model")
         self.controls_model = kwargs.get("controls_model")
         self.settings_group = kwargs.get("settings_group")
+        # Set tooltips for inherited buttons
+        if hasattr(self, 'dataset_path_button'):
+            self.dataset_path_button.setToolTip(DATASET_PATH_TOOLTIP)
+        if hasattr(self, 'class_labels_button'):
+            self.class_labels_button.setToolTip(LABELS_FILE_TOOLTIP)
+        if hasattr(self, 'init_button'):
+            self.init_button.setToolTip(INIT_ACTION_TOOLTIP)
 
         # Set config_model 'main', 'size' to (square_size, square_size) from settings on init
         if self.config_model is not None:
             square_size = self.settings_data.get("square_size", IMAGENET_DEFAULT)
-            self.config_model.set_nested('main', 'size', (square_size, square_size))
+            even_size = Classifier._make_even_size((square_size, square_size))
+            self.config_model.set_nested('main', 'size', even_size)
 
         # Add any extra UI unique to Classifier here
         spacer_above = QtWidgets.QWidget()
@@ -260,19 +309,24 @@ class Classifier(AIFileManager):
         group_box_layout.setContentsMargins(8, 8, 8, 8)
 
         set_label = QtWidgets.QLabel("Current Set:")
+        # No tooltip constant for set_label, but you can add one if needed
         self.current_set_dropdown = QtWidgets.QComboBox()
         group_box_layout.addWidget(set_label, 0, 0)
         group_box_layout.addWidget(self.current_set_dropdown, 0, 1)
 
         class_label = QtWidgets.QLabel("Current Class:")
-        self.current_class_dropdown = QtWidgets.QComboBox() 
+        class_label.setToolTip(CURRENT_CLASS_TOOLTIP)
+        self.current_class_dropdown = QtWidgets.QComboBox()
+        self.current_class_dropdown.setToolTip(CURRENT_CLASS_TOOLTIP)
         group_box_layout.addWidget(class_label, 1, 0)
         group_box_layout.addWidget(self.current_class_dropdown, 1, 1)
 
         image_count_label = QtWidgets.QLabel("Image count for current set and class:")
+        image_count_label.setToolTip(IMAGE_COUNT_TOOLTIP)
         self.image_count_label = QtWidgets.QLabel("0")
         self.image_count_label.setMinimumWidth(40)
         self.image_count_label.setStyleSheet("color: yellow;")
+        self.image_count_label.setToolTip(IMAGE_COUNT_TOOLTIP)
         group_box_layout.addWidget(image_count_label, 2, 0)
         group_box_layout.addWidget(self.image_count_label, 2, 1)
 
@@ -295,13 +349,16 @@ class Classifier(AIFileManager):
         # --- Classifier-specific settings widgets ---
         # Square size slider
         self.square_size_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
+        self.square_size_slider.setToolTip(SQUARE_SIZE_TOOLTIP)
         self.square_size_slider.setMinimum(IMAGENET_DEFAULT)
         self.square_size_slider.setMaximum(512)
         self.square_size_slider.setValue(self.settings_data["square_size"])
         self.square_size_slider.valueChanged.connect(self._on_square_size_changed)
         self.square_size_label = QtWidgets.QLabel(str(self.square_size_slider.value()))
         sq_layout = QtWidgets.QHBoxLayout()
-        sq_layout.addWidget(QtWidgets.QLabel("Square Size"))
+        square_size_label = QtWidgets.QLabel("Square Size")
+        square_size_label.setToolTip(SQUARE_SIZE_TOOLTIP)
+        sq_layout.addWidget(square_size_label)
         sq_layout.addWidget(self.square_size_slider)
         sq_layout.addWidget(self.square_size_label)
         self.base_layout.addLayout(sq_layout)
@@ -309,6 +366,7 @@ class Classifier(AIFileManager):
         # Resample on save checkbox
         self.resample_checkbox = QtWidgets.QCheckBox("Resample on save")
         self.resample_checkbox.setChecked(self.settings_data["resample_on_save"])
+        self.resample_checkbox.setToolTip(RESAMPLE_ON_SAVE_TOOLTIP)
         self.resample_checkbox.stateChanged.connect(self._on_resample_checkbox_changed)
         resample_layout = QtWidgets.QHBoxLayout()
         resample_layout.addWidget(self.resample_checkbox)
@@ -318,9 +376,10 @@ class Classifier(AIFileManager):
         self.square_size_label.setText(str(value))
         self.settings_data["square_size"] = value
         self.save_settings()
-        # Update config_model 'main', 'size' to (square_size, square_size) when changed
+        # Update config_model 'main', 'size' to even (square_size, square_size) when changed
         if hasattr(self, 'config_model') and self.config_model is not None:
-            self.config_model.set_nested('main', 'size', (value, value))
+            even_size = Classifier._make_even_size((value, value))
+            self.config_model.set_nested('main', 'size', even_size)
 
     def _on_resample_checkbox_changed(self, state):
         self.settings_data["resample_on_save"] = bool(state)

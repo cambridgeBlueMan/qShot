@@ -28,6 +28,11 @@ tin
 
 Note the inclusion of "background" as the first item in the list.
 
+# Workflow
+
+## 1 Set paths for dataset and class labels, and initialise
+
+
 Use the Dataset Path and Class Labels `...` buttons to set values and then press the `init` button. 
 
 The app will automatically create a folder structure as below:
@@ -75,5 +80,15 @@ mamod/
     └── tin/
 ```
 In addition to this the `Current Set` and `Current Class` drop down lists are now populated with the appropriate entries. So we are now ready to start capturing images knowing that the management of the data is being handled by the app.
+
+### 2 Select category (train, val or test) and image class 
+
+Use the drop down boxes marked Current Set and Current Class to define which image set you wish to work with.
+
+### Set Image Size
+
+for best results with standard pretrained ResNet-18 models an image size of 224X224 pixels (RGB) is recommended. However the preview image at this size looks a bit ropey. It is possible to preview at any image size up to 512 X 512. Use the Square Size slider to adjust.
+
+If you want the collected images to resample down to 244 X 244 when they are saved then tick the Resample on save option box.
 
 # Where to go from here

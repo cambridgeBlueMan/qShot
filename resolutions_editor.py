@@ -56,6 +56,7 @@ class ResolutionsEditor(QtWidgets.QDialog):
 
     def save_resolutions(self):
         resolutions = []
+        corrected_rows = []
         for row in range(self.table.rowCount()):
             name = self.table.item(row, 0).text().strip()
             try:
@@ -71,9 +72,25 @@ class ResolutionsEditor(QtWidgets.QDialog):
                         f"Width/Height must be between {MIN_RES_SIZE} and {MAX_RES_SIZE} (row {row+1})"
                     )
                     return
+                # Enforce even width/height
+                orig_width, orig_height = width, height
+                if width % 2 != 0:
+                    width -= 1
+                if height % 2 != 0:
+                    height -= 1
+                if (width, height) != (orig_width, orig_height):
+                    # Update the table to show the corrected value
+                    self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(width)))
+                    self.table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(height)))
+                    corrected_rows.append(row + 1)
                 resolutions.append((name, (width, height)))
             except Exception:
                 QtWidgets.QMessageBox.warning(self, "Invalid Entry", f"Width and Height must be integers (row {row+1})")
                 return
+        if corrected_rows:
+            QtWidgets.QMessageBox.information(
+                self, "Even Size Enforced",
+                f"Width and height must be even. Corrected values in row(s): {', '.join(map(str, corrected_rows))}."
+            )
         self.resolutions_model.set_resolutions(resolutions)
         self.accept()

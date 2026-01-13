@@ -4,6 +4,9 @@ from abc import ABC, abstractmethod
 import os
 import logging
 
+# Import tooltip constants if available
+from components.classifier_widget import DATASET_PATH_TOOLTIP, LABELS_FILE_TOOLTIP
+
 
 class AIFileManager(QtWidgets.QWidget):
     """
@@ -37,20 +40,24 @@ class AIFileManager(QtWidgets.QWidget):
         layout = QtWidgets.QGridLayout()
 
         # Dataset Path
-        layout.addWidget(QtWidgets.QLabel("Dataset Path"), 0, 0)
+        self.dataset_path_label = QtWidgets.QLabel("Dataset Path")
+        self.dataset_path_label.setToolTip(DATASET_PATH_TOOLTIP)
+        layout.addWidget(self.dataset_path_label, 0, 0)
         self.dataset_path_input = QtWidgets.QLineEdit()
         layout.addWidget(self.dataset_path_input, 0, 1)
-        dataset_path_button = QtWidgets.QPushButton("...")
-        dataset_path_button.clicked.connect(self.select_dataset_path)
-        layout.addWidget(dataset_path_button, 0, 2)
+        self.dataset_path_button = QtWidgets.QPushButton("...")
+        self.dataset_path_button.clicked.connect(self.select_dataset_path)
+        layout.addWidget(self.dataset_path_button, 0, 2)
 
         # Class Labels
-        layout.addWidget(QtWidgets.QLabel("Class Labels"), 1, 0)
+        self.class_labels_label = QtWidgets.QLabel("Class Labels")
+        self.class_labels_label.setToolTip(LABELS_FILE_TOOLTIP)
+        layout.addWidget(self.class_labels_label, 1, 0)
         self.class_labels_input = QtWidgets.QLineEdit()
         layout.addWidget(self.class_labels_input, 1, 1)
-        class_labels_button = QtWidgets.QPushButton("...")
-        class_labels_button.clicked.connect(self.select_class_labels_file)
-        layout.addWidget(class_labels_button, 1, 2)
+        self.class_labels_button = QtWidgets.QPushButton("...")
+        self.class_labels_button.clicked.connect(self.select_class_labels_file)
+        layout.addWidget(self.class_labels_button, 1, 2)
 
         # Init Button
         self.init_button = QtWidgets.QPushButton("Init")
@@ -58,7 +65,9 @@ class AIFileManager(QtWidgets.QWidget):
         layout.addWidget(self.init_button, 2, 2)
 
         # Row: JPEG Quality
-        layout.addWidget(QtWidgets.QLabel("jpeg quality"), 5, 0)
+        self.jpeg_quality_label = QtWidgets.QLabel("jpeg quality")
+        # No tooltip constant for this, but you can add one if desired
+        layout.addWidget(self.jpeg_quality_label, 5, 0)
         self.jpeg_quality_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.jpeg_quality_slider.setValue(95)
         self.jpeg_quality_slider.setMinimum(0)
