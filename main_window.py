@@ -81,7 +81,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "simple_video"
+DEFAULT_WIDGET = "classifier"  # Default component to load on startup
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -159,7 +159,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_stack.addWidget(self.preview)
         self.central_stack.setCurrentWidget(self.preview)
         self._captured_image_label = None  # For later use
+
+        # Connect config_model's configChanged signal to cam.configure, passing the config dict
+        self.config_model.configChanged.connect(self.reconfigure_camera)
+        
         self.cam.start()
+
         logging.info("Camera started and QGlPicamera2 preview created.")
 
         # Add a toolbar
@@ -526,6 +531,18 @@ class MainWindow(QtWidgets.QMainWindow):
             dialog.exec()
         else:
             QtWidgets.QMessageBox.warning(self, "Autofocus Not Supported", "This camera does not support autofocus.")
+
+    def reconfigure_camera(self, config):
+        """
+        Reconfigure the camera with the given config dictionary.
+        Stops the camera, applies the new configuration, and restarts the camera.
+
+        Args:
+            config (dict): The configuration dictionary to apply to the camera.
+        """
+        self.cam.stop()
+        self.cam.configure(config)
+        self.cam.start()
 
 if __name__ == "__main__":
     """
