@@ -1,6 +1,6 @@
 INIT_ACTION_TOOLTIP = (
-    "Create folder structure under Datasets folder and populate the Current Set "
-    "and Current Class drop downs. (This action is non destructive)"
+    "Create folder structure under Datasets folder and\n populate the Current Set "
+    "and Current Class drop downs.\n (This action is non destructive)"
 )
 DATASET_PATH_TOOLTIP = "Select a folder for your Dataset"
 LABELS_FILE_TOOLTIP = (
@@ -11,26 +11,29 @@ SEQUENCE_INTERVAL_TOOLTIP = (
     "Interval between each when using Sequence Capture"
 )
 CURRENT_CLASS_TOOLTIP = (
-    "Select the folder to which classes will be captured (Under the Current Set "
-    "folder, and only if the system has been initialised with appropriate Dataset "
+    "Select the folder to which classes will be captured \n(Under the Current Set "
+    "folder, \n (only if the system has been initialised with appropriate Dataset "
     "Path and Labels.txt)"
 )
+
+
 IMAGE_COUNT_TOOLTIP = (
-    "Provides a dynamic count of the number of images already captured "
+    "Dynamic count of the number of images already\n captured "
     "(read only)"
 )
 CAPTURE_IMAGE_TOOLTIP = (
-    "Capture a single image and store it in the appropriate folder defined by Set "
+    "Capture a single image and store it in the appropriate\n folder defined by Set "
     "and Class drop down boxes"
 )
 CAPTURE_SEQUENCE_TOOLTIP = (
-    "Capture a sequence of images to the appropriate folder. Time interval set "
+    "Capture a sequence of images to the appropriate folder.\n Time interval set "
     "with Sequence Interval"
 )
 SQUARE_SIZE_TOOLTIP = (
-    "Adjust image size. Resolutions are constrained to be squares with this component"
+    "Adjust image size. Resolutions are constrained to be\n squares with this component"
 )
-RESAMPLE_ON_SAVE_TOOLTIP = "Set active to save all images at 244 X 244 pixels."
+RESAMPLE_ON_SAVE_TOOLTIP = "Set active to save all images at\n 244 X 244 pixels."
+
 import logging
 import os
 from datetime import datetime
