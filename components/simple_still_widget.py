@@ -10,6 +10,7 @@ class SimpleStill(ComponentBase):
         self.preview = kwargs.get("preview")
         self.preview = kwargs.get("preview")
         self.resolutions_model = kwargs.get("resolutions_model")
+        self.last_image_path = None
         super().__init__(
             parent=parent,
             cam=self.cam,
@@ -41,13 +42,25 @@ class SimpleStill(ComponentBase):
             self.preview.done_signal.connect(self.capture_done)
 
     def capture_done(self, job):
-        file_path = self.paths_model.full_path()  # Get the full path
-        self.append_terminal(f"Image capture completed: {file_path}", color="#A8FF60")
+        file_path = self.last_image_path or self.paths_model.full_path()
+        file_url = f"file://{file_path}"
+        self.append_terminal(
+            f'Image capture completed: <a href="{file_url}">{file_path}</a>',
+            color="#A8FF60"
+        )
         self.capture_button.setEnabled(True)
+
+    def handle_terminal_link(self, url):
+        # Open viewer from terminal link, like SimpleVideo
+        filepath = url.toLocalFile() if hasattr(url, 'toLocalFile') else str(url)
+        main_window = self.window()
+        if hasattr(main_window, "show_image_viewer"):
+            main_window.show_image_viewer(filepath)
 
     def capture_image(self):
         self.append_terminal("Capture button pressed: capturing still image...", color="#FFD700")
         if self.cam and self.preview:
             file_path = self.paths_model.full_path()
+            self.last_image_path = file_path
             self.cam.capture_file(file_path, signal_function=self.preview.signal_done)
             self.capture_button.setEnabled(False)

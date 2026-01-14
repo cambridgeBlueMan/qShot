@@ -72,6 +72,7 @@ from audio_widget import AudioWidget
 from resolutions_editor import ResolutionsEditor
 from resolutions_model import ResolutionsModel
 from video_player import VideoPlayer
+from image_viewer import ImageViewer
 
 # Configure logging
 logging.basicConfig(
@@ -505,6 +506,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_stack.addWidget(self.video_player)
         self.central_stack.setCurrentWidget(self.video_player)
         self.video_player.play_file(filepath)
+
+    def show_image_viewer(self, filepath):
+        # Remove any existing ImageViewer from the stack
+        for i in range(self.central_stack.count()):
+            widget = self.central_stack.widget(i)
+            if isinstance(widget, ImageViewer):
+                self.central_stack.removeWidget(widget)
+                widget.deleteLater()
+                break
+
+        # Create a new ImageViewer and add it to the stack
+        self.image_viewer = ImageViewer(parent=self)
+        self.central_stack.addWidget(self.image_viewer)
+        self.central_stack.setCurrentWidget(self.image_viewer)
+        self.image_viewer.load_file(filepath)
 
     def show_preview(self):
         self.central_stack.setCurrentWidget(self.preview)
