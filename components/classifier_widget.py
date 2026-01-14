@@ -16,6 +16,11 @@ CURRENT_CLASS_TOOLTIP = (
     "Path and Labels.txt)"
 )
 
+CURRENT_SET_TOOLTIP = (
+    "Select the dataset split used for capture\n"
+    "(e.g., train, test, or val)"
+)
+
 
 IMAGE_COUNT_TOOLTIP = (
     "Dynamic count of the number of images already\n captured "
@@ -90,9 +95,15 @@ class CameraManager(BaseCameraManager):
         self.sequence_interval_spin.setToolTip(SEQUENCE_INTERVAL_TOOLTIP)
         self.sequence_interval_spin.setDecimals(1)
         self.sequence_interval_spin.setSingleStep(0.1)
-        self.sequence_interval_spin.setMinimum(0.1)
+        self.sequence_interval_spin.setMinimum(0.5)
         self.sequence_interval_spin.setMaximum(10.0)
-        self.sequence_interval_spin.setValue(0.5)
+        # Initialize from settings if available
+        initial_interval = 0.5
+        if self.file_manager and hasattr(self.file_manager, "settings_data"):
+            initial_interval = float(self.file_manager.settings_data.get("sequence_interval", 0.5))
+        self.sequence_interval_spin.setValue(initial_interval)
+        # Persist changes to settings
+        self.sequence_interval_spin.valueChanged.connect(self._on_sequence_interval_changed)
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.sequence_interval_spin)
         layout.addLayout(interval_layout)
@@ -191,6 +202,17 @@ class CameraManager(BaseCameraManager):
             self.interval_capture_timer.stop()
             logging.info("Stopped interval capture.")
 
+    def _on_sequence_interval_changed(self, value: float):
+        # Save the updated interval to settings via the file manager
+        try:
+            if self.file_manager and hasattr(self.file_manager, "settings_data"):
+                self.file_manager.settings_data["sequence_interval"] = float(value)
+                if hasattr(self.file_manager, "save_settings"):
+                    self.file_manager.save_settings()
+                logging.info(f"Sequence interval updated to {value}s and saved")
+        except Exception as e:
+            logging.error(f"Failed to save sequence interval: {e}")
+
 
 
     def validate_and_update_buttons(self):
@@ -261,6 +283,7 @@ class Classifier(AIFileManager):
     settings_schema.update({
         "square_size": {"type": int, "default": IMAGENET_DEFAULT},
         "resample_on_save": {"type": bool, "default": False},
+        "sequence_interval": {"type": float, "default": 0.5},
     })
     """
     Widget for the right dock: 1 column, 2 rows.
@@ -312,8 +335,9 @@ class Classifier(AIFileManager):
         group_box_layout.setContentsMargins(8, 8, 8, 8)
 
         set_label = QtWidgets.QLabel("Current Set:")
-        # No tooltip constant for set_label, but you can add one if needed
+        set_label.setToolTip(CURRENT_SET_TOOLTIP)
         self.current_set_dropdown = QtWidgets.QComboBox()
+        self.current_set_dropdown.setToolTip(CURRENT_SET_TOOLTIP)
         group_box_layout.addWidget(set_label, 0, 0)
         group_box_layout.addWidget(self.current_set_dropdown, 0, 1)
 
@@ -329,7 +353,7 @@ class Classifier(AIFileManager):
         self.image_count_label = QtWidgets.QLabel("0")
         self.image_count_label.setMinimumWidth(40)
         self.image_count_label.setStyleSheet("color: yellow;")
-        self.image_count_label.setToolTip(IMAGE_COUNT_TOOLTIP)
+        #self.image_count_label.setToolTip(IMAGE_COUNT_TOOLTIP)
         group_box_layout.addWidget(image_count_label, 2, 0)
         group_box_layout.addWidget(self.image_count_label, 2, 1)
 
