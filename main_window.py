@@ -81,7 +81,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "classifier"  # Default component to load on startup
+DEFAULT_WIDGET = "detector"  # Default component to load on startup
 
 class MainWindow(QtWidgets.QMainWindow):
     """

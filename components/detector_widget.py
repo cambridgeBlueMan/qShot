@@ -96,6 +96,17 @@ logging.basicConfig(
     filemode='w'
 )
 
+# Local tooltip texts (avoid cross-module imports)
+INIT_ACTION_TOOLTIP = (
+    "Prepare dataset folders for detection (VOC style)\n"
+    "and refresh UI where applicable."
+)
+DATASET_PATH_TOOLTIP = "Select the base folder for your dataset"
+LABELS_FILE_TOOLTIP = (
+    "Select a well-formed labels.txt with class names\n"
+    "(one per line)."
+)
+
 def generate_color(class_index, alpha=180):
     """
     Generate a unique color for a given class index.
@@ -339,6 +350,11 @@ class CameraManager(BaseCameraManager):
                         main_window._captured_image_label = None
                     # Create and show the BBoxLabel with the captured image
                     label = BBoxLabel()
+                    label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    label.setSizePolicy(
+                        QtWidgets.QSizePolicy.Policy.Expanding,
+                        QtWidgets.QSizePolicy.Policy.Expanding,
+                    )
                     label.setPixmap(pixmap)
                     label.setMinimumSize(320, 240)
                     main_window.central_stack.addWidget(label)
@@ -427,6 +443,14 @@ class Detector(AIFileManager):
         self.controls_model = kwargs.get("controls_model")
         self.settings_group = kwargs.get("settings_group")
 
+        # Override tooltips for base buttons (mirrors Classifier behavior)
+        if hasattr(self, 'dataset_path_button'):
+            self.dataset_path_button.setToolTip(DATASET_PATH_TOOLTIP)
+        if hasattr(self, 'class_labels_button'):
+            self.class_labels_button.setToolTip(LABELS_FILE_TOOLTIP)
+        if hasattr(self, 'init_button'):
+            self.init_button.setToolTip(INIT_ACTION_TOOLTIP)
+
         # --- CameraManager ---
         self.camera_manager = CameraManager(
             file_manager=self, **kwargs
@@ -473,6 +497,23 @@ class Detector(AIFileManager):
         self.setLayout(self.base_layout)
         logging.info("Detector widget initialized.")
 
+    def init_action(self):
+        """Initialize detector-specific dataset structure (VOC-style) and noop UI refresh.
+        Mirrors expected interface used by base class and main window.
+        """
+        try:
+            dataset_path = self.dataset_path_input.text() if hasattr(self, "dataset_path_input") else ""
+            if not dataset_path:
+                logging.warning("Detector init_action: dataset_path is empty.")
+                return
+            # Ensure Pascal VOC-like structure
+            os.makedirs(os.path.join(dataset_path, "Annotations"), exist_ok=True)
+            os.makedirs(os.path.join(dataset_path, "ImageSets", "Main"), exist_ok=True)
+            os.makedirs(os.path.join(dataset_path, "JPEGImages"), exist_ok=True)
+            logging.info("Detector init_action: ensured VOC folders exist.")
+        except Exception as e:
+            logging.error(f"Detector init_action error: {e}")
+
     def load_class_labels(self):
         """Load class labels from the labels.txt file specified in settings."""
         labels_path = None
@@ -495,14 +536,31 @@ class Detector(AIFileManager):
         # Now update the button label based on the new state
         self.update_freeze_button()
         # If we just unfroze and "Save on Unfreeze" is checked, save the frame
-        if was_frozen and not self.camera_manager.frozen and self.save_on_unfreeze_cb.isChecked():
-            self.saveFrame()
+        if was_frozen and not self.camera_manager.frozen:
+            if self.save_on_unfreeze_cb.isChecked():
+                self.saveFrame()
+            if self.clear_on_unfreeze_cb.isChecked():
+                self.clear_annotations()
 
     def update_freeze_button(self):
         if self.camera_manager.frozen:
             self.freeze_btn.setText("Unfreeze")
         else:
             self.freeze_btn.setText("Freeze")
+
+    def clear_annotations(self):
+        """Clear all table rows and any drawn bounding boxes."""
+        try:
+            # Clear table
+            self.bbox_table.setRowCount(0)
+            # Clear boxes on label if present
+            bbox_label = getattr(self, "bbox_label", None)
+            if bbox_label:
+                bbox_label.boxes.clear()
+                bbox_label.box_colors.clear()
+                bbox_label.update()
+        except Exception as e:
+            logging.error(f"Failed to clear annotations: {e}")
 
     def add_bbox_row(self, class_name=None, x=0, y=0, width=0, height=0):
         class_labels = self.load_class_labels()
