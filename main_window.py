@@ -81,7 +81,7 @@ logging.basicConfig(
     filemode='w' 
 )
 
-DEFAULT_WIDGET = "detector"  # Default component to load on startup
+DEFAULT_WIDGET = "simple_video"  # Default component to load on startup
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -367,6 +367,13 @@ class MainWindow(QtWidgets.QMainWindow):
         class_name = None
         module_name = None
         try:
+            # Pause video playback during component load to reduce UI lag
+            if hasattr(self, 'video_player') and self.central_stack.currentWidget() is getattr(self, 'video_player', None):
+                try:
+                    if self.video_player.mediaplayer.is_playing():
+                        self.video_player.pause()
+                except Exception as _:
+                    pass
             module_name = f"{name}_widget"
             module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
             spec = importlib.util.spec_from_file_location(module_name, module_path)
@@ -406,6 +413,13 @@ class MainWindow(QtWidgets.QMainWindow):
         class_name = None
         module_name = None
         try:
+            # Pause video playback during component load to reduce UI lag
+            if hasattr(self, 'video_player') and self.central_stack.currentWidget() is getattr(self, 'video_player', None):
+                try:
+                    if self.video_player.mediaplayer.is_playing():
+                        self.video_player.pause()
+                except Exception as _:
+                    pass
             module_name = f"{name}_widget"
             module_path = os.path.join(os.path.dirname(__file__), "components", f"{module_name}.py")
             spec = importlib.util.spec_from_file_location(module_name, module_path)

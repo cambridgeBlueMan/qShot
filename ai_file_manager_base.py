@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 import os
 import logging
 
-# Import tooltip constants if available
-from components.classifier_widget import DATASET_PATH_TOOLTIP, LABELS_FILE_TOOLTIP
+# Local default tooltips (subclasses can override)
+DATASET_PATH_TOOLTIP = "Select the base folder for your dataset"
+LABELS_FILE_TOOLTIP = "Select labels.txt containing class names (one per line)"
 
 
 class AIFileManager(QtWidgets.QWidget):
@@ -61,7 +62,11 @@ class AIFileManager(QtWidgets.QWidget):
 
         # Init Button
         self.init_button = QtWidgets.QPushButton("Init")
-        self.init_button.clicked.connect(self.init_action)
+        # Connect if subclass provides init_action; else use no-op
+        if hasattr(self, 'init_action') and callable(getattr(self, 'init_action')):
+            self.init_button.clicked.connect(self.init_action)
+        else:
+            self.init_button.clicked.connect(self._default_init_action)
         layout.addWidget(self.init_button, 2, 2)
 
         # Row: JPEG Quality
@@ -145,6 +150,10 @@ class AIFileManager(QtWidgets.QWidget):
         for child in self.findChildren(QtWidgets.QWidget):
             if hasattr(child, 'validate_and_update_buttons'):
                 child.validate_and_update_buttons()
+
+    def _default_init_action(self):
+        """No-op init action to avoid AttributeError if subclass doesn't implement it."""
+        logging.info("Default init_action invoked (no-op). Subclass may override.")
 
     def get_new_file_path(self, set_value=None, class_value=None, ext=".jpg"):
         import datetime

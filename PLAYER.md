@@ -51,3 +51,14 @@ The Player is a reusable component that interpolates numeric control values betw
 - Ensure camera/control writes are performed on the main thread and are fast.
 - Reduce steps_per_second or increase duration if control updates are slow.
 - Throttle updates (apply only when state differs sufficiently).
+
+## Keyboard Shortcuts (Video Player)
+- Space: Toggle play/pause
+- Left/Right: Seek backward/forward 5s
+- Ctrl+Left/Right: Seek backward/forward 10s
+- Home/End: Jump to start/end
+- Esc: Exit back to preview view
+
+Notes:
+- The position slider clamps within the media length and updates during playback.
+- At end-of-media, playback stops, the slider resets, and play-state signals update.
