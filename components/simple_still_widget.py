@@ -25,6 +25,9 @@ class SimpleStill(ComponentBase):
             show_filename=True
         )
 
+        # Saved terminal HTML for font-size safe restore
+        self._saved_terminal_text = ""
+
         # Button row (unique to SimpleStill)
         button_row = QtWidgets.QHBoxLayout()
         self.capture_button = QtWidgets.QPushButton("Capture")
@@ -41,6 +44,8 @@ class SimpleStill(ComponentBase):
         if self.preview:
             self.preview.done_signal.connect(self.capture_done)
 
+        # No stack change listeners; restoration happens via viewer on-exit callback
+
     def capture_done(self, job):
         file_path = self.last_image_path or self.paths_model.full_path()
         file_url = f"file://{file_path}"
@@ -51,11 +56,17 @@ class SimpleStill(ComponentBase):
         self.capture_button.setEnabled(True)
 
     def handle_terminal_link(self, url):
-        # Open viewer from terminal link, like SimpleVideo
+        # Open viewer from terminal link, mirroring SimpleVideo behavior
         filepath = url.toLocalFile() if hasattr(url, 'toLocalFile') else str(url)
+        # Save terminal content and hide text to prevent stdout noise
+        if hasattr(self, "terminal"):
+            if not self._saved_terminal_text:
+                self._saved_terminal_text = self.terminal.toHtml()
+            self.terminal.setStyleSheet("color: #222; background-color: #222;")
         main_window = self.window()
         if hasattr(main_window, "show_image_viewer"):
-            main_window.show_image_viewer(filepath)
+            # Pass a simple on-exit callback to restore the terminal
+            main_window.show_image_viewer(filepath, on_exit=self._restore_terminal_after_view)
 
     def capture_image(self):
         self.append_terminal("Capture button pressed: capturing still image...", color="#FFD700")
@@ -64,3 +75,11 @@ class SimpleStill(ComponentBase):
             self.last_image_path = file_path
             self.cam.capture_file(file_path, signal_function=self.preview.signal_done)
             self.capture_button.setEnabled(False)
+
+    def _restore_terminal_after_view(self):
+        if hasattr(self, "terminal"):
+            # Restore default style and previously saved HTML
+            self.terminal.setStyleSheet(self.TERMINAL_STYLE_SHEET)
+            if self._saved_terminal_text:
+                self.terminal.setHtml(self._saved_terminal_text)
+                self._saved_terminal_text = ""

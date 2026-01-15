@@ -2,9 +2,10 @@ import sys
 from qt import QtWidgets, QtGui, QtCore
 
 class ImageViewer(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, on_exit=None):
         super().__init__(parent)
         self._pixmap = None
+        self._on_exit = on_exit
         self.setWindowTitle("Image Viewer")
         self.layout = QtWidgets.QVBoxLayout(self)
 
@@ -39,6 +40,12 @@ class ImageViewer(QtWidgets.QWidget):
         main_window = self.window()
         if hasattr(main_window, "show_preview"):
             main_window.show_preview()
+        # Invoke optional exit callback after returning to preview
+        if callable(self._on_exit):
+            try:
+                self._on_exit()
+            except Exception:
+                pass
 
     def resizeEvent(self, event: QtGui.QResizeEvent):
         super().resizeEvent(event)
