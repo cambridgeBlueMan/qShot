@@ -83,17 +83,35 @@ class VideoPlayer(QtWidgets.QFrame):
         self.current_filepath = None
 
     def play_file(self, filepath):
+        import datetime, inspect
+        def diag(msg):
+            frame = inspect.currentframe().f_back
+            print(f"[DIAG {datetime.datetime.now().isoformat()}] line {frame.f_lineno}: {msg}")
+
+        diag(f"play_file called with filepath={filepath}")
         # Convert QUrl to string if needed
         if hasattr(filepath, "toLocalFile"):
+            diag("filepath has toLocalFile method, converting")
             filepath = filepath.toLocalFile()
         self.current_filepath = filepath
+        diag(f"Set self.current_filepath={self.current_filepath}")
         media = self.instance.media_new(filepath)
+        diag("Created VLC media object")
         self.mediaplayer.set_media(media)
+        diag("Set media to mediaplayer")
         if sys.platform.startswith('linux'):
+            diag("Setting X window for VLC")
             self.mediaplayer.set_xwindow(int(self.video_frame.winId()))
+        # Pause for 1 second to allow GUI to load
+        import time
+        diag("Pausing for 1 second before starting playback...")
+        time.sleep(1)
         self.mediaplayer.play()
+        diag("Called mediaplayer.play()")
         app_signals.isPlayingChanged.emit(True)
+        diag("Emitted isPlayingChanged(True)")
         self._slider_timer.start()
+        diag("Started slider timer")
 
     def play(self):
         if self.mediaplayer.get_media():
